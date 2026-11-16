@@ -399,7 +399,7 @@ export class FoeActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         modes: modesOf(i.system.usage).map(m => ({ key: m, label: MODES[m].short, tip: MODES[m].label, ritual: m === "Cast" }))
       }))
     };
-    ctx.stateFx = (sys.stateFx ?? []).map(e => `${e.source} — ${shortFx(e, shortLabels())}`);
+    ctx.stateFx = (sys.stateFx ?? []).filter(e => !e.when).map(e => `${e.source} — ${shortFx(e, shortLabels())}`);
 
     const items = this.document.items;
     const str = sys.attributes.str.total;

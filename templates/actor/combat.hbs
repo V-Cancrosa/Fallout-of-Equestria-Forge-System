@@ -5,6 +5,7 @@
     <span class="cs">{{t "Damage per wound"}} <b>{{system.dmgPerWound}}</b></span>
     <a class="cs act" data-action="rollInitiative" title="{{t "Join the combat on this scene and roll initiative (d100 ± AGI ¼; lower = faster)"}}"><i class="fa-solid fa-dice-d20"></i> {{t "Initiative"}}</a>
     <span class="cs">{{t "Movement"}} <b>{{system.speed}}</b> ft</span>
+    <span class="cs" title="{{t "Sneak speed: half the movement speed, rounded down to 5 ft (p. 17)"}}">{{t "Sneaking"}} <b>{{system.sneakSpeed}}</b> ft</span>
     {{#if system.flier}}<span class="cs" title="{{t "Flight: 5×AGI ft per action"}}">{{t "fx|Flight"}} <b>{{#if system.canFly}}{{system.flySpeed}} ft{{else}}{{system.flyNote}}{{/if}}</b>{{#if system.altitude}} · {{t "alt. {a} ft" a=system.altitude}}{{/if}}</span>{{/if}}
     <span class="cs" title="{{t "Weather (set by the GM in the combat tab): {s}" s=weather.summary}}"><i class="fa-solid fa-cloud-sun-rain"></i> {{weather.label}}</span>
     <a class="cs act" data-action="rollFall" title="{{t "Falling damage: 1d20 per 10 ft, ignores armor DT"}}"><i class="fa-solid fa-person-falling"></i> {{t "Fall"}}</a>

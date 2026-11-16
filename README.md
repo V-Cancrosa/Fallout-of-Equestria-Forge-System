@@ -103,6 +103,9 @@ Walka:
   Opcjonalnie degradacja pancerza (−1 DT na przebitej lokacji). Śmierć oznacza token.
 - Przeładowanie (ikonka przy amunicji): bierze naboje z ekwipunku o tym samym typie amunicji; akcją (pół magazynka
   w Internal, 1d4+1 naboi w Breech) albo w SATS za AP (DTM 10, DTM+5 15, Revolver 20, Internal 20, Breech 25).
+- Karma (s. 15): +1 do Speechcraft na każde 10 punktów wobec rozmówcy z karmą po tej samej stronie zera, tyle samo kary
+  wobec przeciwnej — obie opcje są do zaznaczenia w oknie rzutu Speechcraft. Prędkość skradania (s. 17) = połowa prędkości
+  ruchu, w dół do 5 ft (zakładki Główne i Walka).
 - SATS odnawia się o 5 AP na rundę walki (liczy MG), „Nowa sesja” (na górnym pasku karty, obok Kreatora) uzupełnia SATS i karty szczęścia.
 - Utrata przytomności: przy ranach łącznie 4×END lub więcej (napis „TRACI PRZYTOMNOŚĆ” w zakładce Walka) każda akcja
   zaczyna się od rzutu END MFD ¾ — przed oknem rzutu (rzut z karty, atak, czar, manewr, terminal…) i przed
