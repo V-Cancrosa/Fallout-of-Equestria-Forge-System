@@ -126,6 +126,8 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
     const fx = actorEffects(this.parent, { state: false }).filter(e => !e.when);
     const sum = (type, pred) => sumFx(fx, type, pred);
     const src = (type, pred) => sourcesFx(fx, type, pred);
+    // Touched by the Sun (s. 124) jako jedyna cecha może zbić rangę poniżej 5 (do 0)
+    const rankFloor = items.some(i => i.type === "feature" && i.system?.active !== false && /touched by the sun/i.test(i.name)) ? 0 : 5;
 
     // Pancerz: jedna warstwa z każdej kategorii; kolejne warstwy obniżają AGI i STR (s. 156)
     const worn = items.filter(i => i.type === "armor" && i.system?.equipped);
@@ -157,8 +159,8 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
       sk.base = Math.max(5, 2 * att.base + Math.floor(luck / 2) + 2);
       sk.fxRank = sum("skillRank", onSkill);
       sk.fxRankSources = src("skillRank", onSkill);
-      // Premie rasy/cech nie zbijają rangi poniżej 5; potem tag i punkty z awansów; maks. 100 (s. 63)
-      sk.rank = Math.min(100, Math.max(5, sk.base + sk.bonus + sk.fxRank) + (sk.tag ? 15 : 0) + sk.points);
+      // Premie rasy/cech nie zbijają rangi poniżej 5 (Touched by the Sun — 0); potem tag i punkty z awansów; maks. 100 (s. 63)
+      sk.rank = Math.min(100, Math.max(rankFloor, sk.base + sk.bonus + sk.fxRank) + (sk.tag ? 15 : 0) + sk.points);
       sk.tn = sk.rank + Math.floor(att.tn / 2);   // MFD 1 = ranga + ½ MFD atrybutu (z nim zmiany tymczasowe ×5)
       sk.temp = att.temp * 5;
       sk.fxRoll = sum("skillRoll", onSkill) + sum("basedRoll", onAttr) + sum("skillsOf", onAttr);
@@ -271,6 +273,8 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
     this.load = loadMovement(this.weight, this.carry, speed, overloadRule());
     this.loadNote = loadNote(this.load);
     this.speed = this.load.speed;
+    // skradanie (s. 17): połowa prędkości, w dół do 5 ft
+    this.sneakSpeed = Math.floor(this.speed / 2 / 5) * 5;
     this.speedNotes = [
       badLegs ? t("crippled legs: −{n} ft", { n: 5 * badLegs }) : "",
       LEGS.length - badLegs <= 1 ? t("≤ 1 working leg: can't walk without help") : "",
@@ -300,6 +304,13 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
     const otherCrippled = Object.keys(L).filter(k => k !== "horn" && L[k].isCrippled).length;
     add("mfdStep", "magic", -(L.horn.isCrippled ? 2 : 0) - otherCrippled, t("Crippled limbs (spells)"));
     add("skillRoll", "sneak", -this.sneakPenalty, t("Gear over 50 lb — Sneak ({w} lb, p. 438)", { w: this.weight }));
+    // Karma (s. 15): +1 do Speechcraft na każde 10 pkt wobec rozmówcy po tej samej stronie zera, tyle samo kary wobec przeciwnej
+    this.karmaSpeech = Math.trunc(Math.abs(Number(this.karma) || 0) / 10);
+    if (this.karmaSpeech) {
+      const src = t("Karma {k}", { k: this.karma });
+      st.push({ type: "skillRoll", target: "speech", value: this.karmaSpeech, when: t("Karma: the other side's karma is on the same side of zero"), source: src, id: `state.${st.length}` });
+      st.push({ type: "skillRoll", target: "speech", value: -this.karmaSpeech, when: t("Karma: the other side's karma is on the opposite side of zero"), source: src, id: `state.${st.length}` });
+    }
     // Podtrzymywane zaklęcia: −1 krok celności i rzutów INT/AGI za każde (s. 244)
     const held = this.maintained.length;
     if (held) {
@@ -309,7 +320,7 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
     // pojazd: stany stref liczy VehicleData (kabina to nie głowa kucyka)
     this.stateFx = this.parent?.type === "vehicle" ? [] : st;
     // kary do rzutów umiejętności ze stanu widać od razu na karcie (próg MFD 1)
-    for (const e of this.stateFx.filter(x => x.type === "skillRoll")) {
+    for (const e of this.stateFx.filter(x => x.type === "skillRoll" && !x.when)) {
       for (const [k, sk] of Object.entries(this.skills)) {
         if (!hits(e.target, k)) continue;
         sk.fxRoll += e.value;

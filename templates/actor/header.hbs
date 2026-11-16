@@ -15,7 +15,7 @@
           {{rule "tests/levelup"}}
           {{#if adv.canUndo}}<a data-action="undoLevel" title="{{t "Undo the last level up"}}"><i class="fa-solid fa-rotate-left"></i></a>{{/if}}
         </span>{{/unless}}
-        <label>Karma <input type="number" name="system.karma" value="{{system.karma}}"></label>
+        <label title="{{t "Speechcraft ±{n}: bonus with those whose karma is on the same side of zero, penalty with the other side (p. 15) — choose it in the roll window" n=system.karmaSpeech}}">Karma <input type="number" name="system.karma" value="{{system.karma}}"></label>
         <label>{{t "Caps"}} <input type="number" name="system.caps" value="{{system.caps}}"></label>
         {{#if isGM}}<span class="adv-btns"><a data-action="adjustCaps" title="{{t "Add or take away caps (GM) — with a note in chat"}}"><i class="fa-solid fa-coins"></i> ±</a></span>{{/if}}
       </div>

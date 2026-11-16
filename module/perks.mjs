@@ -310,7 +310,8 @@ export async function addPerk(actor, e, { level = actor.system.level, view = nul
 export function skillPointsPerLevel(actor) {
   const sys = actor.system;
   const has = re => actor.items.some(i => i.type === "feature" && i.system?.active !== false && re.test(i.name));
-  const parts = [["10 + INT/2", 10 + Math.floor(sys.attributes.int.total / 2)]];
+  // stały INT (bez zmian tymczasowych — chemia, pancerz; s. 17 ich tu nie wymienia)
+  const parts = [["10 + INT/2", 10 + Math.floor(sys.attributes.int.base / 2)]];
   if (sys.fx?.skillPoints) parts.push([t("perks"), sys.fx.skillPoints]);
   if (/ziemsk|earth/i.test(sys.race ?? "")) parts.push(["Earth Pony Dedication", 1]);
   if (has(/touched by the sun/i)) parts.push(["Touched by the Sun", -1]);

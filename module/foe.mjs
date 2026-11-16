@@ -253,6 +253,39 @@ Hooks.once("ready", async () => {
   }
 });
 
+/**
+ * Jednorazowo (MG, v0.68): pancerze z katalogu z „+N DT vs. fire” w opisie dostają efekt DT od ognia
+ * (wcześniej był tylko w opisie) — u postaci, NPC na scenach i w świecie.
+ */
+Hooks.once("ready", async () => {
+  if (!game.user.isGM || game.settings.get("foe-rpg", "armorFireMigrated")) return;
+  try {
+    const cat = await loadCatalog();
+    const byName = new Map(cat.armor.filter(e => (e.effects ?? []).some(x => x.type === "fireDt")).map(e => [e.name, e]));
+    const fix = items => items.filter(i => i.type === "armor" && byName.has(i.getFlag("foe-rpg", "catalog"))
+      && !(i.system.effects ?? []).some(x => x.type === "fireDt"))
+      .map(i => ({ _id: i.id, "system.effects": [...(i.system.effects ?? []), ...byName.get(i.getFlag("foe-rpg", "catalog")).effects.filter(x => x.type === "fireDt")] }));
+    const actors = [...game.actors, ...game.scenes.contents.flatMap(s => s.tokens.contents.filter(tk => !tk.actorLink && tk.actor).map(tk => tk.actor))];
+    for (const actor of actors) {
+      const updates = fix(actor.items);
+      if (updates.length) await actor.updateEmbeddedDocuments("Item", updates);
+    }
+    const world = fix(game.items);
+    if (world.length) await Item.implementation.updateDocuments(world);
+    // IC-5: „5d8 5d6” (dwa rodzaje amunicji) psuło rzut obrażeń — 5d8 dla 5.56mm
+    const ic5 = items => items.filter(i => i.type === "weapon" && i.system.damage === "5d8 5d6").map(i => ({ _id: i.id, "system.damage": "5d8" }));
+    for (const actor of actors) {
+      const updates = ic5(actor.items);
+      if (updates.length) await actor.updateEmbeddedDocuments("Item", updates);
+    }
+    const w2 = ic5(game.items);
+    if (w2.length) await Item.implementation.updateDocuments(w2);
+    await game.settings.set("foe-rpg", "armorFireMigrated", true);
+  } catch (err) {
+    console.error("foe-rpg | armor fire DT migration", err);
+  }
+});
+
 /** Zasady opcjonalne z rozdziału o walce. */
 function registerCombatSettings() {
   game.settings.register("foe-rpg", "powerArmorUntrainedAgi", {
@@ -283,6 +316,7 @@ function registerCombatSettings() {
   game.settings.register("foe-rpg", "specialsMigrated", { scope: "world", config: false, type: Boolean, default: false });
   game.settings.register("foe-rpg", "shockMigrated", { scope: "world", config: false, type: Boolean, default: false });
   game.settings.register("foe-rpg", "listIconsMigrated", { scope: "world", config: false, type: Boolean, default: false });
+  game.settings.register("foe-rpg", "armorFireMigrated", { scope: "world", config: false, type: Boolean, default: false });
   game.settings.register("foe-rpg", "randomHitLocations", {
     name: "Random hit locations",
     hint: "Optional rule (pp. 449–450): the attack dialog defaults to a hit location rolled on a d20 for the target's race instead of the torso. Called shots always work.",
