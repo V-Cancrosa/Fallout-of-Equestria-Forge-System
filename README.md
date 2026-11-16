@@ -106,6 +106,10 @@ Walka:
 - Karma (s. 15): +1 do Speechcraft na każde 10 punktów wobec rozmówcy z karmą po tej samej stronie zera, tyle samo kary
   wobec przeciwnej — obie opcje są do zaznaczenia w oknie rzutu Speechcraft. Prędkość skradania (s. 17) = połowa prędkości
   ruchu, w dół do 5 ft (zakładki Główne i Walka).
+- Touched by the Sun (s. 124) jako jedyna cecha może obniżyć rangę umiejętności poniżej 5 (do 0). Punkty umiejętności
+  na poziom liczą się ze stałej INT (zmiany tymczasowe, np. chemia, ich nie dają).
+- Pancerze z „+N DT vs. fire” (Gecko-Backed, Fireproof, Starfire, Firepony's Helmet…) naprawdę chronią przed ogniem;
+  te, które postacie już mają, poprawiają się same przy starcie świata.
 - SATS odnawia się o 5 AP na rundę walki (liczy MG), „Nowa sesja” (na górnym pasku karty, obok Kreatora) uzupełnia SATS i karty szczęścia.
 - Utrata przytomności: przy ranach łącznie 4×END lub więcej (napis „TRACI PRZYTOMNOŚĆ” w zakładce Walka) każda akcja
   zaczyna się od rzutu END MFD ¾ — przed oknem rzutu (rzut z karty, atak, czar, manewr, terminal…) i przed

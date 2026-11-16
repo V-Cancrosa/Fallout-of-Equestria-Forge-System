@@ -184,7 +184,7 @@ export function computePc(state, pool = CREATION.pool) {
     const extra = num(state.extra[k]);
     const bonus = fromRace + extra;                    // zapisywane na karcie (efekty liczy karta)
     const tag = tags.includes(k);
-    const rank = Math.min(100, Math.max(5, base + bonus + fromEff) + (tag ? CREATION.tagBonus : 0));
+    const rank = Math.min(100, Math.max(tList.some(f => f.key === "touchedBySun") ? 0 : 5, base + bonus + fromEff) + (tag ? CREATION.tagBonus : 0));
     const tn = rank + Math.floor(attrs[attr].total * 10 / 2);
     skills[k] = { key: k, label: def.label, attr, attrLabel: attr.toUpperCase(), racial: !!def.racial, known: known[k], base, fromRace, fromEff, extra, bonus, tag, rank, tn };
   }

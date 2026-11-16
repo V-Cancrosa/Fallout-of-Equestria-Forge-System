@@ -126,6 +126,8 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
     const fx = actorEffects(this.parent, { state: false }).filter(e => !e.when);
     const sum = (type, pred) => sumFx(fx, type, pred);
     const src = (type, pred) => sourcesFx(fx, type, pred);
+    // Touched by the Sun (s. 124) jako jedyna cecha może zbić rangę poniżej 5 (do 0)
+    const rankFloor = items.some(i => i.type === "feature" && i.system?.active !== false && /touched by the sun/i.test(i.name)) ? 0 : 5;
 
     // Pancerz: jedna warstwa z każdej kategorii; kolejne warstwy obniżają AGI i STR (s. 156)
     const worn = items.filter(i => i.type === "armor" && i.system?.equipped);
@@ -157,8 +159,8 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
       sk.base = Math.max(5, 2 * att.base + Math.floor(luck / 2) + 2);
       sk.fxRank = sum("skillRank", onSkill);
       sk.fxRankSources = src("skillRank", onSkill);
-      // Premie rasy/cech nie zbijają rangi poniżej 5; potem tag i punkty z awansów; maks. 100 (s. 63)
-      sk.rank = Math.min(100, Math.max(5, sk.base + sk.bonus + sk.fxRank) + (sk.tag ? 15 : 0) + sk.points);
+      // Premie rasy/cech nie zbijają rangi poniżej 5 (Touched by the Sun — 0); potem tag i punkty z awansów; maks. 100 (s. 63)
+      sk.rank = Math.min(100, Math.max(rankFloor, sk.base + sk.bonus + sk.fxRank) + (sk.tag ? 15 : 0) + sk.points);
       sk.tn = sk.rank + Math.floor(att.tn / 2);   // MFD 1 = ranga + ½ MFD atrybutu (z nim zmiany tymczasowe ×5)
       sk.temp = att.temp * 5;
       sk.fxRoll = sum("skillRoll", onSkill) + sum("basedRoll", onAttr) + sum("skillsOf", onAttr);
