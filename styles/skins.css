@@ -133,7 +133,7 @@ body .foe-rpg.skin-sheriff .window-content::after {
 /* ---------- Księga Długu: żelazna księga Szponu (wychowanek gryfów) — grafit, stal, niebieski akcent, czerwone rubryki ---------- */
 body :is(.foe-rpg, .foe-card, .foe-msg).skin-ledger {
   --pip: #d3dde8; --pip-alert: #e0503c; --pip-glow: rgba(90, 160, 230, .25);
-  --pip-bright: #9fd0ff; --pip-mid: #a9b6c4; --pip-dim: #6d7a88; --pip-line: rgba(160, 190, 220, .28); --pip-faint: rgba(90, 160, 230, .08);
+  --pip-bright: #b5dcff; --pip-mid: #b9c6d4; --pip-dim: #8a98a8; --pip-line: rgba(160, 190, 220, .3); --pip-faint: rgba(90, 160, 230, .1);
   --pip-bg: #151a20; --pip-bg-hi: #1f2731; --pip-void: #0a0d11; --pip-ink: #0d1116;
   border: 3px solid #4a5563; box-shadow: 0 0 0 1px #000, inset 0 0 0 1px #6b7787, 0 8px 30px rgba(0, 0, 0, .75);
 }
