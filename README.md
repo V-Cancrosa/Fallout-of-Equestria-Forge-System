@@ -408,7 +408,7 @@ Wygląd karty postaci według drabinki (zakładka **Ustawienia** na karcie — i
   Applejack) — kodeks polowy z czerwonym paskiem, najeźdźcy — brudne świstki, EVC — terminal Enklawy;
   osobiste pochodzenie: **szeryf pustkowi** (odznaka, gwiazda albo cecha „szeryf” w ekwipunku — list gończy, mosiężny pasek,
   gwiazda w rogu) i **wychowanek gryfów** (cecha ze Szponem/Talonem w nazwie albo opisie, np. „Wychowany przez Szpon Iron
-  Claw” — „Księga Długu”: rubryki księgowe, granatowy atrament; gryf też może ją wybrać)
+  Claw” — „Księga Długu”: ciemna, żelazna księga Szponu z czerwonymi rubrykami długu i niebieskim akcentem; gryf też może ją wybrać)
   → domyślnie **papierowa karta postaci ze Stajni** dla mieszkańców Stajni (cecha Stable Dweller albo PipBuck w ekwipunku;
   na pasku numer i nazwa Stajni z ustawień świata „Numer Stajni” i „Nazwa Stajni”), a dla urodzonych na pustkowiach —
   **spłowiały dziennik wędrowca**.

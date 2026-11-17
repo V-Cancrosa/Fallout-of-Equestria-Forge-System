@@ -39,7 +39,7 @@ export const SKINS = Object.freeze([
   { id: "ghoul", rung: 2, label: N_("Ghoul — yellowed papers"), dark: false },
   { id: "changeling", rung: 2, label: N_("Changeling — chitin and green flame"), dark: true },
   { id: "sheriff", rung: 2, label: N_("Wasteland sheriff — wanted poster and brass star"), dark: false },
-  { id: "ledger", rung: 2, label: N_("Book of Debt — raised by griffins"), dark: false },
+  { id: "ledger", rung: 2, label: N_("Book of Debt — raised by griffins"), dark: true },
   { id: "paper", rung: 1, label: N_("Stable character sheet (paper)"), dark: false },
   { id: "wasteland", rung: 1, label: N_("Wastelander — weathered field journal"), dark: false }
 ]);
