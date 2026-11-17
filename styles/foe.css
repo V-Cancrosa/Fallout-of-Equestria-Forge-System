@@ -635,6 +635,11 @@ body[data-foe-crt="off"] .foe-card::after { display: none; }
 .foe-rpg .cr-pick li.on .box, .foe-rpg .tagbox.on { background: var(--pip); box-shadow: 0 0 6px var(--pip-glow), inset 0 0 0 2px var(--pip-void); }
 .foe-rpg .cr-pick li.locked .box { background: var(--pip-dim); }
 .foe-rpg .cr-pick li:not(.locked) > a:hover b { color: var(--pip-bright); }
+.foe-rpg .cr-pick li.blocked { opacity: .45; }
+.foe-rpg .cr-pick li.blocked > a { cursor: not-allowed; }
+.foe-rpg .cr-pick li.bad > a b { color: var(--pip-alert); }
+.foe-rpg .cr-pick li p.cr-why { margin: .1rem 0 0 1.45rem; color: var(--pip-alert); }
+.foe-rpg .cr-pick li p.cr-why.gm { color: var(--pip-mid); }
 .foe-rpg .cr-pick .cost { margin: .15rem 0 0 1.45rem; font-size: 12px; text-transform: uppercase; }
 .foe-rpg .tagbox { cursor: pointer; }
 .foe-rpg .tagbox.off { opacity: .3; cursor: not-allowed; }

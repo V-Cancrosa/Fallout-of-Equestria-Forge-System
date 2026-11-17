@@ -1,6 +1,7 @@
 import { ATTRS, SKILLS } from "./data.mjs";
 import { CREATION, RACES, HINDRANCES, TRAITS, EARTH_PERKS, NPC_ARCHETYPES } from "./creation-data.mjs";
 import { hits, CREATION_ONLY } from "./effects.mjs";
+import { evalLimit, GRANTS } from "./creation-limits.mjs";
 import { t, tn } from "./i18n.mjs";
 
 const ATTR_KEYS = Object.keys(ATTRS);
@@ -95,8 +96,9 @@ export function computePc(state, pool = CREATION.pool) {
   if (counted.length > maxH) warnings.push(t("More than {n} hindrances — the extra ones give no points.", { n: maxH }));
   else if (counted.length > 4 && !race.maxHindrances) warnings.push(t("The rulebook recommends at most 3 hindrances to start with (above 4 — rather for traits than for attributes)."));
 
-  // --- cechy: automatyczne (darmowe) + wybrane ---
-  const autoT = race.traits ?? [];
+  // --- cechy: automatyczne (darmowe: z rasy i z wad, np. Slave → Internal/Concealed Storage) + wybrane ---
+  const granted = hList.flatMap(h => (GRANTS[`h:${h.key}`] ?? []).map(g => ({ ...g, grantedBy: h.label })));
+  const autoT = [...(race.traits ?? []), ...granted.filter(g => !(race.traits ?? []).some(r => r.key === g.key))];
   const tList = [
     ...autoT.map(tr => TRAITS[tr.key]
       ? resolveFeature("trait", tr.key, TRAITS[tr.key], choices[`t:${tr.key}`] ?? tr.choices, { auto: true })
@@ -111,12 +113,34 @@ export function computePc(state, pool = CREATION.pool) {
   for (const f of [...hList, ...tList]) {
     if (f.missing.length) errors.push(t("{name}: choose {what} (Hindrances and traits step).", { name: f.label, what: f.missing.join(", ").toLowerCase() }));
   }
-  // cechy dostępne tylko dla wybranych ras / niełączące się z wadą (np. Shadowflash: kucyki nietoperzowe, nie z Young)
-  for (const tr of tList) {
-    const def = TRAITS[tr.key];
-    if (def?.onlyRaces && !def.onlyRaces.includes(state.race)) warnings.push(t("{name}: according to the rulebook only {races} — with GM approval.", { name: def.label, races: def.onlyRaces.map(r => RACES[r]?.label ?? r).join(", ") }));
-    for (const h of def?.notWith ?? []) if ((state.hindrances ?? []).includes(h)) errors.push(t("{name} doesn't combine with the {h} hindrance.", { name: def.label, h: HINDRANCES[h]?.label ?? h }));
+  for (const g of granted) {
+    const f = tList.find(x => x.key === g.key);
+    if (f) f.grantedBy = g.grantedBy;
   }
+  // ograniczenia z podręcznika (creation-limits.mjs): rasa, wykluczenia, wymagania
+  const orgPick = tList.some(f => f.key === "organization") ? choices["t:organization"]?.org : null;
+  const has = ref => {
+    const [kind, key] = ref.split(":");
+    if (kind === "h") return hList.some(f => f.key === key);
+    if (kind === "t") return tList.some(f => f.key === key);
+    if (kind === "org") return orgPick === key;
+    if (kind === "race") return state.race === key;
+    return false;
+  };
+  const refLabel = ref => {
+    const [kind, key] = ref.split(":");
+    if (kind === "h") return HINDRANCES[key]?.label ?? key;
+    if (kind === "t") return TRAITS[key]?.label ?? key;
+    if (kind === "race") return RACES[key]?.label ?? key;
+    if (kind === "org") return TRAITS.organization.choices[0].options.find(o => o.v === key)?.label ?? key;
+    return key;
+  };
+  const limitCtx = { raceKey: state.race, race, has, label: refLabel, raceLabel: k => RACES[k]?.label ?? k, skillLabel: k => SKILLS[k]?.label ?? k };
+  const chosenRefs = () => [
+    ...hList.filter(f => !f.auto).map(f => [`h:${f.key}`, f.label]),
+    ...tList.filter(f => !f.auto).map(f => [`t:${f.key}`, f.label]),
+    ...(orgPick ? [[`org:${orgPick}`, refLabel(`org:${orgPick}`)]] : [])
+  ];
 
   // --- wszystkie efekty: wady, cechy, perk kucyka ziemskiego, rasa ---
   const perk = race.earthPerk ? EARTH_PERKS[state.earthPerk] : null;
@@ -190,6 +214,15 @@ export function computePc(state, pool = CREATION.pool) {
   }
   if (tags.length < tagLimit) warnings.push(t("{n} of {max} tagged skills chosen.", { n: tags.length, max: tagLimit }));
 
+  // ograniczenia: blokady i wymagania (atrybuty i tagi już znane) dla wybranych wad, cech i organizacji
+  Object.assign(limitCtx, { attrs: Object.fromEntries(ATTR_KEYS.map(k => [k, attrs[k].total])), tags });
+  for (const [ref, name] of chosenRefs()) {
+    const L = evalLimit(ref, limitCtx);
+    for (const why of [...L.block, ...L.need]) errors.push(t("{name}: {why}.", { name, why }));
+    for (const why of L.gm) warnings.push(t("{name}: {why}.", { name, why }));
+  }
+  const limitOf = ref => evalLimit(ref, limitCtx);
+
   const caps = CREATION.caps + fxSum(allFx, "caps");
   const karma = fxSum(allFx, "karma");
 
@@ -204,7 +237,7 @@ export function computePc(state, pool = CREATION.pool) {
     hindrances: hList, traits: tList, features, allFx,
     hindPts, rawTraitCost, credit, traitCost, budget, spentTotal, remaining, pool,
     maxHindrances: maxH, countedHindrances: counted.length,
-    attrs, skills, tags, tagLimit, caps, karma,
+    attrs, skills, tags, tagLimit, caps, karma, limitOf,
     preview: {
       wound: 10 + fxSum(allFx, "wound"),
       carry: 100 + 10 * attrs.str.total + fxSum(allFx, "carry"),

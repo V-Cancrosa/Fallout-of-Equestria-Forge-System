@@ -124,26 +124,43 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     const choiceView = key => (resolved.get(key)?.visible ?? []).map(c => ({
       key, id: c.id, label: c.label, many: c.type === "many", n: c.n,
       count: Array.isArray(c.value) ? c.value.length : 0,
-      options: c.options.map(o => ({ v: o.v, label: o.label, sel: Array.isArray(c.value) ? c.value.includes(o.v) : o.v === c.value }))
+      options: c.options.map(o => {
+        // opcje Organization z ograniczeniami (Legion — zebry i minotaury, EVC — pegazy, Raider — z Sadist…)
+        const L = key === "t:organization" && c.id === "org" ? r.limitOf(`org:${o.v}`) : null;
+        return { v: o.v, label: o.label, sel: Array.isArray(c.value) ? c.value.includes(o.v) : o.v === c.value,
+          off: !!L?.block.length, why: L ? [...L.block, ...L.need].join("; ") : "" };
+      })
     }));
     const labels = fxLabels();
     const fxText = key => (resolved.get(key)?.fx ?? []).filter(e => FX_TYPES[e.type]).map(e => describeFx(e, labels));
     const autoH = new Set((race.hindrances ?? []).map(h => h.key));
+    // ograniczenia z podręcznika: zablokowane (rasa, wykluczenie) — szare i nie do kliknięcia, chyba że już wybrane (wtedy da się odznaczyć)
+    const limit = (ref, on) => {
+      const L = r.limitOf(ref);
+      const why = [...L.block, ...L.need, ...L.gm].join("; ");
+      return { blocked: !on && L.block.length > 0, bad: on && (L.block.length + L.need.length) > 0, gmOnly: L.gm.length > 0 && !L.block.length, why };
+    };
     ctx.hindrances = Object.entries(HINDRANCES).map(([k, h]) => {
       const on = autoH.has(k) || st.hindrances.includes(k);
       return {
-        k, ...h, on, locked: autoH.has(k),
+        k, ...h, on, locked: autoH.has(k), ...(autoH.has(k) ? {} : limit(`h:${k}`, on)),
         choices: on ? choiceView(`h:${k}`) : [], fxText: on ? fxText(`h:${k}`) : [],
         search: `${h.label} ${h.desc}`.toLowerCase()
       };
     });
-    const autoT = new Set((race.traits ?? []).map(tr => tr.key));
+    const autoT = new Set(r.traits.filter(f => f.auto).map(f => f.key));
     ctx.traits = Object.entries(TRAITS).map(([k, tr]) => {
       const on = autoT.has(k) || k in st.traits;
-      const costByChoice = (tr.choices ?? []).some(c => c.options.some(o => o.cost != null));
+      // koszt z wyboru: gdy wybrana opcja ma koszt albo wszystkie opcje go mają (Channeler, Cyberpony);
+      // Organization: koszt 0–3 wpisujesz sam, chyba że opcja ma własny (Reaper)
+      const priced = (tr.choices ?? []).filter(c => c.options.some(o => o.cost != null));
+      const picked = st.choices?.[`t:${k}`] ?? {};
+      const costByChoice = priced.some(c => c.options.every(o => o.cost != null) || c.options.some(o => o.cost != null && o.v === picked[c.id]));
       const res = resolved.get(`t:${k}`);
+      const auto = r.traits.find(f => f.key === k && f.auto);
       return {
-        k, ...tr, on, locked: autoT.has(k),
+        k, ...tr, on, locked: autoT.has(k), lockedLabel: auto?.grantedBy ? t("free ({src})", { src: auto.grantedBy }) : t("race"),
+        ...(autoT.has(k) ? {} : limit(`t:${k}`, on)),
         costLabel: tr.cost[0] === tr.cost[1] ? `${tr.cost[0]}` : `${tr.cost[0]}–${tr.cost[1]}`,
         range: tr.cost[0] !== tr.cost[1] && on && !autoT.has(k) && !costByChoice, min: tr.cost[0], max: tr.cost[1],
         chosenCost: st.traits[k] ?? tr.cost[0],

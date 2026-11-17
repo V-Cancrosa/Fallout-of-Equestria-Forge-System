@@ -76,9 +76,10 @@
         <h3>{{t "head|Hindrances"}}</h3>
         <ul class="cr-pick">
         {{#each hindrances}}
-          <li class="{{#if on}}on{{/if}} {{#if locked}}locked{{/if}}" data-search="{{search}}">
-            <a {{#unless locked}}data-action="toggleHindrance"{{/unless}} data-key="{{k}}"><span class="box"></span><b>{{label}}</b> <span class="ty">{{type}}</span></a>
+          <li class="{{#if on}}on{{/if}} {{#if locked}}locked{{/if}} {{#if blocked}}blocked{{/if}} {{#if bad}}bad{{/if}}" data-search="{{search}}" {{#if why}}title="{{why}}"{{/if}}>
+            <a {{#unless locked}}{{#unless blocked}}data-action="toggleHindrance"{{/unless}}{{/unless}} data-key="{{k}}"><span class="box"></span><b>{{label}}</b> <span class="ty">{{type}}</span></a>
             <p>{{desc}}</p>
+            {{#if why}}<p class="cr-why {{#if gmOnly}}gm{{/if}}"><i class="fa-solid {{#if gmOnly}}fa-user-shield{{else}}fa-ban{{/if}}"></i> {{why}}</p>{{/if}}
             {{#if fxText.length}}<ul class="cr-fx">{{#each fxText}}<li>{{this}}</li>{{/each}}</ul>{{/if}}
             {{#each choices}}
               <div class="cr-choice">
@@ -86,7 +87,7 @@
                 {{#if many}}
                   <div class="cr-chips">{{#each options}}<a class="chip {{#if sel}}on{{/if}}" data-action="toggleChoice" data-key="{{../key}}" data-id="{{../id}}" data-n="{{../n}}" data-v="{{v}}">{{label}}</a>{{/each}}</div>
                 {{else}}
-                  <select name="choice.{{key}}.{{id}}"><option value="">{{t "— choose —"}}</option>{{#each options}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+                  <select name="choice.{{key}}.{{id}}"><option value="">{{t "— choose —"}}</option>{{#each options}}<option value="{{v}}" {{#if sel}}selected{{/if}} {{#if off}}{{#unless sel}}disabled{{/unless}}{{/if}} {{#if why}}title="{{why}}"{{/if}}>{{label}}{{#if off}} ✕{{/if}}</option>{{/each}}</select>
                 {{/if}}
               </div>
             {{/each}}
@@ -98,10 +99,11 @@
         <h3>{{t "head|Traits"}}</h3>
         <ul class="cr-pick">
         {{#each traits}}
-          <li class="{{#if on}}on{{/if}} {{#if locked}}locked{{/if}}" data-search="{{search}}">
-            <a {{#unless locked}}data-action="toggleTrait"{{/unless}} data-key="{{k}}"><span class="box"></span><b>{{label}}</b> <span class="ty">{{#if locked}}{{t "race"}}{{else}}{{#if nowCost}}{{nowCost}}{{else}}{{costLabel}}{{/if}} {{t "pts"}}{{/if}}</span></a>
+          <li class="{{#if on}}on{{/if}} {{#if locked}}locked{{/if}} {{#if blocked}}blocked{{/if}} {{#if bad}}bad{{/if}}" data-search="{{search}}" {{#if why}}title="{{why}}"{{/if}}>
+            <a {{#unless locked}}{{#unless blocked}}data-action="toggleTrait"{{/unless}}{{/unless}} data-key="{{k}}"><span class="box"></span><b>{{label}}</b> <span class="ty">{{#if locked}}{{lockedLabel}}{{else}}{{#if nowCost}}{{nowCost}}{{else}}{{costLabel}}{{/if}} {{t "pts"}}{{/if}}</span></a>
             {{#if range}}<label class="cost">{{t "Cost"}} <input type="number" name="traitCost.{{k}}" value="{{chosenCost}}" min="{{min}}" max="{{max}}"></label>{{/if}}
             <p>{{desc}}</p>
+            {{#if why}}<p class="cr-why {{#if gmOnly}}gm{{/if}}"><i class="fa-solid {{#if gmOnly}}fa-user-shield{{else}}fa-ban{{/if}}"></i> {{why}}</p>{{/if}}
             {{#if fxText.length}}<ul class="cr-fx">{{#each fxText}}<li>{{this}}</li>{{/each}}</ul>{{/if}}
             {{#each choices}}
               <div class="cr-choice">
@@ -109,7 +111,7 @@
                 {{#if many}}
                   <div class="cr-chips">{{#each options}}<a class="chip {{#if sel}}on{{/if}}" data-action="toggleChoice" data-key="{{../key}}" data-id="{{../id}}" data-n="{{../n}}" data-v="{{v}}">{{label}}</a>{{/each}}</div>
                 {{else}}
-                  <select name="choice.{{key}}.{{id}}"><option value="">{{t "— choose —"}}</option>{{#each options}}<option value="{{v}}" {{#if sel}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+                  <select name="choice.{{key}}.{{id}}"><option value="">{{t "— choose —"}}</option>{{#each options}}<option value="{{v}}" {{#if sel}}selected{{/if}} {{#if off}}{{#unless sel}}disabled{{/unless}}{{/if}} {{#if why}}title="{{why}}"{{/if}}>{{label}}{{#if off}} ✕{{/if}}</option>{{/each}}</select>
                 {{/if}}
               </div>
             {{/each}}
