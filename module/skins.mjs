@@ -6,7 +6,9 @@
  *   3. założone inne urządzenie z ekranem (PRA, EqueMapper, terminal przenośny) — monochromatyczny terminal,
  *   2. pochodzenie i przynależność: organizacja z kreatora albo z cech (Stalowi Strażnicy, najeźdźcy, EVC) przed rasą
  *      (Enklawa, zebra, gryf, ghul, podmieniec),
- *   1. domyślnie: papierowa karta postaci ze Stajni.
+ *      oraz osobiste pochodzenie: szeryf pustkowi (odznaka, gwiazda, cecha) i wychowanek gryfów (Szpon, Talon) — „Księga Długu”,
+ *   1. domyślnie: papierowa karta postaci ze Stajni (mieszkaniec Stajni: cecha Stable Dweller albo PipBuck w ekwipunku),
+ *      a dla urodzonych na pustkowiach — zniszczony dziennik wędrowca.
  * Gracz wybiera spośród wyglądów, do których postać ma prawo (swój szczebel i niższe; PipBuck tylko z PipBuckiem),
  * MG może wymusić dowolny. Flaga foe-rpg.skin: { choice, forced }.
  * Własne szczeble MG (ustawienie świata customSkins, edytor w skin-editor.mjs): reguła { id, name, base (wbudowany wygląd
@@ -36,7 +38,10 @@ export const SKINS = Object.freeze([
   { id: "raider", rung: 2, label: N_("Raider — scrawled scraps"), dark: true },
   { id: "ghoul", rung: 2, label: N_("Ghoul — yellowed papers"), dark: false },
   { id: "changeling", rung: 2, label: N_("Changeling — chitin and green flame"), dark: true },
-  { id: "paper", rung: 1, label: N_("Stable character sheet (paper)"), dark: false }
+  { id: "sheriff", rung: 2, label: N_("Wasteland sheriff — wanted poster and brass star"), dark: false },
+  { id: "ledger", rung: 2, label: N_("Book of Debt — raised by griffins"), dark: true },
+  { id: "paper", rung: 1, label: N_("Stable character sheet (paper)"), dark: false },
+  { id: "wasteland", rung: 1, label: N_("Wastelander — weathered field journal"), dark: false }
 ]);
 // ---------- własne szczeble MG ----------
 let CUSTOM = [];
@@ -140,6 +145,25 @@ export function originOf(actor) {
   return null;
 }
 
+/** Mieszkaniec Stajni: cecha Stable Dweller (z kreatora albo ręcznie) albo jakikolwiek PipBuck w ekwipunku. */
+export function stableBorn(actor) {
+  let traits = {};
+  try { traits = JSON.parse(actor?.flags?.[F]?.creation ?? "{}")?.traits ?? {}; } catch { /* stary zapis */ }
+  if ("stableDweller" in traits) return true;
+  return [...(actor?.items ?? [])].some(i => (i.type === "feature" && /stable dweller|mieszka\w* stajni/i.test(i.name))
+    || (i.type === "gear" && i.system?.category === "pipbuck" && PIPBUCK.test(i.name)));
+}
+
+const SHERIFF = /sheriff|szeryf|marshal|deputy|lawpony|stró[żz] prawa/i;
+const TALON = /\bszpon|\btalon|iron claw|raised by griffins|wychowan\w* przez gryf/i;
+/** Osobiste pochodzenie z ekwipunku i cech: "sheriff" (odznaka, gwiazda, cecha) | "ledger" (wychowanek gryfiego Szponu) | null. */
+export function personalOf(actor) {
+  const items = [...(actor?.items ?? [])];
+  if (items.some(i => (i.type === "feature" ? i.system?.active !== false : true) && SHERIFF.test(i.name))) return "sheriff";
+  if (originOf(actor) !== "griffin" && items.some(i => i.type === "feature" && i.system?.active !== false && TALON.test(`${i.name} ${i.system?.description ?? ""}`))) return "ledger";
+  return null;
+}
+
 /** Organizacja z kreatora (cecha Organization) na wygląd. */
 const ORG_SKIN = { knight: "rangers", scribe: "rangers", ajKnight: "rangers", ajScribe: "rangers", raider: "raider", evc: "enclave" };
 /** Przynależność: organizacja wybrana w kreatorze albo cecha o nazwie organizacji. "rangers" | "raider" | "enclave" | null. */
@@ -164,15 +188,17 @@ const pipbuckSkin = item => (/golden/i.test(item.name) ? "pipbuck-gold" : /steal
  */
 export function skinLadder(actor) {
   const { pipbuck, screen, armor } = devices(actor);
-  const race = originOf(actor), aff = affiliationOf(actor);
-  const origin = aff ?? race;
+  const race = originOf(actor), aff = affiliationOf(actor), own = personalOf(actor);
+  const origin = aff ?? own ?? race;
   const available = [];
   const enclaveArmor = armor && (/enclave|enklaw/i.test(armor.name) || origin === "enclave");
   if (armor) available.push(enclaveArmor ? "power-armor-enclave" : "power-armor", enclaveArmor ? "power-armor" : "power-armor-enclave");
   if (pipbuck) available.push(...SKINS.filter(s => s.rung === 4).map(s => s.id));
   if (pipbuck || screen) available.push("terminal", "terminal-white");
-  for (const o of new Set([aff, race].filter(Boolean))) available.push(o);
-  available.push("paper");
+  for (const o of new Set([aff, own, race].filter(Boolean))) available.push(o);
+  if (race === "griffin") available.push("ledger");
+  const stable = stableBorn(actor);
+  available.push(...(stable ? ["paper", "wasteland"] : ["wasteland", "paper"]));
   // własne szczeble MG: pasujące dochodzą do wyboru; najwyższa reguła wygrywa, jeśli jej szczebel ≥ wbudowanego
   const custom = CUSTOM.filter(r => ruleMatches(r, actor));
   available.unshift(...custom.map(r => r.id));
@@ -182,8 +208,8 @@ export function skinLadder(actor) {
   if (armor) return { rung: 5, auto: enclaveArmor ? "power-armor-enclave" : "power-armor", available, reason: { key: "armor", name: armor.name } };
   if (pipbuck) return { rung: 4, auto: pipbuckSkin(pipbuck), available, reason: { key: "pipbuck", name: pipbuck.name } };
   if (screen) return { rung: 3, auto: "terminal", available, reason: { key: "screen", name: screen.name } };
-  if (origin) return { rung: 2, auto: origin, available, reason: { key: aff ? "affiliation" : "origin", name: origin } };
-  return { rung: 1, auto: "paper", available, reason: { key: "basic", name: "" } };
+  if (origin) return { rung: 2, auto: origin, available, reason: { key: aff ? "affiliation" : own ? "personal" : "origin", name: origin } };
+  return { rung: 1, auto: stable ? "paper" : "wasteland", available, reason: { key: stable ? "basic" : "wasteland", name: "" } };
 }
 
 /** Wygląd karty: wymuszony przez MG, wybór gracza (o ile dostępny), inaczej z drabinki. */

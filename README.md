@@ -405,8 +405,15 @@ Wygląd karty postaci według drabinki (zakładka **Ustawienia** na karcie — i
   pochodzenie z rasy: Enklawa (pegaz Enklawy / EVC) — wojskowy terminal, zebra — notatki i talizmany (papier z ochrą),
   gryf — skórzany notes najemnika, ghul — pożółkłe papiery z plamami, podmieniec — chityna i zielony płomień; przed rasą
   idzie **organizacja** z cechy Organization w kreatorze (albo cecha z jej nazwą): Stalowi Strażnicy (i Strażnicy
-  Applejack) — kodeks polowy z czerwonym paskiem, najeźdźcy — brudne świstki, EVC — terminal Enklawy
-  → domyślnie **papierowa karta postaci ze Stajni**.
+  Applejack) — kodeks polowy z czerwonym paskiem, najeźdźcy — brudne świstki, EVC — terminal Enklawy;
+  osobiste pochodzenie: **szeryf pustkowi** (odznaka, gwiazda albo cecha „szeryf” w ekwipunku — list gończy, mosiężny pasek,
+  gwiazda w rogu) i **wychowanek gryfów** (cecha ze Szponem/Talonem w nazwie albo opisie, np. „Wychowany przez Szpon Iron
+  Claw” — „Księga Długu”: ciemna, żelazna księga Szponu z czerwonymi rubrykami długu i niebieskim akcentem; gryf też może ją wybrać)
+  → domyślnie **papierowa karta postaci ze Stajni** dla mieszkańców Stajni (cecha Stable Dweller albo PipBuck w ekwipunku;
+  na pasku numer i nazwa Stajni z ustawień świata „Numer Stajni” i „Nazwa Stajni”), a dla urodzonych na pustkowiach —
+  **spłowiały dziennik wędrowca**.
+- **Znaczek postaci** (pole obok portretu) jest też delikatnym znakiem wodnym w prawym górnym rogu nagłówka karty,
+  w odcieniu wyglądu.
 - Gracz wybiera w zakładce Ustawienia spośród wyglądów, do których postać ma prawo (swój szczebel i niższe; wygląd
   PipBucka tylko z założonym PipBuckiem — po zdjęciu wraca drabinka). MG może tam wymusić dowolny wygląd; gracz go
   wtedy nie zmieni. Napis na górnym pasku idzie za wyglądem (model PipBucka, urządzenie, „Stajnia · karta postaci”).

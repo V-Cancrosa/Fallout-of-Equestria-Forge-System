@@ -35,7 +35,7 @@ export const CATEGORIES = [
     keys: ["autoCreator", "creationPool", "xpProgression", "playerAdvancement", "playerFreeItems", "addictionFrequency", "cyberPower", "lootReminder"] },
   { id: "world", icon: "fa-solid fa-earth-europe", label: N_("World"),
     about: N_("Weather, the calendar, terminals, gaming tables, the stable and the radar. Affects roll modifiers and the map."),
-    keys: ["weather", "weatherForging", "calendarStart", "calendarLastDay", "terminalMinigame", "terminalReach", "casinoReach", "casinoChat", "stableNumber", "efsColors"] },
+    keys: ["weather", "weatherForging", "calendarStart", "calendarLastDay", "terminalMinigame", "terminalReach", "casinoReach", "casinoChat", "stableNumber", "stableName", "efsColors"] },
   { id: "look", icon: "fa-solid fa-palette", label: N_("Look and sound (only for you)"),
     about: N_("How the game looks and sounds on your computer: the PipBuck theme, colours, animations, dice. Doesn't change anything for other players."),
     keys: ["uiTheme", "uiWelcome", "uiSounds", "pipColor", "crtEffect", "sheetEffects", "fxCombat", "fxEngine", "fxStatuses", "dice3dByRoll", "dice3dColors", "rulesReader", "terminalBootAnim", "language"] },

@@ -34,6 +34,11 @@ export function registerUiSettings() {
     hint: "The number on the Stable emblem shown on the pause screen (at most 3 digits).",
     scope: "world", config: true, type: String, default: "97", onChange: () => ui.pause?.render?.()
   });
+  game.settings.register(F, "stableName", {
+    name: "Stable name (character sheets)",
+    hint: "The Stable's name next to its number on the paper character sheet, e.g. Gardens. Empty — just the number.",
+    scope: "world", config: true, type: String, default: ""
+  });
   game.settings.register(F, "efsColors", {
     name: "Tokens in EFS radar colors",
     hint: "Token borders and rings like on the PipBuck radar: green — friendly, red — hostile, yellow — neutral. Takes effect after a reload.",
