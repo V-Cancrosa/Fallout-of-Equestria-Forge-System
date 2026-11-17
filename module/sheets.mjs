@@ -82,6 +82,14 @@ export function coverText(cover = {}) {
   return parts.join(", ") || "—";
 }
 
+/** Numer i nazwa Stajni na papierowej karcie (ustawienia świata stableNumber, stableName): np. 97 „Gardens”. */
+const stableLabel = () => {
+  try {
+    const n = String(game.settings.get("foe-rpg", "stableNumber") ?? "").trim(), name = String(game.settings.get("foe-rpg", "stableName") ?? "").trim();
+    return [n, name ? `"${name}"` : ""].filter(Boolean).join(" ");
+  } catch { return ""; }
+};
+
 export class FoeActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static DEFAULT_OPTIONS = {
     classes: ["foe-rpg", "actor"],
@@ -204,7 +212,9 @@ export class FoeActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const why = { armor: t("worn: {name}", { name: ladder.reason.name }), pipbuck: t("worn: {name}", { name: ladder.reason.name }), screen: t("worn: {name}", { name: ladder.reason.name }),
       affiliation: t("organization: {name}", { name: AFF[ladder.reason.name] ?? ladder.reason.name }),
       custom: t("GM look: {name}", { name: ladder.reason.name }),
-      origin: t("origin: {race}", { race: this.document.system.race ?? "" }), basic: t("no PipBuck or device with a screen worn") }[ladder.reason.key];
+      origin: t("origin: {race}", { race: this.document.system.race ?? "" }), basic: t("no PipBuck or device with a screen worn"),
+      personal: ladder.reason.name === "sheriff" ? t("a sheriff's badge or star") : t("raised by a griffin Talon"),
+      wasteland: t("born in the wasteland (no Stable Dweller)") }[ladder.reason.key];
     ctx.skin = {
       current: skinOf(this.document), rung: t(RUNGS[ladder.rung]), why, auto: (s => s?.custom ? s.label : t(s?.label ?? ""))(skinById(ladder.auto)),
       choice: sf.choice ?? "", forced: sf.forced ?? "",
@@ -221,7 +231,9 @@ export class FoeActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     ctx.skin.bar = sk.startsWith("pipbuck") || sk === "stealth" ? `${dev && ladder.reason.key === "pipbuck" ? dev : "PIPBUCK 3000"} · STABLE-TEC`
       : sk.startsWith("terminal") ? t("TERMINAL · {device}", { device: dev || "ROBRONCO" })
       : sk.startsWith("power-armor") ? t("HUD · {armor}", { armor: (ladder.reason.key === "armor" ? ladder.reason.name : t("POWER ARMOR")).toUpperCase() })
-      : { enclave: t("ENCLAVE · FIELD TERMINAL"), zebra: t("NOTES AND TALISMANS"), griffin: t("MERCENARY'S NOTEBOOK"), paper: t("STABLE · CHARACTER RECORD"),
+      : { enclave: t("ENCLAVE · FIELD TERMINAL"), zebra: t("NOTES AND TALISMANS"), griffin: t("MERCENARY'S NOTEBOOK"),
+        paper: stableLabel() ? t("STABLE {name} · CHARACTER RECORD", { name: stableLabel().toUpperCase() }) : t("STABLE · CHARACTER RECORD"),
+        sheriff: t("LAW OF THE WASTES · SHERIFF'S RECORD"), ledger: t("BOOK OF DEBT · TALON LEDGER"), wasteland: t("FIELD JOURNAL · WASTELANDER"),
         rangers: t("STEEL RANGERS · FIELD CODEX"), raider: t("SCRAPS · DON'T TOUCH"), ghoul: t("OLD PAPERS · BEFORE THE WAR"), changeling: t("HIVE · DISGUISE RECORD") }[sk] ?? "PIPBUCK 3000 · STABLE-TEC";
     if (custom) ctx.skin.bar = (custom.bar || custom.name).toUpperCase();
     ctx.looted = !!this.document.getFlag?.("foe-rpg", "looted");

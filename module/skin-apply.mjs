@@ -22,7 +22,7 @@ const SKINNED = new Set(["character", "npc"]);
 export const setActiveSkin = skin => { active = skin; };
 
 /** Pasek kart czatu według wyglądu. */
-const TAG = { terminal: N_("TERMINAL"), "terminal-white": N_("TERMINAL"), enclave: N_("ENCLAVE"), griffin: N_("NOTEBOOK"), zebra: N_("NOTES"), paper: N_("STABLE"),
+const TAG = { terminal: N_("TERMINAL"), "terminal-white": N_("TERMINAL"), enclave: N_("ENCLAVE"), griffin: N_("NOTEBOOK"), zebra: N_("NOTES"), paper: N_("STABLE"), sheriff: N_("SHERIFF"), ledger: N_("LEDGER"), wasteland: N_("JOURNAL"),
   "power-armor": "HUD", "power-armor-enclave": "HUD", rangers: N_("CODEX"), raider: N_("SCRAPS"), ghoul: N_("OLD PAPERS"), changeling: N_("HIVE") };
 
 /** Pomaluj okno albo kartę czatu: klasa skin-<baza> i (dla własnych wyglądów MG) zmienne kolorów. */

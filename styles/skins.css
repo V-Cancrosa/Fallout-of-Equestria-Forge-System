@@ -48,7 +48,7 @@ body :is(.foe-rpg, .foe-card, .foe-msg).skin-griffin .window-content, body .foe-
 }
 
 /* ---------- Jasne karty: papier ze Stajni i notatki zebry ---------- */
-body :is(.foe-rpg, .foe-card, .foe-msg):is(.skin-paper, .skin-zebra, .skin-ghoul) {
+body :is(.foe-rpg, .foe-card, .foe-msg):is(.skin-paper, .skin-zebra, .skin-ghoul, .skin-wasteland, .skin-sheriff, .skin-ledger) {
   --pip-glow: transparent;
   --pip-line: color-mix(in srgb, var(--pip) 30%, transparent);
   --pip-faint: color-mix(in srgb, var(--pip) 8%, transparent);
@@ -67,7 +67,7 @@ body :is(.foe-rpg, .foe-card, .foe-msg).skin-zebra {
   --pip-bg: #e6cf9c; --pip-bg-hi: #f0dfb4; --pip-void: #d4b97e; --pip-ink: #f0dfb4;
   border: 2px solid #7a4a1c;
 }
-body :is(.foe-rpg, .foe-card, .foe-msg):is(.skin-paper, .skin-zebra, .skin-ghoul) .window-content, body .foe-card:is(.skin-paper, .skin-zebra, .skin-ghoul) {
+body :is(.foe-rpg, .foe-card, .foe-msg):is(.skin-paper, .skin-zebra, .skin-ghoul, .skin-wasteland, .skin-sheriff, .skin-ledger) .window-content, body .foe-card:is(.skin-paper, .skin-zebra, .skin-ghoul, .skin-wasteland, .skin-sheriff, .skin-ledger) {
   text-shadow: none;
   background: radial-gradient(ellipse 120% 90% at 50% 35%, var(--pip-bg-hi) 0%, var(--pip-bg) 70%, var(--pip-void) 125%);
 }
@@ -91,12 +91,57 @@ body :is(.foe-rpg, .foe-card, .foe-msg).skin-paper .window-content::after, body 
 body :is(.foe-rpg, .foe-card, .foe-msg).skin-zebra .window-content::after, body .foe-card.skin-zebra::after {
   background: repeating-linear-gradient(115deg, rgba(59, 36, 18, .07) 0 6px, transparent 6px 22px) left / 14px 100% no-repeat;
 }
-body :is(.foe-rpg, .foe-card, .foe-msg):is(.skin-paper, .skin-zebra, .skin-ghoul) .window-header {
+body :is(.foe-rpg, .foe-card, .foe-msg):is(.skin-paper, .skin-zebra, .skin-ghoul, .skin-wasteland, .skin-sheriff, .skin-ledger) .window-header {
   background: var(--pip); color: var(--pip-ink); text-shadow: none; border-bottom: 0;
 }
-body :is(.foe-rpg, .foe-card, .foe-msg):is(.skin-paper, .skin-zebra, .skin-ghoul) .window-header :is(button, a) { color: var(--pip-ink); }
-body :is(.foe-rpg, .foe-card, .foe-msg):is(.skin-paper, .skin-zebra, .skin-ghoul) :is(input, select, textarea) { background: rgba(255, 255, 255, .35); }
-body :is(.foe-rpg, .foe-card, .foe-msg):is(.skin-paper, .skin-zebra, .skin-ghoul) .meter > span { box-shadow: none; }
+body :is(.foe-rpg, .foe-card, .foe-msg):is(.skin-paper, .skin-zebra, .skin-ghoul, .skin-wasteland, .skin-sheriff, .skin-ledger) .window-header :is(button, a) { color: var(--pip-ink); }
+body :is(.foe-rpg, .foe-card, .foe-msg):is(.skin-paper, .skin-zebra, .skin-ghoul, .skin-wasteland, .skin-sheriff, .skin-ledger) :is(input, select, textarea) { background: rgba(255, 255, 255, .35); }
+body :is(.foe-rpg, .foe-card, .foe-msg):is(.skin-paper, .skin-zebra, .skin-ghoul, .skin-wasteland, .skin-sheriff, .skin-ledger) .meter > span { box-shadow: none; }
+
+/* ---------- Wędrowiec z pustkowi: spłowiały dziennik (rung 1 dla urodzonych poza Stajnią) ---------- */
+body :is(.foe-rpg, .foe-card, .foe-msg).skin-wasteland {
+  --pip: #4a3322; --pip-alert: #a02a14;
+  --pip-bg: #d8c39a; --pip-bg-hi: #e6d4ae; --pip-void: #b39466; --pip-ink: #ecdcb8;
+  border: 2px solid #6e4f30;
+}
+body :is(.foe-rpg, .foe-card, .foe-msg).skin-wasteland .window-content::after, body .foe-card.skin-wasteland::after {
+  background:
+    radial-gradient(circle at 14% 18%, rgba(110, 70, 30, .16) 0 22px, transparent 44px),
+    radial-gradient(circle at 86% 74%, rgba(80, 50, 20, .14) 0 30px, transparent 58px),
+    repeating-linear-gradient(to bottom, transparent 0 25px, rgba(74, 51, 34, .06) 25px 26px);
+}
+
+/* ---------- Szeryf pustkowi: list gończy i mosiężna gwiazda ---------- */
+body :is(.foe-rpg, .foe-card, .foe-msg).skin-sheriff {
+  --pip: #3b2414; --pip-alert: #9b1c10;
+  --pip-bg: #e3cb97; --pip-bg-hi: #efdcae; --pip-void: #c9a568; --pip-ink: #f3e3bd;
+  border: 4px double #5b3a1e;
+}
+body :is(.foe-rpg, .foe-card, .foe-msg).skin-sheriff :is(.pip-bar, .fc-tag) {
+  background: linear-gradient(#c9973b, #9a6f22); color: #2a1709; --pip-ink: #2a1709;
+  letter-spacing: .06em; font-family: Georgia, "Times New Roman", serif; font-weight: 700;
+}
+body :is(.foe-rpg, .foe-card, .foe-msg).skin-sheriff :is(h2, h3, .sec-title) { font-family: Georgia, "Times New Roman", serif; letter-spacing: .08em; }
+body .foe-rpg.skin-sheriff .window-content::after {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cg fill='none' stroke='%235b3a1e' stroke-width='3' opacity='.13'%3E%3Ccircle cx='50' cy='50' r='46'/%3E%3Cpath d='M50 10 L60 38 L90 38 L66 56 L75 86 L50 68 L25 86 L34 56 L10 38 L40 38 Z'/%3E%3C/g%3E%3C/svg%3E") right 18px bottom 18px / 150px no-repeat,
+    radial-gradient(circle at 8% 10%, rgba(120, 70, 20, .14) 0 18px, transparent 40px),
+    radial-gradient(circle at 92% 8%, rgba(90, 40, 10, .18) 0 3px, transparent 7px),
+    radial-gradient(circle at 6% 94%, rgba(90, 40, 10, .18) 0 3px, transparent 7px);
+}
+
+/* ---------- Księga Długu: rubryki księgowe Szponu (wychowanek gryfów) ---------- */
+body :is(.foe-rpg, .foe-card, .foe-msg).skin-ledger {
+  --pip: #1d2a44; --pip-alert: #a3201a;
+  --pip-bg: #e9e2cc; --pip-bg-hi: #f4efdf; --pip-void: #cfc4a4; --pip-ink: #f4efdf;
+  border: 2px solid #2b3d63;
+}
+body :is(.foe-rpg, .foe-card, .foe-msg).skin-ledger :is(.pip-bar, .fc-tag) { background: #2b3d63; color: #e6eefc; --pip-ink: #e6eefc; letter-spacing: .14em; }
+body .foe-rpg.skin-ledger .window-content::after {
+  background:
+    linear-gradient(to left, transparent 0 96px, rgba(163, 32, 26, .22) 96px 97px, transparent 97px 100px, rgba(163, 32, 26, .22) 100px 101px, transparent 101px),
+    repeating-linear-gradient(to bottom, transparent 0 21px, rgba(43, 61, 99, .1) 21px 22px);
+}
 
 /* ---------- Pancerz wspomagany: wizjer hełmu (HUD) ---------- */
 body :is(.foe-rpg, .foe-card, .foe-msg):is(.skin-power-armor, .skin-power-armor-enclave) {
@@ -275,6 +320,19 @@ body.foe-ui :is(.chat-log, #chat-log, .chat-popout, #chat-notifications) .messag
 :is(.chat-log, #chat-log, .chat-popout, #chat-notifications) .message.foe-msg .message-sender { color: var(--pip-bright); text-shadow: none; }
 :is(.chat-log, #chat-log, .chat-popout, #chat-notifications) .message.foe-msg .foe-card { border-color: var(--pip-line); }
 /* jasne wyglądy: kości i dymek rzutu na jasnym tle */
-body :is(.chat-log, #chat-log, .chat-popout, #chat-notifications) .message.foe-msg:is(.skin-paper, .skin-zebra, .skin-ghoul) :is(.dice-roll .dice-total, .dice-formula, .dice-tooltip, .dice-roll .part-header) {
+body :is(.chat-log, #chat-log, .chat-popout, #chat-notifications) .message.foe-msg:is(.skin-paper, .skin-zebra, .skin-ghoul, .skin-wasteland, .skin-sheriff, .skin-ledger) :is(.dice-roll .dice-total, .dice-formula, .dice-tooltip, .dice-roll .part-header) {
   background: rgba(255, 255, 255, .45); color: var(--pip); border-color: var(--pip-line);
+}
+
+/* ---------- Znaczek postaci jako znak wodny w nagłówku karty ----------
+   Zwykły obrazek (bez maski — obrazki z biblioteki The Forge są z innej domeny). Na ciemnych ekranach: szarość
+   i „screen” (czarne tło znika), na jasnych kartach: odwrócenie i „multiply” (tło znika, rysunek ciemnieje). */
+body .foe-rpg .foe-header { position: relative; }
+body .foe-rpg .foe-header > :not(.cm-watermark) { position: relative; }
+body .foe-rpg .foe-header > img.cm-watermark {
+  position: absolute; right: .4rem; top: 1.7rem; width: 118px; height: 118px; object-fit: contain;
+  pointer-events: none; border: 0; opacity: .16; filter: grayscale(1) brightness(1.15); mix-blend-mode: screen;
+}
+body .foe-rpg:is(.skin-paper, .skin-zebra, .skin-ghoul, .skin-wasteland, .skin-sheriff, .skin-ledger) .foe-header > img.cm-watermark {
+  opacity: .14; filter: grayscale(1) invert(1); mix-blend-mode: multiply;
 }
