@@ -69,8 +69,15 @@ export function registerSatsHooks() {
     btn.className = "foe-sats-open";
     btn.title = t("S.A.T.S. targeting — zoom in on the target and choose a body part");
     btn.innerHTML = `<i class="fa-solid fa-crosshairs"></i>`;
+    // bez SATS (brak PipBucka albo AP) ekran celowania też jest niedostępny — powód jak przy polu SATS
+    if (sats.disabled) {
+      btn.disabled = true;
+      const why = sats.closest("label")?.querySelector("small")?.textContent ?? "";
+      btn.title = t("S.A.T.S. unavailable: {why}", { why });
+    }
     btn.addEventListener("click", ev => {
       ev.preventDefault();
+      if (sats.disabled) return;
       openSats(app, form, { viaCheckbox: false });
     });
     loc.after(btn);

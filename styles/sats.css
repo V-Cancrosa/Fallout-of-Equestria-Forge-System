@@ -88,6 +88,7 @@ body[data-foe-crt="off"] .foe-sats .sats-vignette { background: radial-gradient(
 
 /* ---------- przycisk w oknie ataku ---------- */
 .foe-rpg .dlg-attack button.foe-sats-open { flex: 0 0 auto; width: 2rem; padding: 0; }
+.foe-rpg .dlg-attack button.foe-sats-open:disabled { opacity: .35; cursor: not-allowed; }
 
 @keyframes foe-sats-in { from { opacity: 0; } }
 @keyframes foe-sats-rise { from { opacity: 0; transform: translateY(24px); } }

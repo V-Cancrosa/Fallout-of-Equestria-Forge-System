@@ -2797,6 +2797,7 @@ export default {
   "Open character and item sheets minimize when the targeting screen opens and come back after the attack or on leaving SATS — nothing covers the target.": "Otwarte karty postaci i przedmiotów zwijają się, gdy otwiera się celownik, i wracają po ataku albo wyjściu z SATS — nic nie zasłania celu.",
   "S.A.T.S.: camera return (ms)": "S.A.T.S.: powrót kamery (ms)",
   "After the attack window closes, the camera returns to the previous view after this many milliseconds. −1 = it stays on the target.": "Po zamknięciu okna ataku kamera wraca do poprzedniego widoku po tylu milisekundach. −1 = zostaje przy celu.",
+  "S.A.T.S. unavailable: {why}": "S.A.T.S. niedostępny: {why}",
   "S.A.T.S. targeting — zoom in on the target and choose a body part": "Celownik S.A.T.S. — przybliż cel i wybierz część ciała",
   "{n} MFD st.": "{n} kr. MFD",
   "no penalty": "bez kary",
