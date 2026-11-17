@@ -161,6 +161,12 @@ poziom, prekursory, obrażenia) w zakładce „Zaklęcia” katalogu, zakładka 
   z „Nanieś obrażenia”; INT i ranga Magic/10 w formułach liczą się same, overglow podwaja obrażenia.
 - Procent nauki: +1% za każde rzucenie; rzut ≤ procent podpowiada, że można nauczyć się zaklęcia, dla którego to jest prekursor.
 - Limity znanych zaklęć (poziom 2 — INT, 3 — INT/3, 4 — jedno; Magical Savant / Arcane Devotion podwajają) — ostrzeżenie przy dodawaniu.
+- Wady i cechy w kreatorze mają ograniczenia z podręcznika (s. 74–124): co nie pasuje do rasy (np. Zebra Augmented
+  i Astronomer tylko dla zebr, Channeler tylko z Magic, Ace Flyer tylko z Flight, alikorny bez Young czy Elderly) albo
+  wyklucza się z już wybraną pozycją (Young — Large, Lucky — Bad Luck…), jest wyszarzone z powodem w podpowiedzi.
+  Wymagania atrybutów i tagów (Magical Savant — INT 8, Contortionist — AGI 6) pokazują błąd, dopóki ich nie spełnisz;
+  pozycje „za zgodą MG” — ostrzeżenie. Slave daje Internal/Concealed Storage za darmo. Organization: koszt 0–3 wpisujesz
+  sam (Reaper ma własny), a organizacje spoza rasy (Legion, EVC) są niedostępne.
 - Kreator na gotowej postaci (ponowne uruchomienie): nadpisuje tylko to, co sam ustawił — atrybuty, umiejętności i cechy
   z kreatora. Poziom, PD, punkty umiejętności z awansów, ręczne modyfikatory i nazwa postaci zostają; kapsle i karma
   zmieniają się tylko o różnicę wynikającą ze zmienionych cech.
@@ -533,7 +539,7 @@ Pogoda na mapie (moduł **Weather Forging**, wymaga Foundry v14):
   W zakładce walki dopisek „· Weather Forging” w podpowiedzi pogody mówi, że pogoda pochodzi ze sceny.
 
 Instalacja: w Foundry VTT → Game Systems → Install System wklej manifest URL:
-`https://github.com/V-Cancrosa/FoE-CharacterSheet/releases/latest/download/system.json`
+`https://github.com/V-Cancrosa/Fallout-of-Equestria-Forge-System/releases/latest/download/system.json`
 Ręcznie: wrzuć zawartość repo jako folder `foe-rpg` do `Data/systems/`.
 
 Wymiana: przy broni, pancerzu, ekwipunku i kapslach jest ikona dłoni — okno wymiany. Lista bierze tylko tokeny

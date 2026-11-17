@@ -440,7 +440,7 @@ export const TRAITS = tfields({
       one("loc", N_("Prosthesis location"), locOpts(), { show: ch => ch.level === "1" })],
     resolve: ch => [fx("radResist", "all", 10), fx("fireDt", "all", 10), fx("limbWounds", "flLeg,frLeg,rlLeg,rrLeg,wings", 1),
       ...(ch.level === "3" ? [fx("dt", "all", 3)] : ch.loc ? [fx("dt", ch.loc, 6)] : [])] },
-  shadowflash: { label: "Shadowflash", cost: [1, 1], onlyRaces: ["bat"], notWith: ["young"],
+  shadowflash: { label: "Shadowflash", cost: [1, 1],
     desc: "Bat pony shadow magic (p. 35): a teleport like Teleportation I (10×INT ft) of only yourself and held items; shadow pool AGI+PER+2, cost 2, regains 1 per hour; Flight roll MFD ½ when dodging (success = dodge), ¾ otherwise. Magic suppression doesn't work on it." },
   dareingDo: { label: "D.A.R.E.-ing Do", cost: [1, 1], desc: "+20 to END or INT against addiction." },
   diseaseResistant: { label: "Disease Resistant", cost: [1, 1], desc: "+20 to END against diseases." },
