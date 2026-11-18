@@ -109,8 +109,18 @@ export async function attackWithWeapon(actor, item, { spell = null, volley = nul
     ammoV ? `${t("Ammo: {v}", { v: `<b>${esc(ammoV.label)}</b>` })} — ${esc(ammoV.effect)}; ${esc(ammoV.downside)}` : ""
   ].filter(Boolean).map(l => `<div>${l}</div>`).join("");
 
+  // broń biała trzymana telekinezą: przełącznik Melee ↔ rzut telekinezą (Explosives) w tym samym oknie
+  const tkMode = !spell && !volley && !vehicle && !w.consumable && isClose({ skill: w.skill }) && (tkThrow || heldByTK(actor, item));
+  const tkThr = tkMode ? tkOf(actor) : null;
+  const throwNo = tkMode && !tkThrow ? (!tkThr.canThrow ? t("INT below 4") : (Number(w.weight) || 0) < tkThr.throwLimit ? "" : t("too heavy (under {l} lb)", { l: Math.round(tkThr.throwLimit * 10) / 10 })) : "";
+  const modeHtml = tkMode ? `<label class="atk-row">${t("Attack")} <select name="tkmode">
+      <option value="melee" ${tkThrow ? "" : "selected"}>${esc(SKILLS[w.skill]?.label ?? w.skill)}</option>
+      <option value="throw" ${tkThrow ? "selected" : ""} ${throwNo ? "disabled" : ""}>${t("Throw with telekinesis (Explosives)")}${throwNo ? ` — ${esc(throwNo)}` : ""}</option>
+    </select></label>` : "";
+  let switchMode = false;
   const extraHtml = `
     <div class="dlg-attack">
+      ${modeHtml}
       <div class="atk-info">${info}</div>
       ${followUp ? `<div class="atk-info"><div>${volley.kind === "tk" ? (volley.sats ? t("Telekinesis volley: in SATS (AP already paid).") : t("Telekinesis volley: the same action.")) : volley.sats ? t("Saddle volley: in SATS (AP already paid).") : t("Saddle volley: the same action.")}</div></div>` : ""}
       ${spell || followUp ? "" : `<label class="atk-row atk-check"><input type="checkbox" name="sats" ${canSats ? "" : "disabled"}>
@@ -193,12 +203,20 @@ export async function attackWithWeapon(actor, item, { spell = null, volley = nul
       update();
     });
     el.loc?.addEventListener("change", sync);
+    // zmiana trybu (Melee ↔ rzut telekinezą): zamknij okno i otwórz je od nowa z drugą umiejętnością
+    el.tkmode?.addEventListener("change", () => {
+      switchMode = true;
+      form.closest(".application")?.querySelector('[data-action="close"]')?.click();
+    });
     sync();
   };
 
   const rc = rollContext(actor, { kind: "attack", skill: skillKey, skillAttr: sk.attr }, { manualMod: sk.mod });
   const r = await promptMfd(tkThrow ? t("Telekinetic throw: {name}", { name: item.name }) : t("Attack: {name}", { name: item.name }), sk.tn, rc, { defaultStep: aoe && !tVehicle ? "3/4" : "1", extraHtml, readExtra, onRender });
-  if (!r) return null;
+  if (!r) {
+    if (!switchMode) return null;
+    return tkThrow ? attackWithWeapon(actor, item) : throwWeaponTK(actor, item);
+  }
   const { extra: ex = {}, ...roll } = r;
   // np. rzut telekinezą: strain płacony dopiero po zatwierdzeniu okna (false — przerwij)
   if (onConfirm && (await onConfirm()) === false) return null;

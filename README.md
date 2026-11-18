@@ -177,8 +177,8 @@ poziom, prekursory, obrażenia) w zakładce „Zaklęcia” katalogu, zakładka 
   ×2 dla lżejszej niż ⅛). Broń jednorożca jest domyślnie **trzymana telekinezą** (przełącznik „TK” przy broni w zakładce
   Walka): biała broń i walka wręcz liczą INT zamiast STR (z samą Telekinezą bez mnożnika z rangi, z Mighty — z mnożnikiem),
   limit ciężaru to udźwig telekinezy. **Salwa telekinezą**: kilka broni jedną akcją, każda dodatkowa −1 krok MFD i +10 AP
-  SATS. **Rzut bronią telekinezą** (ikona dłoni przy broni białej): test Explosives, obrażenia z INT, broń zostaje na ziemi
-  przy celu; ustawienie świata „Rzut telekinezą” — jeden rzut (strain + Explosives) albo jak w podręczniku (Magic, potem
+  SATS. **Rzut bronią telekinezą**: w oknie ataku broni białej trzymanej telekinezą przełącznik „Atak” — Melee albo rzut
+  telekinezą (Explosives; okno przelicza się od razu), obrażenia z INT, broń zostaje na ziemi przy celu; ustawienie świata „Rzut telekinezą” — jeden rzut (strain + Explosives) albo jak w podręczniku (Magic, potem
   Explosives). Znajomość Telekinezy znosi karę −10 „kopyt” do Lockpicking, Telekinetic Precision daje +3 do Repair
   i Lockpicking. Przekroczony udźwig — na razie tylko ostrzeżenie.
 - Zaklęcia, manewry lotu i receptury zebr mają rozwijany opis: strzałka ▸ przy nazwie pokazuje pełny tekst pod wierszem.
