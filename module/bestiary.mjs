@@ -115,7 +115,8 @@ export function buildNpc(e, { catalog = {}, spells = [], maneuvers = [], spellIt
     e.mv ? `<p><b>${t("Movement:")}</b> ${Object.entries(e.mv).map(([k, v]) => `${{ ground: t("mv|ground"), fly: t("fx|flight"), dig: t("mv|digging"), swim: t("mv|swimming"), sneak: t("mv|sneaking") }[k] ?? k} ${v} ft`).join(", ")}</p>` : "",
     e.loot ? `<p><b>${t("Loot:")}</b> ${esc(e.loot)}</p>` : "",
     e.eqAlt?.length ? `<p><b>${t("Alternative armor:")}</b> ${esc(e.eqAlt.join(", "))}</p>` : "",
-    has ? "" : `<p><b>${t("The v1.22 rulebook gives no statistics for this creature")}</b> — ${t("fill them in or use the NPC creator (the CREATOR button on the sheet).")}</p>`
+    has ? "" : `<p><b>${t("The v1.22 rulebook gives no statistics for this creature")}</b> — ${t("fill them in or use the NPC creator (the CREATOR button on the sheet).")}</p>`,
+    e.hr ? `<p><b>${t("House rule:")}</b> ${t("the v1.22 rulebook gives no statistics for this creature — these are the system's suggestion based on its description and similar creatures. Adjust them freely.")}</p>` : ""
   ].filter(Boolean).join("");
 
   const system = { notes, race: e.race ?? (e.pony ? t("Earth pony / unicorn") : e.group ?? e.name) };
@@ -207,7 +208,8 @@ export function buildNpc(e, { catalog = {}, spells = [], maneuvers = [], spellIt
       items.push(d);
     }
   }
-  if (e.ab) items.push({ name: t("Abilities (bestiary)"), type: "feature", system: { kind: "other", active: true, effects: [], description: `<p>${esc(e.ab)}</p>` } });
+  // e.fx — stałe efekty zdolności (np. słabość do ognia: fireDt ujemne, odporność na promieniowanie)
+  if (e.ab) items.push({ name: t("Abilities (bestiary)"), type: "feature", system: { kind: "other", active: true, effects: (e.fx ?? []).map(x => ({ when: "", ...x })), description: `<p>${esc(e.ab)}</p>` } });
 
   return { actor: { name: e.name, type: "npc", ...art, system, flags, prototypeToken: { disposition: -1, actorLink: false, name: e.name, ...tex } }, items };
 }
