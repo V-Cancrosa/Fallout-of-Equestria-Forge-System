@@ -88,6 +88,8 @@ ten sam rysunek, różnią się tłem i znacznikiem (kaliber, model albo inicja�
 Przy pierwszym uruchomieniu po aktualizacji to, co już jest u postaci, NPC i w świecie (przedmioty, zaklęcia, perki…,
 aktorzy stworzeń i pojazdów), samo dostaje nowe ikony — o ile ma jeszcze domyślną ikonę (własnych obrazków MG to nie zmienia). Ikony buduje
 `node tools/build-item-icons.mjs <repozytorium game-icons>`.
+Ikony mają przezroczyste tło i rysunek na całą ikonę; na karcie, w katalogu i na czacie przybierają kolor wyglądu karty
+(PipBuck w kolorze fosforu, papier Stajni — granat, szeryf — brąz, Księga Długu — stal…).
 
 Walka:
 - Atak (kliknij nazwę broni): okno z SATS (koszt AP z broni; znosi kary otoczenia i pośpiechu), odległością (każdy przedział

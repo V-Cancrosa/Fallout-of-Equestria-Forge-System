@@ -343,3 +343,9 @@ body .foe-rpg .foe-header > img.cm-watermark {
 body .foe-rpg:is(.skin-paper, .skin-zebra, .skin-ghoul, .skin-wasteland, .skin-sheriff) .foe-header > img.cm-watermark {
   opacity: .14; filter: grayscale(1) invert(1); mix-blend-mode: multiply;
 }
+
+/* ---------- Ikony przedmiotów (icons/items) w kolorze wyglądu ----------
+   Rysunek jest zielony (#4dff8a) na przezroczystym tle; filtr --foe-icon-filter liczy skin-apply.mjs z --pip okna.
+   Ważniejsze od filtrów ekranu PipBucka (sepia) i od „bez filtra” dla innych wyglądów. */
+body :is(.foe-rpg, .foe-card, .foe-msg) img[src*="/icons/items/"] { filter: var(--foe-icon-filter, none) !important; opacity: 1 !important; }
+body .foe-rpg img.icon[src*="/icons/items/"] { background: color-mix(in srgb, var(--pip) 7%, transparent); }
