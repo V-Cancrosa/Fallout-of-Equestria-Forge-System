@@ -15,6 +15,7 @@ import { rollContext } from "./effects.mjs";
 import { rangeBands } from "./combat.mjs";
 import { MFD_STEPS } from "./data.mjs";
 import { t } from "./i18n.mjs";
+import { knowsTK, tkOf } from "./tk.mjs";
 
 const MISC = `systems/${F}/icons/misc.svg`;
 const hasFeature = (actor, re) => (actor?.items ?? []).some(i => i.type === "feature" && i.system?.active !== false && re.test(i.name));
@@ -28,16 +29,15 @@ export function registerThrowSettings() {
 }
 const markersOn = () => { try { return game.settings.get(F, "groundMarkers"); } catch { return true; } };
 
-/** Czy postać rzuci telekinezą: rzuca zaklęcia jednorożców, zna telekinezę i nie ma wypalenia. */
-export const knowsTK = actor => !!actor?.system?.caster && !actor.system.burnout
-  && (actor.items ?? []).some(i => i.type === "spell" && /telekine/i.test(i.name));
+// telekineza: tk.mjs (bez zależności — używają jej też rzuty i karta)
+export { knowsTK, tkOf, heldByTK } from "./tk.mjs";
 
 /** Zasięg rzutu dla postaci: przedmiot (null — kapsle), ilość, telekineza. */
 export function throwInfo(actor, item, qty = 1, tk = false) {
   const a = actor?.system?.attributes ?? {};
   const weight = item ? (Number(item.system?.weight) || 0) * (stacks(item) ? Math.max(1, Number(qty) || 1) : 1) : 0;
   return throwProfile({
-    str: a.str?.total ?? 0, int: a.int?.total ?? 0, weight, tk: !!tk && knowsTK(actor),
+    str: a.str?.total ?? 0, int: a.int?.total ?? 0, weight, tk: !!tk && knowsTK(actor), lift: tk ? tkOf(actor).lift : null,
     heave: hasFeature(actor, /^heave,?\s*ho/i), oops: hasFeature(actor, /^oops/i)
   });
 }
@@ -231,6 +231,15 @@ export async function dropToGround(actor, item) {
 }
 
 /** Wykonanie upuszczenia (MG albo — bez MG — sam gracz, właściciel postaci). */
+/** Rzucona broń (telekineza) zostaje na ziemi przy celu: ten sam znacznik i karta „Podnieś” co upuszczony przedmiot. */
+export async function dropAt(actor, item, tokenUuid) {
+  if (!actor?.isOwner || !item) return null;
+  const payload = { kind: "throw", op: "drop", user: game.user.id, actor: actor.uuid, itemId: item.id, qty: 1, token: tokenUuid ?? tokenOf(actor)?.uuid ?? null };
+  if (game.user.isGM || !game.users.activeGM) return dropOp(payload);
+  game.socket.emit(SOCKET, payload);
+  return true;
+}
+
 async function dropOp({ op, actor: uuid, itemId, qty, token, user }) {
   if (op !== "drop") return null;
   const actor = await fromUuid(uuid).catch(() => null);

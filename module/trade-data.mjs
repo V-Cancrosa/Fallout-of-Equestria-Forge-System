@@ -60,15 +60,17 @@ export function isAdjacent(a, b, grid, elevation = [0, 0]) {
 /**
  * Rzut przedmiotem: { ok, inc, max, limit, light, reason }.
  *   str / int — atrybuty rzucającego, weight — waga rzucanej rzeczy (razem z ilością),
- *   heave — Heave, Ho! (+5 ft), oops — Oops! (−5 ft), tk — rzut telekinezą (jednorożec).
+ *   heave — Heave, Ho! (+5 ft), oops — Oops! (−5 ft), tk — rzut telekinezą (jednorożec), lift — udźwig telekinezy
+ *   (domyślnie 2×INT; Mighty Telekinesis więcej — tk-data.mjs).
  */
-export function throwProfile({ str = 0, int = 0, weight = 0, heave = false, oops = false, tk = false } = {}) {
+export function throwProfile({ str = 0, int = 0, weight = 0, heave = false, oops = false, tk = false, lift = null } = {}) {
   const w = Math.max(0, Number(weight) || 0);
   let inc, limit, light;
   if (tk) {
-    const lift = 2 * (Number(int) || 0);
-    limit = lift / 4;
-    light = w < lift / 8;
+    // udźwig telekinezy: 2×INT, z Mighty Telekinesis więcej (tk-data.mjs)
+    const cap = lift ?? 2 * (Number(int) || 0);
+    limit = cap / 4;
+    light = w < cap / 8;
     inc = Math.floor((Number(int) || 0) / 4) * 5 * (light ? 2 : 1);
     if (!inc) return { ok: false, inc: 0, max: 0, limit, light, reason: t("telekinesis too weak (INT below 4) — you can't throw anything with it") };
   } else {

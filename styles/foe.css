@@ -964,7 +964,7 @@ button.foe-surprise { flex: 0 0 auto; width: auto; margin: 2px 0; font-size: 12p
 .foe-rpg .item-list.conditions.body li:not(.alert) .nm { color: var(--pip-bright); text-shadow: none; }
 
 /* v0.14 — siodła bojowe i pancerze wspomagane */
-.foe-rpg a.mount-toggle { display: inline-block; width: 1.1rem; text-align: center; font-family: var(--foe-mono); font-size: 10px; border: 1px solid var(--pip-dim); border-radius: 2px; color: var(--pip-dim); cursor: pointer; }
+.foe-rpg a.mount-toggle { display: inline-block; min-width: 1.1rem; padding: 0 1px; text-align: center; font-family: var(--foe-mono); font-size: 10px; border: 1px solid var(--pip-dim); border-radius: 2px; color: var(--pip-dim); cursor: pointer; }
 .foe-rpg a.mount-toggle.on { background: var(--pip); color: var(--pip-ink); border-color: var(--pip); }
 .foe-rpg .saddle-line { margin: .2rem 0; }
 .foe-rpg td.nm a.repair { margin-left: .3rem; cursor: pointer; }
@@ -1373,3 +1373,11 @@ fieldset.foe-env .foe-env-preset { border-bottom: 1px dashed var(--env-dim); pad
 .foe-rpg .foe-hazards .hz-file button { width: auto; flex: 0 0 auto; }
 /* przycisk okna ustawień w zakładce Ustawienia paska bocznego */
 .foe-hub-open { width: 100%; margin: .25rem 0; }
+
+/* ---------- Rozwijany opis zaklęć, manewrów i receptur (zakładka Magia) ---------- */
+.foe-rpg a.desc-toggle { display: inline-block; width: .9rem; color: var(--pip-dim); cursor: pointer; transition: transform .12s; }
+.foe-rpg a.desc-toggle.open { transform: rotate(90deg); color: var(--pip); }
+.foe-rpg a.desc-toggle:hover { color: var(--pip-bright); }
+.foe-rpg table.foe-table tr.desc-row td.desc { padding: .2rem .5rem .45rem 1.4rem; text-align: left; white-space: normal; font-size: 12px; color: var(--pip-mid); text-transform: none; }
+.foe-rpg table.foe-table tr.desc-row td.desc p { margin: .15rem 0; }
+.foe-rpg .tk-bar small { color: var(--pip-mid); }
