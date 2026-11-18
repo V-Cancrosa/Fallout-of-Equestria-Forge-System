@@ -225,6 +225,9 @@ przycisk „Użyj” przy lekach i chemii w Ekwipunku (nowa kategoria „Leczeni
 Bestiariusz (s. 490–576): 93 stworzenia i NPC z podręcznika w zakładce „Bestiariusz” katalogu (przycisk „Bestiariusz FoE”
 w zakładce aktorów). 29 z nich ma pełne statystyki — mrówki, radskorpiony, mantykora, centaur, feniks, ankha, hydra,
 wieżyczki, protektron, rabusie, najemnicy, żołnierz Enklawy, ghule z Canterlotu…; reszta (w v1.22 bez statystyk) ma opis.
+  Timberwolf ma statystyki jako **zasada domowa** (podręcznik ich nie podaje): poziom 4–7, drewniane ciało (odporne na
+  truciznę i promieniowanie, składa się z powrotem, jeśli nie spalić szczątków), DT nie chroni przed ogniem, drzazgi
+  w ranach blokują magiczne leczenie, strach przed ogniem, polowanie w sforze (alfa: +2 STR i END).
 - „Dodaj” tworzy NPC w folderze „Bestiariusz FoE”: atrybuty, rangi, obrażenia na ranę, progi okaleczenia i utraty z bloku,
   broń z obrażeniami z bloku (bez ponownego doliczania premii), pancerze z katalogu, zaklęcia, manewry lotu, zdolności i łup w notatkach.
 - Strefy trafień potworów (czułki, szczypce, ogon, kadłub wieżyczki…) z własnym DT: okno ataku pokazuje je z MFD celowania

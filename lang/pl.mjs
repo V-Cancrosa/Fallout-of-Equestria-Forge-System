@@ -1848,6 +1848,8 @@ export default {
   "Loot:": "Łup:",
   "Alternative armor:": "Pancerz zamiennie:",
   "The v1.22 rulebook gives no statistics for this creature": "Podręcznik v1.22 nie podaje statystyk tego stworzenia",
+  "House rule:": "Zasada domowa:",
+  "the v1.22 rulebook gives no statistics for this creature — these are the system's suggestion based on its description and similar creatures. Adjust them freely.": "podręcznik v1.22 nie podaje statystyk tego stworzenia — to propozycja systemu na podstawie jego opisu i podobnych stworzeń. Zmieniaj śmiało.",
   "fill them in or use the NPC creator (the CREATOR button on the sheet).": "uzupełnij je albo użyj kreatora NPC (przycisk KREATOR na karcie).",
   "Earth pony / unicorn": "Kucyk ziemski / jednorożec (Earth Pony / Unicorn)",
   "Spell from the stat block (p. {p}).": "Zaklęcie z bloku statystyk (s. {p}).",
