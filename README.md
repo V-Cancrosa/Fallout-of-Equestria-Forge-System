@@ -170,6 +170,16 @@ poziom, prekursory, obrażenia) w zakładce „Zaklęcia” katalogu, zakładka 
 - Kreator na gotowej postaci (ponowne uruchomienie): nadpisuje tylko to, co sam ustawił — atrybuty, umiejętności i cechy
   z kreatora. Poziom, PD, punkty umiejętności z awansów, ręczne modyfikatory i nazwa postaci zostają; kapsle i karma
   zmieniają się tylko o różnicę wynikającą ze zmienionych cech.
+- **Telekineza** (s. 252–253): w zakładce Magia pasek z udźwigiem (2×INT; Mighty Telekinesis I/II/III — 6×/18×/250×INT),
+  zasięgiem (5×INT ft; Long Ranged Telekinesis — 50×INT ft) i rzutem (rzecz lżejsza niż ¼ udźwigu, przedział (INT/4)×5 ft,
+  ×2 dla lżejszej niż ⅛). Broń jednorożca jest domyślnie **trzymana telekinezą** (przełącznik „TK” przy broni w zakładce
+  Walka): biała broń i walka wręcz liczą INT zamiast STR (z samą Telekinezą bez mnożnika z rangi, z Mighty — z mnożnikiem),
+  limit ciężaru to udźwig telekinezy. **Salwa telekinezą**: kilka broni jedną akcją, każda dodatkowa −1 krok MFD i +10 AP
+  SATS. **Rzut bronią telekinezą** (ikona dłoni przy broni białej): test Explosives, obrażenia z INT, broń zostaje na ziemi
+  przy celu; ustawienie świata „Rzut telekinezą” — jeden rzut (strain + Explosives) albo jak w podręczniku (Magic, potem
+  Explosives). Znajomość Telekinezy znosi karę −10 „kopyt” do Lockpicking, Telekinetic Precision daje +3 do Repair
+  i Lockpicking. Przekroczony udźwig — na razie tylko ostrzeżenie.
+- Zaklęcia, manewry lotu i receptury zebr mają rozwijany opis: strzałka ▸ przy nazwie pokazuje pełny tekst pod wierszem.
 - Kreator: jednorożce dostają Telekinezę, alikorny z Unity — swoją listę startową; zaklęcie poziomu 1 wybierasz z katalogu.
 
 Magia zebr i alchemia (s. 327–332): katalog 128 receptur w zakładce „Receptury zebr”, sekcja zebr w zakładce „Magia”.

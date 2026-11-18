@@ -52,12 +52,13 @@
       {{#each list}}
         <tr data-item-id="{{id}}" class="{{#unless learned}}unlearned{{/unless}}">
           <td><img class="icon" src="{{img}}" alt=""></td>
-          <td class="l"><a class="rollable" data-action="performManeuver" title="{{#if learned}}{{t "Perform the maneuver (Flight roll)"}}{{else}}{{t "Practice the maneuver: Flight roll with a 3-step penalty"}}{{/if}}">{{name}}</a>{{#if tags.length}}<div class="wtags">{{#each tags}}<span>{{this}}</span>{{/each}}</div>{{/if}}</td>
+          <td class="l"><a class="desc-toggle {{#if open}}open{{/if}}" data-action="toggleDesc" title="{{t "Show or hide the description"}}"><i class="fa-solid fa-caret-right"></i></a> <a class="rollable" data-action="performManeuver" title="{{#if learned}}{{t "Perform the maneuver (Flight roll)"}}{{else}}{{t "Practice the maneuver: Flight roll with a 3-step penalty"}}{{/if}}">{{name}}</a>{{#if tags.length}}<div class="wtags">{{#each tags}}<span>{{this}}</span>{{/each}}</div>{{/if}}</td>
           <td title="{{t "MFD to perform"}}">{{mfd}}</td>
           <td title="{{t "Actions"}}">{{actions}}</td>
           <td title="{{t "Mastery (attempt limit = character level)"}}">{{#if learned}}<span class="ok">{{t "mastered"}}</span>{{else}}<span class="warn">{{t "learning {a}/{b}" a=attempts b=attemptsMax}}</span>{{/if}}</td>
           <td class="ctl"><a data-action="editItem" title="{{t "Edit"}}"><i class="fa-solid fa-pen"></i></a> <a data-action="deleteItem" title="{{t "Delete"}}"><i class="fa-solid fa-trash"></i></a></td>
         </tr>
+        {{#if description}}<tr class="desc-row" data-desc-for="{{id}}" {{#unless open}}hidden{{/unless}}><td></td><td class="l desc" colspan="5">{{{description}}}</td></tr>{{/if}}
       {{/each}}
       </tbody>
     </table>
@@ -75,6 +76,17 @@
     <label class="cs alt magic-color" title="{{t "The color of this unicorn's magic: spell animations, horn light and the stars of maintained spells"}}">{{t "Magic color"}} <input type="color" name="system.magicColor" value="{{magic.color}}"></label>
     {{#if magic.burnout}}<span class="cs alert">{{t "BURNOUT — no spells for 1d4 weeks"}}</span> <a class="cs act" data-action="clearBurnout" title="{{t "Burnout is over"}}"><i class="fa-solid fa-xmark"></i> {{t "end burnout"}}</a>{{/if}}
   </div>
+
+  {{#if tk}}
+  <div class="status-bar tk-bar" title="{{t "Telekinesis (p. 252–253): lift {m}×INT, range {r}×INT ft; throw something lighter than ¼ of the lift (Explosives), range increment (INT/4)×5 ft, doubled for things lighter than ⅛ of the lift" m=tk.liftMult r=tk.rangeMult}}">
+    <span class="cs"><i class="fa-solid fa-hand-sparkles"></i> {{t "Telekinesis"}}{{#if tk.source}} <small>({{tk.source}})</small>{{/if}}</span>
+    <span class="cs">{{t "Lift"}} <b>{{tk.lift}} lb</b></span>
+    <span class="cs">{{t "Reach"}} <b>{{tk.range}} ft</b></span>
+    {{#if tk.canThrow}}<span class="cs">{{t "Throw: up to {w} lb, increment {inc} ft (×2 = {inc2} ft up to {light} lb)" w=tk.throwLimit inc=tk.throwInc inc2=tk.throwIncLight light=tk.lightLimit}}</span>
+    {{else}}<span class="cs">{{t "Throw: INT below 4 — you can't throw with telekinesis"}}</span>{{/if}}
+    {{#if tk.tooHeavy}}<span class="cs alert">{{t "Too heavy for telekinesis: {list}" list=tk.tooHeavy}}</span>{{/if}}
+  </div>
+  {{/if}}
 
   {{#if magic.maintained.length}}
   <h3>{{t "Maintained spells"}} {{rule "races/magic"}}</h3>
@@ -97,12 +109,13 @@
       {{#each spells}}
         <tr data-item-id="{{id}}" class="{{#if held}}worn{{/if}}">
           <td><img class="icon" src="{{img}}" alt=""></td>
-          <td class="l"><a class="rollable" data-action="castSpell" title="{{t "Cast the spell (Magic, overglow, SATS)"}}">{{name}}</a>{{#if tags.length}}<div class="wtags">{{#each tags}}<span>{{this}}</span>{{/each}}</div>{{/if}}</td>
+          <td class="l"><a class="desc-toggle {{#if open}}open{{/if}}" data-action="toggleDesc" title="{{t "Show or hide the description"}}"><i class="fa-solid fa-caret-right"></i></a> <a class="rollable" data-action="castSpell" title="{{t "Cast the spell (Magic, overglow, SATS)"}}">{{name}}</a>{{#if tags.length}}<div class="wtags">{{#each tags}}<span>{{this}}</span>{{/each}}</div>{{/if}}</td>
           <td title="{{t "Strain cost"}}">{{costLabel}}</td>
           <td title="{{t "SATS cost"}}">{{#if satsCost}}{{satsCost}} AP{{else}}—{{/if}}</td>
           <td title="{{t "Learning percentage (+1% per cast)"}}">{{learn}}%</td>
           <td class="ctl"><a data-action="editItem" title="{{t "Edit"}}"><i class="fa-solid fa-pen"></i></a> <a data-action="deleteItem" title="{{t "Delete"}}"><i class="fa-solid fa-trash"></i></a></td>
         </tr>
+        {{#if description}}<tr class="desc-row" data-desc-for="{{id}}" {{#unless open}}hidden{{/unless}}><td></td><td class="l desc" colspan="5">{{{description}}}</td></tr>{{/if}}
       {{else}}<tr><td class="empty" colspan="6">{{t "No spells of this level."}}</td></tr>
       {{/each}}
       </tbody>
@@ -131,12 +144,13 @@
     {{#each zebra.recipes}}
       <tr data-item-id="{{id}}">
         <td><img class="icon" src="{{img}}" alt=""></td>
-        <td class="l nm">{{name}}<div class="wtags">{{#if school}}<span>{{school}}</span>{{/if}}{{#if special}}<span title="{{t "Special ingredient"}}">+ {{special}}</span>{{/if}}{{#if damage}}<span>{{t "dmg {d}" d=damage}}</span>{{/if}}</div></td>
+        <td class="l nm"><a class="desc-toggle {{#if open}}open{{/if}}" data-action="toggleDesc" title="{{t "Show or hide the description"}}"><i class="fa-solid fa-caret-right"></i></a> {{name}}<div class="wtags">{{#if school}}<span>{{school}}</span>{{/if}}{{#if special}}<span title="{{t "Special ingredient"}}">+ {{special}}</span>{{/if}}{{#if damage}}<span>{{t "dmg {d}" d=damage}}</span>{{/if}}</div></td>
         <td>{{level}}</td>
         <td>{{rarityLabel}}</td>
         <td class="l modes">{{#each modes}}{{#if ritual}}<a class="mode-btn ritual" data-action="castRitual" title="{{t "Combat ritual: ingredients + Magic roll, 1 action / 40 AP"}}"><i class="fa-solid fa-hand-sparkles"></i> {{t "Ritual"}}</a>{{else}}<a class="mode-btn" data-action="prepareRecipe" data-mode="{{key}}" title="{{t "{tip}: uses ingredients and adds the product to the Inventory" tip=tip}}"><i class="fa-solid fa-mortar-pestle"></i> {{label}}</a>{{/if}}{{/each}}</td>
         <td class="ctl"><a data-action="editItem" title="{{t "Edit"}}"><i class="fa-solid fa-pen"></i></a> <a data-action="deleteItem" title="{{t "Delete"}}"><i class="fa-solid fa-trash"></i></a></td>
       </tr>
+      {{#if description}}<tr class="desc-row" data-desc-for="{{id}}" {{#unless open}}hidden{{/unless}}><td></td><td class="l desc" colspan="5">{{{description}}}</td></tr>{{/if}}
     {{else}}<tr><td class="empty" colspan="6">{{#if zebra.start}}{{t "No recipes — pick {n} from the catalog (at start: level 0–1, Magic rank / 10, max. 5)." n=zebra.start}}{{else}}{{t "No recipes — pick them from the catalog (at start: level 0–1, Magic rank / 10, max. 5)."}}{{/if}}</td></tr>
     {{/each}}
     </tbody>

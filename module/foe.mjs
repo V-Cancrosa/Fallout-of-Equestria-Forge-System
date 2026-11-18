@@ -303,6 +303,12 @@ function registerCombatSettings() {
     hint: "Optional rule (pp. 202–203): regular rounds and energy ammo ignore 5 DT, and the catalog has special ammunition (AP, Incendiary, Spark, Focused, High Explosive…) chosen when reloading.",
     scope: "world", config: true, type: Boolean, default: false
   });
+  game.settings.register("foe-rpg", "tkThrowRule", {
+    name: "Throwing with telekinesis",
+    hint: "Throwing a weapon or an item with telekinesis in combat (p. 252). One roll (default): you pay the Telekinesis strain cost and roll only Explosives. Rulebook: first a Magic roll (casting Telekinesis — picking it up), then Explosives on a success.",
+    scope: "world", config: true, type: String, default: "single",
+    choices: { single: "One roll: strain + Explosives", book: "Rulebook: Magic, then Explosives" }
+  });
   game.settings.register("foe-rpg", "overloadRule", {
     name: "Overloading",
     hint: "House rule (default): up to 125% of the carry limit — ¾ speed, up to 150% — ½ speed, up to twice the limit — dragging along at 5 ft per action, over twice the limit — the character can't move (players can't move the token until they drop or hand over something; the GM can). Rulebook (pp. 19, 150): −5 ft per action for every started 10 lb over the limit.",

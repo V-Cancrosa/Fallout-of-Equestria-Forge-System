@@ -1,4 +1,5 @@
 import { markCrit, tint, afterDice } from "./dice3d.mjs";
+import { heldByTK, tkOf } from "./tk.mjs";
 import { MFD_STEPS, LOCATIONS } from "./data.mjs";
 import { actorEffects, sumFx, hitsAttack } from "./effects.mjs";
 import {
@@ -353,12 +354,15 @@ export async function rollDamage(actor, item, { crit = false, attack = null } = 
   const str = sys.attributes?.str?.total ?? 0;
   const aoe = isAoe(w);
   const close = isClose(w);
-  const overWield = !attack?.vehicle && wieldPenalty(w.weight, str, wieldLimit(actor, w)) > 0;
+  // broń trzymana telekinezą (albo rzucona nią): INT zamiast STR, limit — udźwig telekinezy (s. 252)
+  const tkHeld = item.type === "weapon" && !attack?.vehicle && (attack?.tkThrow || heldByTK(actor, item));
+  const tkp = tkHeld ? tkOf(actor) : null;
+  const overWield = !attack?.vehicle && wieldPenalty(w.weight, str, tkp ? tkp.lift : wieldLimit(actor, w)) > 0;
   // amunicja specjalna (zasada opcjonalna, s. 202–203): ± kości, dodatkowe kości, maksymalne obrażenia, ogień
   const ammoV = item.type === "weapon" ? loadedVariant(w) : null;
   // degradacja (s. 458): −1 kość za każdy utracony krok
   const worn = item.type === "weapon" && degradationOn() ? Number(w.wear) || 0 : 0;
-  const df = damageFormula({ ...w, damage: shiftDice(attack?.formula || w.damage, (ammoV?.dice ?? 0) - worn) }, { str, rank, overWield });
+  const df = damageFormula({ ...w, damage: shiftDice(attack?.formula || w.damage, (ammoV?.dice ?? 0) - worn) }, { str, rank, overWield, tk: tkp ? { int: tkp.int, mult: tkp.mighty > 0 } : null });
   if (worn) df.notes.push(tn(worn, "wear −{n} die", "wear −{n} dice"));
   let formula = df.formula;
   if (ammoV?.addDice) formula += ` + ${ammoV.addDice}`;

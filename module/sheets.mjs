@@ -18,7 +18,7 @@ import { useHealItem, rest, setLimb, HEAL_KINDS } from "./healing.mjs";
 import { rollActorInitiative } from "./tracker.mjs";
 import { areaLabels, areasOf } from "./bestiary.mjs";
 import { saddleState, builtInSaddle, hasPowerArmorTraining, accessoryOf, saddleKindOf, reserveCapacity } from "./saddle.mjs";
-import { fireVolley, repairPowerArmor } from "./attack.mjs";
+import { fireVolley, fireTKVolley, throwWeaponTK, repairPowerArmor } from "./attack.mjs";
 import { radLevel } from "./body.mjs";
 import { cyberItems, CYBER_KINDS } from "./cyber-data.mjs";
 import { feedCyber, selfRepair, chargeReservoir } from "./cyber.mjs";
@@ -32,14 +32,15 @@ import { searchBody } from "./loot.mjs";
 import { editCutieMark } from "./cutie-mark.mjs";
 import { giveItem, giveCaps } from "./trade.mjs";
 import { dropToGround } from "./throw.mjs";
+import { tkOf, heldByTK, canHoldByTK } from "./tk.mjs";
 import { promptAdjustCaps } from "./give.mjs";
-import { hitTableFor, tableLocations } from "./combat.mjs";
+import { hitTableFor, tableLocations, isClose } from "./combat.mjs";
 import { locationName } from "./rolls.mjs";
 import { degradationOn, weaponCondition } from "./craft-data.mjs";
 import { parseBook } from "./books-data.mjs";
 import { loadedVariant } from "./ammo-data.mjs";
 import { castShadow, addSonicScreech, shapeshift, endDisguise, feedOnLove, detectDisguise, promptLove } from "./shadow.mjs";
-import { t, tn, N_, tmap } from "./i18n.mjs";
+import { t, tn, N_, tmap, isPL } from "./i18n.mjs";
 import { onPortrait } from "./portrait.mjs";
 import { magicHex, customMagic } from "./fx-data.mjs";
 import { rollLockpick } from "./doors.mjs";
@@ -91,6 +92,9 @@ const stableLabel = () => {
 };
 
 export class FoeActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
+  /** Rozwinięte opisy (id przedmiotów) — zaklęcia, manewry, receptury. */
+  #openDesc = new Set();
+
   static DEFAULT_OPTIONS = {
     classes: ["foe-rpg", "actor"],
     position: { width: 940, height: 860 },
@@ -138,6 +142,10 @@ export class FoeActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       awardXp: FoeActorSheet.#onAwardXp,
       rollInitiative: FoeActorSheet.#onRollInitiative,
       toggleMount: FoeActorSheet.#onToggleMount,
+      toggleTK: FoeActorSheet.#onToggleTK,
+      toggleDesc: FoeActorSheet.#onToggleDesc,
+      fireTKVolley: FoeActorSheet.#onFireTKVolley,
+      throwTK: FoeActorSheet.#onThrowTK,
       toggleGearEquip: FoeActorSheet.#onToggleGearEquip,
       fireVolley: FoeActorSheet.#onFireVolley,
       repairArmor: FoeActorSheet.#onRepairArmor,
@@ -337,6 +345,16 @@ export class FoeActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const recipes = this.document.items.filter(i => i.type === "spell" && i.system.tradition === "zebra");
     const lim = spellLimits(this.document);
     const held = new Set((sys.maintained ?? []).map(m => m.id));
+    // telekineza (s. 252–253): udźwig, zasięg, rzut; broń cięższa niż udźwig
+    const tkp = tkOf(this.document);
+    const lbs = n => (isPL() ? String(Math.round(n * 10) / 10).replace(".", ",") : String(Math.round(n * 10) / 10));
+    ctx.tk = tkp.usable ? {
+      lift: lbs(tkp.lift), range: tkp.range, throwLimit: lbs(tkp.throwLimit), lightLimit: lbs(tkp.lightLimit),
+      throwInc: tkp.throwInc, throwIncLight: tkp.throwIncLight, canThrow: tkp.canThrow, int: tkp.int,
+      liftMult: [2, 6, 18, 250, 250][tkp.mighty], rangeMult: tkp.long ? 50 : 5,
+      source: [tkp.mighty ? `Mighty Telekinesis ${["", "I", "II", "III", "IV"][tkp.mighty]}` : "", tkp.long ? "Long Ranged Telekinesis" : ""].filter(Boolean).join(", "),
+      tooHeavy: this.document.items.filter(i => heldByTK(this.document, i) && (Number(i.system.weight) || 0) > tkp.lift).map(i => i.name).join(", ")
+    } : null;
     ctx.magic = {
       caster: sys.caster, burnout: sys.burnout, alicorn: sys.alicorn, color: magicHex(sys.magicColor),
       strain: sys.resources.strain.value, strainMax: sys.strainMax,
@@ -348,7 +366,7 @@ export class FoeActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         return {
           level: l, count: list.length, limit: max === undefined || max === Infinity ? "" : max, over: max !== undefined && list.length > max,
           spells: list.map(i => ({
-            id: i.id, name: i.name, img: i.img, ...i.system, held: held.has(i.id),
+            id: i.id, name: i.name, img: i.img, ...i.system, held: held.has(i.id), open: this.#openDesc.has(i.id),
             costLabel: COST_LABELS[i.system.cost] ?? i.system.cost,
             tags: [i.system.targeted ? t("spell|targeted") : "", i.system.maintained ? t("spell|maintained") : "", i.system.damage ? t("dmg {d}", { d: i.system.damage }) : ""].filter(Boolean)
           }))
@@ -387,7 +405,7 @@ export class FoeActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
           level: l, rankReq: RANK_FOR_LEVEL[l], locked: l > mlim.maxLevel, count: mcnt.per[l] ?? list.length, limit: cap ?? "",
           over: cap !== undefined && (mcnt.per[l] ?? 0) > cap,
           list: list.map(i => ({
-            id: i.id, name: i.name, img: i.img,
+            id: i.id, name: i.name, img: i.img, description: i.system.description, open: this.#openDesc.has(i.id),
             mfd: i.system.kind === "passive" ? t("man|always") : i.system.kind === "variable" ? t("man|variable") : `MFD ${MFD_LABEL[i.system.mfd] ?? i.system.mfd}`,
             actions: i.system.kind === "passive" ? "—" : i.system.actions ? t("{n} act.", { n: i.system.actions }) : t("no action"), learned: i.system.learned || i.system.kind === "passive",
             attempts: i.system.attempts, attemptsMax: sys.level,
@@ -407,6 +425,7 @@ export class FoeActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       stock: Object.entries(RARITY).map(([k, label]) => ({ label, n: stock[k] })),
       recipes: recipes.sort((a, b) => (a.system.level - b.system.level) || a.name.localeCompare(b.name)).map(i => ({
         id: i.id, name: i.name, img: i.img, level: i.system.level, school: i.system.school, special: i.system.special,
+        description: i.system.description, open: this.#openDesc.has(i.id),
         rarityLabel: RARITY[i.system.rarity] ?? "—", damage: i.system.damage,
         modes: modesOf(i.system.usage).map(m => ({ key: m, label: MODES[m].short, tip: MODES[m].label, ritual: m === "Cast" }))
       }))
@@ -429,6 +448,8 @@ export class FoeActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       const inc = rangeIncrement(w, str);
       return {
         id: i.id, name: i.name, img: i.img, ...w, canMount: !!saddle || w.mounted,
+        canTK: canHoldByTK(this.document, i), tk: heldByTK(this.document, i),
+        canThrowTK: heldByTK(this.document, i) && isClose(w) && !w.consumable,
         cond: degradationOn() && weaponCondition(w).total && !w.consumable ? (c => ({ ...c, worn: c.left < c.total, bad: c.left <= Math.ceil(c.total / 2) }))(weaponCondition(w)) : null,
         named: !!i.getFlag?.("foe-rpg", "named"), canName: !w.consumable && !i.getFlag?.("foe-rpg", "named") && canName(this.document),
         ammoVariant: loadedVariant(w)?.label.replace(/ \(.*\)$/, "") ?? "", ammoVariantTip: loadedVariant(w) ? `${loadedVariant(w).effect}; ${loadedVariant(w).downside}` : "",
@@ -447,6 +468,7 @@ export class FoeActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const labels = fxLabels();
     const short = shortLabels();
     const trained = hasPowerArmorTraining(this.document);
+    ctx.tkVolley = ctx.weapons.filter(x => x.tk).length >= 2;
     ctx.armor = items.filter(i => i.type === "armor").map(i => {
       const a = i.system;
       const wear = Object.values(a.wear ?? {}).reduce((sum, v) => sum + (v || 0), 0);
@@ -686,6 +708,33 @@ export class FoeActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
 
   static async #onFireVolley() {
     await fireVolley(this.document);
+  }
+
+  /** Rozwinięcie opisu zaklęcia, manewru albo receptury pod wierszem (stan pamiętany do zamknięcia karty). */
+  static #onToggleDesc(event, target) {
+    const id = target.closest("[data-item-id]")?.dataset.itemId;
+    if (!id) return;
+    const open = !this.#openDesc.has(id);
+    if (open) this.#openDesc.add(id); else this.#openDesc.delete(id);
+    target.classList.toggle("open", open);
+    const row = this.element.querySelector(`tr.desc-row[data-desc-for="${CSS.escape(id)}"]`);
+    if (row) row.hidden = !open;
+  }
+
+  /** Broń trzymana telekinezą (INT zamiast STR, salwa telekinezą) albo zwykle (w pysku, kopytach — STR). */
+  static async #onToggleTK(event, target) {
+    const item = this.#item(target);
+    if (!item) return;
+    await item.setFlag("foe-rpg", "tk", !heldByTK(this.document, item));
+  }
+
+  static async #onFireTKVolley() {
+    await fireTKVolley(this.document);
+  }
+
+  static async #onThrowTK(event, target) {
+    const item = this.#item(target);
+    if (item) await throwWeaponTK(this.document, item);
   }
 
   static async #onRepairArmor(event, target) {

@@ -26,7 +26,7 @@ export const CATEGORIES = [
     keys: ["pinkCloud", "pinkCorrode", "pinkFuse", "pinkVariable", "pinkResist", "pinkScream", "pinkAlicorns"] },
   { id: "combat", icon: "fa-solid fa-crosshairs", label: N_("Combat"),
     about: N_("Optional combat rules: hit locations, wear, ammunition, losing consciousness, the order of actions. Affects attack windows and damage."),
-    keys: ["consciousnessRolls", "simultaneousTens", "randomHitLocations", "armorDegradation", "weaponDegradation", "specialAmmo", "overloadRule", "powerArmorUntrainedAgi", "npcRollsPrivate", "groundMarkers", "altitudeMovesToken"] },
+    keys: ["consciousnessRolls", "simultaneousTens", "randomHitLocations", "armorDegradation", "weaponDegradation", "specialAmmo", "overloadRule", "tkThrowRule", "powerArmorUntrainedAgi", "npcRollsPrivate", "groundMarkers", "altitudeMovesToken"] },
   { id: "sats", icon: "fa-solid fa-bullseye", label: N_("S.A.T.S. and the PipBuck"),
     about: N_("The S.A.T.S. targeting screen, the PipBuck requirement and the Geiger counter. Affects the attack window, the camera and sounds."),
     keys: ["satsTargeting", "pipbuckGadgets", "satsAutoOpen", "satsZoom", "satsMinimize", "satsRestoreDelay", "geigerSound"] },

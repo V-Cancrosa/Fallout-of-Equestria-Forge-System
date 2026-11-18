@@ -1,4 +1,6 @@
 import { SKILLS } from "./data.mjs";
+import { heldByTK, tkOf, knowsTK } from "./tk.mjs";
+import { tkVolley, tkSpells, throwActions } from "./tk-data.mjs";
 import { rollContext } from "./effects.mjs";
 import { promptMfd, rollTest, rollDamage, locationName, stepIndex } from "./rolls.mjs";
 import { areasOf, areaLabels } from "./bestiary.mjs";
@@ -39,15 +41,17 @@ const elementOf = x => (x instanceof HTMLElement ? x : x?.element instanceof HTM
  * Atak: okno z SATS, warunkami, odległością, celem (strzał celowany / losowa lokacja), ciężarem broni;
  * zużywa amunicję (seria) albo sztukę granatu i AP w SATS, potem rzut d100 z kartą ataku.
  */
-export async function attackWithWeapon(actor, item, { spell = null, volley = null, vehicle = null } = {}) {
+export async function attackWithWeapon(actor, item, { spell = null, volley = null, vehicle = null, tkThrow = false, onConfirm = null } = {}) {
   const sys = actor.system;
   const w = item.system;
-  const sk = sys.skills[w.skill];
+  // rzut bronią telekinezą (s. 252): test Explosives, przedział z telekinezy, obrażenia z INT
+  const skillKey = tkThrow ? "explosives" : w.skill;
+  const sk = sys.skills[skillKey];
   if (!sk) return warn(t("The weapon has no skill assigned."));
   // degradacja (zasada opcjonalna, s. 458): broń bez kości obrażeń to złom
   if (degradationOn() && weaponCondition(w).broken) return warn(t("{name} is broken — repair it (Combat tab) or use it for parts.", { name: item.name }));
   const str = sys.attributes.str.total;
-  const close = isClose(w);
+  const close = isClose(w) && !tkThrow;
   const aoe = isAoe(w);
 
   // Amunicja: seria „/N” traci kości, gdy brakuje naboi (s. 187); granaty zużywają sztukę
@@ -68,10 +72,13 @@ export async function attackWithWeapon(actor, item, { spell = null, volley = nul
   const cost = (volley ? volley.satsCost : Number(w.satsCost) || 0) + (followUp ? 0 : thirstSats(dehydrationLevel(actor)));
   const noPip = needsPipbuck(actor);   // opcja świata: SATS tylko z PipBuckiem
   const canSats = !noPip && sats.value >= cost;
-  const inc = close ? 0 : rangeIncrement(w, str);
+  const tkp = tkThrow ? tkOf(actor) : null;
+  const inc = tkp ? ((Number(w.weight) || 0) < tkp.lightLimit ? tkp.throwIncLight : tkp.throwInc) : close ? 0 : rangeIncrement(w, str);
   const bands = rangeBands(inc);
   // broń pokładowa pojazdu: ciężar nie ma znaczenia, strzela członek załogi swoją umiejętnością
-  const limit = vehicle ? Infinity : wieldLimit(actor, w);
+  // broń trzymana telekinezą: limit to udźwig telekinezy, nie 2×STR (s. 252)
+  const tk = !vehicle && (tkThrow || heldByTK(actor, item));
+  const limit = vehicle ? Infinity : tk ? tkOf(actor).lift : wieldLimit(actor, w);
   const heavy = vehicle ? 0 : wieldPenalty(w.weight, str, limit);
   const targets = [...(game.user?.targets ?? [])];
   const target = targets[0]?.actor ?? null;
@@ -105,7 +112,7 @@ export async function attackWithWeapon(actor, item, { spell = null, volley = nul
   const extraHtml = `
     <div class="dlg-attack">
       <div class="atk-info">${info}</div>
-      ${followUp ? `<div class="atk-info"><div>${volley.sats ? t("Saddle volley: in SATS (AP already paid).") : t("Saddle volley: the same action.")}</div></div>` : ""}
+      ${followUp ? `<div class="atk-info"><div>${volley.kind === "tk" ? (volley.sats ? t("Telekinesis volley: in SATS (AP already paid).") : t("Telekinesis volley: the same action.")) : volley.sats ? t("Saddle volley: in SATS (AP already paid).") : t("Saddle volley: the same action.")}</div></div>` : ""}
       ${spell || followUp ? "" : `<label class="atk-row atk-check"><input type="checkbox" name="sats" ${canSats ? "" : "disabled"}>
         <span>SATS ${ruleLink("combat/sats")}</span><small>${noPip ? t("needs a PipBuck worn") : canSats ? t("−{c} AP ({left} left) · no environment and haste penalties", { c: cost, left: sats.value - cost }) : t("not enough AP: {v}/{c}", { v: sats.value, c: cost })}</small></label>`}
       <label class="atk-row">${t("Environment and haste")} <select name="env">
@@ -134,7 +141,7 @@ export async function attackWithWeapon(actor, item, { spell = null, volley = nul
       ${vehicle ? `<label class="atk-row atk-check"><input type="checkbox" name="moving" ${moving ? "checked" : ""}>
         <span>${t("Vehicle moving")}</span><small>${t("shooting from a moving vehicle: −1 MFD step (house rule)")}</small></label>` : ""}
       ${heavy ? `<label class="atk-row atk-check"><input type="checkbox" name="heavy" checked>
-        <span>${t("Weapon too heavy")}</span><small>${w.weight} lb > ${w.mounted ? t("saddle limit") : "2×STR"} (${limit}): −${heavy} ${t("st.")}${close ? `, ${t("no STR bonus")}` : ""}</small></label>` : ""}
+        <span>${t("Weapon too heavy")}</span><small>${w.weight} lb > ${w.mounted ? t("saddle limit") : tk ? t("telekinesis lift") : "2×STR"} (${limit}): −${heavy} ${t("st.")}${close ? `, ${t("no STR bonus")}` : ""}</small></label>` : ""}
     </div>`;
 
   const readExtra = form => {
@@ -160,7 +167,8 @@ export async function attackWithWeapon(actor, item, { spell = null, volley = nul
     if (rng) notes.push(t("Distance {d} {s}", { d: el.range.selectedOptions[0]?.textContent.split(" (")[0], s: stepsLabel(rng) }));
     if (called) notes.push(t("Called shot: {loc} {s}", { loc: area ? area.label : CALLED_SHOTS[loc].label, s: stepsLabel(called) }));
     if (heavySteps) notes.push(t("Weapon too heavy {s}", { s: stepsLabel(heavySteps) }));
-    if (volleySteps) notes.push(t("Saddle volley ({i}/{n}) {s}", { i: volley.index + 1, n: volley.count, s: stepsLabel(volleySteps) }));
+    if (volleySteps) notes.push(volley.kind === "tk" ? t("Telekinesis volley ({i}/{n}) {s}", { i: volley.index + 1, n: volley.count, s: stepsLabel(volleySteps) })
+      : t("Saddle volley ({i}/{n}) {s}", { i: volley.index + 1, n: volley.count, s: stepsLabel(volleySteps) }));
     if (movingSteps) notes.push(t("Shot from a moving vehicle {s}", { s: stepsLabel(movingSteps) }));
     if (gunSteps) notes.push(t("Damaged weapons {s}", { s: stepsLabel(gunSteps) }));
     for (const x of sizeSteps) notes.push(`${x.label} ${stepsLabel(x.steps)}`);
@@ -188,10 +196,12 @@ export async function attackWithWeapon(actor, item, { spell = null, volley = nul
     sync();
   };
 
-  const rc = rollContext(actor, { kind: "attack", skill: w.skill, skillAttr: sk.attr }, { manualMod: sk.mod });
-  const r = await promptMfd(t("Attack: {name}", { name: item.name }), sk.tn, rc, { defaultStep: aoe && !tVehicle ? "3/4" : "1", extraHtml, readExtra, onRender });
+  const rc = rollContext(actor, { kind: "attack", skill: skillKey, skillAttr: sk.attr }, { manualMod: sk.mod });
+  const r = await promptMfd(tkThrow ? t("Telekinetic throw: {name}", { name: item.name }) : t("Attack: {name}", { name: item.name }), sk.tn, rc, { defaultStep: aoe && !tVehicle ? "3/4" : "1", extraHtml, readExtra, onRender });
   if (!r) return null;
   const { extra: ex = {}, ...roll } = r;
+  // np. rzut telekinezą: strain płacony dopiero po zatwierdzeniu okna (false — przerwij)
+  if (onConfirm && (await onConfirm()) === false) return null;
 
   if (ex.sats && !followUp) {
     const cur = actor.system.resources.sats.value;
@@ -199,8 +209,10 @@ export async function attackWithWeapon(actor, item, { spell = null, volley = nul
     await actor.update({ "system.resources.sats.value": cur - cost });
   }
   // salwa z siodła: jedna akcja (i jeden koszt SATS) za wszystkie bronie
-  if (!spell && !(volley?.index > 0)) await spendActions(actor, 1, volley ? t("saddle volley") : ex.sats ? "SATS" : t("attack"));
-  if (w.consumable) await item.update({ "system.qty": Math.max(0, (Number(item.system.qty) || 0) - 1) });
+  // rzut telekinezą: każde pełne 100 lb to dodatkowa akcja (s. 252)
+  if (!spell && !(volley?.index > 0)) await spendActions(actor, tkThrow ? throwActions(w.weight) : 1,
+    volley ? (volley.kind === "tk" ? t("telekinesis volley") : t("saddle volley")) : tkThrow ? t("telekinetic throw") : ex.sats ? "SATS" : t("attack"));
+  if (w.consumable && !tkThrow) await item.update({ "system.qty": Math.max(0, (Number(item.system.qty) || 0) - 1) });
   else if (w.ammo.max > 0) await item.update({ "system.ammo.value": Math.max(0, item.system.ammo.value - b.use) });
   // degradacja broni dystansowej: liczy się wystrzelona amunicja (niektóre rodzaje amunicji specjalnej 2× albo 4×)
   if (degradationOn() && !w.consumable && w.ammo.max > 0 && !close) await wearWeapon(item, b.use * ammoWearFactor(loadedVariant(w)?.key));
@@ -214,10 +226,12 @@ export async function attackWithWeapon(actor, item, { spell = null, volley = nul
     // bariery Threshold: DT osłony i zatrzymanie pocisku dla każdego celu (do nanoszenia obrażeń i animacji)
     ...(cov ? { cover: Object.fromEntries(Object.entries(cov.targets).map(([u, c]) => [u, { dt: c.dt, blocked: c.blocked, names: c.names,
       thin: (c.barriers ?? []).filter(b => b.ballistic === "conditional" && b.dt > 0 && b.destructible).map(b => ({ wall: b.uuid, dt: b.dt })) }])) } : {}),
-    ...(vehicle ? { vehicle: vehicle.uuid, gunnerUuid: actor.uuid } : {})
+    ...(vehicle ? { vehicle: vehicle.uuid, gunnerUuid: actor.uuid } : {}),
+    ...(tkThrow ? { tkThrow: true } : {})
   };
   if (spell) return rollTest(actor, { label: t("Aiming: {name} (Magic)", { name: item.name }), baseTn: sk.tn, magic: true, ...roll, itemUuid: item.uuid, attack });
-  const msg = await rollTest(actor, { label: t("Attack: {name} ({skill})", { name: item.name, skill: SKILLS[w.skill]?.label ?? w.skill }), baseTn: sk.tn, ...roll, itemUuid: item.uuid, attack });
+  const msg = await rollTest(actor, { label: tkThrow ? t("Telekinetic throw: {name} ({skill})", { name: item.name, skill: SKILLS.explosives.label })
+    : t("Attack: {name} ({skill})", { name: item.name, skill: SKILLS[w.skill]?.label ?? w.skill }), baseTn: sk.tn, ...roll, itemUuid: item.uuid, attack });
   // degradacja broni do walki wręcz: liczą się trafienia
   const res = msg?.getFlag?.("foe-rpg", "test")?.result ?? msg?.flags?.["foe-rpg"]?.test?.result;
   if (degradationOn() && close && (res === "success" || res === "crit-success")) await wearWeapon(item, 1);
@@ -400,6 +414,86 @@ export async function fireVolley(actor) {
     out.push(msg);
   }
   return out;
+}
+
+/**
+ * Salwa telekinezą (s. 252): wybrane bronie trzymane telekinezą jedną akcją — jak siodło bojowe: każda dodatkowa
+ * −1 krok MFD i +10 AP SATS, baza — najdroższa broń. Ciężar ponad udźwig telekinezy — tylko ostrzeżenie.
+ */
+export async function fireTKVolley(actor) {
+  const all = actor.items.filter(i => heldByTK(actor, i));
+  if (all.length < 2) return warn(t("A telekinesis volley needs at least two weapons held by telekinesis (mark “TK” by the weapon in the Combat tab)."));
+  const rows = all.map(i => `<label class="atk-row atk-check"><input type="checkbox" name="w" value="${i.id}" checked><span>${esc(i.name)}</span><small>${Number(i.system.weight) || 0} lb · ${Number(i.system.satsCost) || 0} AP</small></label>`).join("");
+  const ids = await DialogV2.wait({
+    window: { title: t("Telekinesis volley") }, classes: ["foe-rpg", "foe-roll-dialog"],
+    content: `<div class="dlg-attack"><div class="atk-info"><div>${t("Which weapons fire together? Each additional one: −1 MFD step and +10 AP in SATS.")}</div></div>${rows}</div>`,
+    buttons: [
+      { action: "ok", label: t("Fire"), icon: "fa-solid fa-hand-sparkles", default: true, callback: (ev, btn) => [...btn.form.querySelectorAll("input[name=w]:checked")].map(x => x.value) },
+      { action: "no", label: t("Cancel") }
+    ],
+    rejectClose: false
+  });
+  if (!Array.isArray(ids)) return null;
+  const list = all.filter(i => ids.includes(i.id));
+  if (list.length < 2) return warn(t("Choose at least two weapons."));
+  const v = tkVolley(list);
+  const lift = tkOf(actor).lift;
+  const weight = list.reduce((sum, i) => sum + (Number(i.system.weight) || 0), 0);
+  if (weight > lift) ui.notifications.warn(t("{name}: the weapons weigh {w} lb — more than the telekinesis lift ({l} lb). Settle it at the table (Magic roll, overglow or dropping something).", { name: actor.name, w: weight, l: lift }));
+  let sats = false;
+  const out = [];
+  for (const [index, item] of list.entries()) {
+    const msg = await attackWithWeapon(actor, item, { volley: { kind: "tk", index, count: list.length, steps: v.steps, satsCost: v.satsCost, sats } });
+    if (!msg && index === 0) return null;
+    if (index === 0) sats = !!(msg?.flags?.["foe-rpg"]?.test?.attack?.sats ?? msg?.getFlag?.("foe-rpg", "test")?.attack?.sats);
+    out.push(msg);
+  }
+  return out;
+}
+
+/** Zasada rzutu telekinezą (ustawienie świata): "single" — strain + Explosives, "book" — najpierw Magic, potem Explosives. */
+const tkThrowRule = () => { try { return game.settings.get("foe-rpg", "tkThrowRule") === "book" ? "book" : "single"; } catch { return "single"; } };
+
+/**
+ * Rzut bronią telekinezą (s. 252): rzecz lżejsza niż ¼ udźwigu, test Explosives z przedziałem (INT/4)×5 ft
+ * (×2 dla lżejszej niż ⅛ udźwigu), obrażenia z INT. Użycie telekinezy w walce kosztuje strain: zależnie od ustawienia
+ * świata płacisz koszt zaklęcia (jeden rzut) albo najpierw rzucasz Telekinezę (Magic), a po sukcesie rzucasz bronią.
+ * Broń zostaje na ziemi przy celu.
+ */
+export async function throwWeaponTK(actor, item) {
+  if (!knowsTK(actor)) return warn(t("{name} doesn't know Telekinesis (or has magical burnout).", { name: actor.name }));
+  const p = tkOf(actor);
+  if (!p.canThrow) return warn(t("{name}: INT below 4 — telekinesis can't throw anything.", { name: actor.name }));
+  const wt = Number(item.system.weight) || 0;
+  if (!(wt < p.throwLimit)) return warn(t("{name}: too heavy to throw with telekinesis — under {l} lb only (¼ of the lift).", { name: item.name, l: Math.round(p.throwLimit * 10) / 10 }));
+  const spell = actor.items.find(i => i.type === "spell" && /^(telekinesis|telekineza)\b/i.test(i.name))
+    ?? actor.items.find(i => i.type === "spell" && /telekine/i.test(i.name));
+  const cost = Math.max(1, Number(spell?.system?.cost) || 1);
+  const target = [...(game.user?.targets ?? [])][0]?.document ?? null;
+  if (tkThrowRule() === "book") {
+    if (!spell) return warn(t("{name}: no Telekinesis spell on the sheet.", { name: actor.name }));
+    const { castSpell } = await import("./magic.mjs");
+    const cast = await castSpell(actor, spell);
+    if (!cast) return null;
+    const ok = cast.getFlag?.("foe-rpg", "spell")?.fx?.cast ?? cast.flags?.["foe-rpg"]?.spell?.fx?.cast;
+    if (!ok) return ui.notifications.info(t("{name}: the telekinesis failed — nothing is thrown.", { name: actor.name }));
+    return finishThrow(actor, item, target, null);
+  }
+  const pay = async () => {
+    const pool = Number(actor.system.resources?.strain?.value) || 0;
+    if (pool < cost) { warn(t("{name}: not enough strain for telekinesis ({p}/{c}). Cast Telekinesis from the Magic tab instead.", { name: actor.name, p: pool, c: cost })); return false; }
+    await actor.update({ "system.resources.strain.value": pool - cost });
+    return true;
+  };
+  return finishThrow(actor, item, target, pay);
+}
+
+async function finishThrow(actor, item, target, onConfirm) {
+  const msg = await attackWithWeapon(actor, item, { tkThrow: true, onConfirm });
+  if (!msg) return null;
+  const { dropAt } = await import("./throw.mjs");
+  await dropAt(actor, item, target?.uuid ?? null);
+  return msg;
 }
 
 /** Talizman naprawczy pancerza wspomaganego: 2 DT na każdej lokacji za jednostkę złomu (metalu albo elektroniki). */

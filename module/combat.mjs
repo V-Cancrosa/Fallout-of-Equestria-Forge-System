@@ -155,22 +155,29 @@ export const aoeFlat = rank => (rank >= 100 ? 10 : 0);
  *   wręcz: „STR” w formule = STR × mnożnik z rangi (bez premii przy zbyt ciężkiej broni),
  *   inne (łuki, rzucane): „STR” = sama siła,
  *   Small Guns, Energy Weapons, Big Guns: + ranga/10,
- *   broń obszarowa: rzut × % z rangi (+10 przy randze 100) — pct/flat stosuje się po rzucie.
+ *   broń obszarowa: rzut × % z rangi (+10 przy randze 100) — pct/flat stosuje się po rzucie,
+ *   tk — broń trzymana albo rzucona telekinezą (s. 252): { int, mult } — INT zamiast STR; z samą Telekinezą
+ *   bez mnożnika z rangi (mult false), z Mighty Telekinesis mnożony jak STR.
  */
-export function damageFormula(w, { str = 0, rank = 0, overWield = false } = {}) {
+export function damageFormula(w, { str = 0, rank = 0, overWield = false, tk = null } = {}) {
   const notes = [];
   // broń potworów z bestiariusza: obrażenia już zawierają premie
   if (w?.flat) return { formula: String(w.damage || "0"), pct: 1, flat: 0, notes: [t("damage from the stat block")] };
   const close = isClose(w);
   const aoe = isAoe(w);
-  const strVal = close ? (overWield ? 0 : str * strFactor(rank)) : str;
+  const base = tk ? tk.int : str;
+  const strVal = overWield && close ? 0 : close && (!tk || tk.mult) ? base * strFactor(rank) : base;
   let formula = String(w?.damage || "0");
   const hasStr = /\bSTR\b/i.test(formula);
   formula = formula
     .replace(/(\d+(?:\.\d+)?)\s*[*×x]\s*STR\b/gi, (_, k) => String(Math.floor(Number(k) * strVal)))
     .replace(/\bSTR\s*[*×x]\s*(\d+(?:\.\d+)?)/gi, (_, k) => String(Math.floor(Number(k) * strVal)))
     .replace(/\bSTR\b/gi, String(strVal));
-  if (hasStr) {
+  if (hasStr && tk) {
+    if (close && overWield) notes.push(t("weapon too heavy — no STR bonus"));
+    else if (close && tk.mult) notes.push(t("telekinesis: INT {s} × {f} (rank {r}) instead of STR", { s: tk.int, f: strFactor(rank), r: rank }));
+    else notes.push(t("telekinesis: INT {s} instead of STR", { s: tk.int }));
+  } else if (hasStr) {
     if (close && overWield) notes.push(t("weapon too heavy — no STR bonus"));
     else if (close) notes.push(t("STR {s} × {f} (rank {r})", { s: str, f: strFactor(rank), r: rank }));
     else notes.push(`STR ${str}`);
