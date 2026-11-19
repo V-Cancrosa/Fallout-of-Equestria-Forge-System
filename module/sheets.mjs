@@ -1,4 +1,5 @@
 import { clearFlag } from "./flags.mjs";
+import { attachFormulaHelp } from "./formula-ui.mjs";
 import { ATTRS, SKILLS, LOCATIONS, ARMOR_CATEGORIES, GEAR_CATEGORIES } from "./data.mjs";
 import { promptMfd, rollTest, rollDamage } from "./rolls.mjs";
 import { attackWithWeapon, reloadWeapon } from "./attack.mjs";
@@ -993,6 +994,11 @@ export class FoeItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     }
     ctx.descHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(sys.description, { relativeTo: this.document });
     return ctx;
+  }
+
+  _onRender(context, options) {
+    super._onRender?.(context, options);
+    attachFormulaHelp(this.element, this.document);
   }
 
   _onFirstRender(context, options) {

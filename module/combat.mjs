@@ -2,6 +2,7 @@
  * Zasady walki z podręcznika v1.22 (rozdz. 4 i 7) jako czyste funkcje — bez zależności od Foundry,
  * żeby dało się je testować poza grą.
  */
+import { resolveFormula } from "./formula-data.mjs";
 import { t, N_, tmap, tfields, isPL } from "./i18n.mjs";
 
 // ---------- Lokacje trafień ----------
@@ -159,7 +160,7 @@ export const aoeFlat = rank => (rank >= 100 ? 10 : 0);
  *   tk — broń trzymana albo rzucona telekinezą (s. 252): { int, mult } — INT zamiast STR; z samą Telekinezą
  *   bez mnożnika z rangi (mult false), z Mighty Telekinesis mnożony jak STR.
  */
-export function damageFormula(w, { str = 0, rank = 0, overWield = false, tk = null } = {}) {
+export function damageFormula(w, { str = 0, rank = 0, overWield = false, tk = null, vals = null } = {}) {
   const notes = [];
   // broń potworów z bestiariusza: obrażenia już zawierają premie
   if (w?.flat) return { formula: String(w.damage || "0"), pct: 1, flat: 0, notes: [t("damage from the stat block")] };
@@ -181,6 +182,12 @@ export function damageFormula(w, { str = 0, rank = 0, overWield = false, tk = nu
     if (close && overWield) notes.push(t("weapon too heavy — no STR bonus"));
     else if (close) notes.push(t("STR {s} × {f} (rank {r})", { s: str, f: strFactor(rank), r: rank }));
     else notes.push(`STR ${str}`);
+  }
+  // pozostałe atrybuty, umiejętności i poziom (formula-data.mjs) — dodawane wprost
+  if (vals) {
+    const r = resolveFormula(formula, vals, { skip: ["str"] });
+    formula = r.formula;
+    if (r.used.length) notes.push(r.used.join(", "));
   }
   if (!aoe && ["smallGuns", "energy", "bigGuns"].includes(w?.skill)) {
     const b = Math.floor(rank / 10);

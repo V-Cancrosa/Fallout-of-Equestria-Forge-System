@@ -182,6 +182,11 @@ poziom, prekursory, obrażenia) w zakładce „Zaklęcia” katalogu, zakładka 
   Explosives). Znajomość Telekinezy znosi karę −10 „kopyt” do Lockpicking, Telekinetic Precision daje +3 do Repair
   i Lockpicking. Przekroczony udźwig — na razie tylko ostrzeżenie.
 - Zaklęcia, manewry lotu i receptury zebr mają rozwijany opis: strzałka ▸ przy nazwie pokazuje pełny tekst pod wierszem.
+- **Formuły obrażeń** w karcie przedmiotu: pod polem „Obrażenia” klocki — kości (k4…k20), działania, atrybuty (STR PER END
+  CHA INT AGI LUCK; po polsku też SIŁ, WYT, ZRĘ, SZC), poziom (LVL), ranga umiejętności /10 (np. MELEE10) oraz floor/ceil/min/max
+  (obejmują zaznaczony fragment). Podgląd na żywo pokazuje formułę dla właściciela (albo przykładowej postaci) z minimum,
+  średnią i maksimum, a błędny zapis lub nieznane słowo od razu oznacza. STR w broni białej liczy się jak dotąd (z mnożnikiem
+  rangi), pozostałe atrybuty wchodzą wprost — mnożenie tylko jawnie, np. „2*AGI”. Działa też w obrażeniach zaklęć.
 - Kreator: jednorożce dostają Telekinezę, alikorny z Unity — swoją listę startową; zaklęcie poziomu 1 wybierasz z katalogu.
 
 Magia zebr i alchemia (s. 327–332): katalog 128 receptur w zakładce „Receptury zebr”, sekcja zebr w zakładce „Magia”.
