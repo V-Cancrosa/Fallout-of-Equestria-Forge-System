@@ -1,4 +1,5 @@
 import { clearFlag } from "./flags.mjs";
+import { attachFormulaHelp } from "./formula-ui.mjs";
 import { ATTRS, SKILLS, LOCATIONS, ARMOR_CATEGORIES, GEAR_CATEGORIES } from "./data.mjs";
 import { promptMfd, rollTest, rollDamage } from "./rolls.mjs";
 import { attackWithWeapon, reloadWeapon } from "./attack.mjs";
@@ -18,7 +19,7 @@ import { useHealItem, rest, setLimb, HEAL_KINDS } from "./healing.mjs";
 import { rollActorInitiative } from "./tracker.mjs";
 import { areaLabels, areasOf } from "./bestiary.mjs";
 import { saddleState, builtInSaddle, hasPowerArmorTraining, accessoryOf, saddleKindOf, reserveCapacity } from "./saddle.mjs";
-import { fireVolley, fireTKVolley, throwWeaponTK, repairPowerArmor } from "./attack.mjs";
+import { fireVolley, fireTKVolley, repairPowerArmor } from "./attack.mjs";
 import { radLevel } from "./body.mjs";
 import { cyberItems, CYBER_KINDS } from "./cyber-data.mjs";
 import { feedCyber, selfRepair, chargeReservoir } from "./cyber.mjs";
@@ -34,7 +35,7 @@ import { giveItem, giveCaps } from "./trade.mjs";
 import { dropToGround } from "./throw.mjs";
 import { tkOf, heldByTK, canHoldByTK } from "./tk.mjs";
 import { promptAdjustCaps } from "./give.mjs";
-import { hitTableFor, tableLocations, isClose } from "./combat.mjs";
+import { hitTableFor, tableLocations } from "./combat.mjs";
 import { locationName } from "./rolls.mjs";
 import { degradationOn, weaponCondition } from "./craft-data.mjs";
 import { parseBook } from "./books-data.mjs";
@@ -145,7 +146,6 @@ export class FoeActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       toggleTK: FoeActorSheet.#onToggleTK,
       toggleDesc: FoeActorSheet.#onToggleDesc,
       fireTKVolley: FoeActorSheet.#onFireTKVolley,
-      throwTK: FoeActorSheet.#onThrowTK,
       toggleGearEquip: FoeActorSheet.#onToggleGearEquip,
       fireVolley: FoeActorSheet.#onFireVolley,
       repairArmor: FoeActorSheet.#onRepairArmor,
@@ -449,7 +449,6 @@ export class FoeActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       return {
         id: i.id, name: i.name, img: i.img, ...w, canMount: !!saddle || w.mounted,
         canTK: canHoldByTK(this.document, i), tk: heldByTK(this.document, i),
-        canThrowTK: heldByTK(this.document, i) && isClose(w) && !w.consumable,
         cond: degradationOn() && weaponCondition(w).total && !w.consumable ? (c => ({ ...c, worn: c.left < c.total, bad: c.left <= Math.ceil(c.total / 2) }))(weaponCondition(w)) : null,
         named: !!i.getFlag?.("foe-rpg", "named"), canName: !w.consumable && !i.getFlag?.("foe-rpg", "named") && canName(this.document),
         ammoVariant: loadedVariant(w)?.label.replace(/ \(.*\)$/, "") ?? "", ammoVariantTip: loadedVariant(w) ? `${loadedVariant(w).effect}; ${loadedVariant(w).downside}` : "",
@@ -732,11 +731,6 @@ export class FoeActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     await fireTKVolley(this.document);
   }
 
-  static async #onThrowTK(event, target) {
-    const item = this.#item(target);
-    if (item) await throwWeaponTK(this.document, item);
-  }
-
   static async #onRepairArmor(event, target) {
     const item = this.#item(target);
     if (item) await repairPowerArmor(this.document, item);
@@ -1000,6 +994,11 @@ export class FoeItemSheet extends HandlebarsApplicationMixin(ItemSheetV2) {
     }
     ctx.descHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(sys.description, { relativeTo: this.document });
     return ctx;
+  }
+
+  _onRender(context, options) {
+    super._onRender?.(context, options);
+    attachFormulaHelp(this.element, this.document);
   }
 
   _onFirstRender(context, options) {

@@ -199,12 +199,17 @@ function glyphOf(file) {
   return inner.replace(/<path d="M0 0h512v512H0z"\s*\/>/, "").replace(/fill="#fff"/g, 'fill="#4dff8a"').replace(/fill="#000"/g, 'fill="#4dff8a"');
 }
 
-function iconSvg(glyph, { bg, badge }) {
+/**
+ * Ikona: sam rysunek w kolorze PipBucka na przezroczystym tle (bez ramki — tło i ramkę daje karta), rysunek
+ * na prawie całą ikonę. Znacznik to pełny prostokąt w kolorze rysunku z wyciętymi literami (maska) — karta
+ * barwi całość filtrem w kolorach swojego wyglądu (skin-apply.mjs), więc nie może być w nim innych kolorów.
+ */
+function iconSvg(glyph, { badge }) {
   const w = badge ? Math.max(84, badge.length * 50 + 28) : 0;
-  const b = badge ? `<g font-family="'Consolas','DejaVu Sans Mono','Courier New',monospace" font-size="80" font-weight="700"><rect x="${488 - w}" y="400" width="${w}" height="88" rx="10" fill="#000" fill-opacity=".75" stroke="#4dff8a" stroke-width="4"/>
-<text x="${488 - w / 2}" y="470" text-anchor="middle" textLength="${w - 28}" lengthAdjust="spacingAndGlyphs" fill="#b8ffd0">${badge.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</text></g>` : "";
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect x="8" y="8" width="496" height="496" rx="56" fill="${bg}" stroke="#2c7a46" stroke-width="10"/>
-<g transform="translate(64 56) scale(.75)" style="filter:drop-shadow(0 0 6px rgba(77,255,138,.55))">${glyph}</g>${b}</svg>\n`;
+  const b = badge ? `<mask id="m"><rect x="${500 - w}" y="408" width="${w}" height="92" rx="12" fill="#fff"/>
+<text x="${500 - w / 2}" y="482" text-anchor="middle" textLength="${w - 28}" lengthAdjust="spacingAndGlyphs" font-family="'Consolas','DejaVu Sans Mono','Courier New',monospace" font-size="84" font-weight="700" fill="#000">${badge.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</text></mask>
+<rect x="${500 - w}" y="408" width="${w}" height="92" rx="12" fill="#4dff8a" mask="url(#m)"/>` : "";
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><g transform="translate(20 12) scale(.92)">${glyph}</g>${b}</svg>\n`;
 }
 
 // ---------- przypisanie ----------
@@ -258,9 +263,13 @@ for (const it of items) {
   it.badge = shared ? badgeOf(it.e.name, it.roman) : (/(\.\d{2,3}|\d+mm)/i.test(it.e.name) ? badgeOf(it.e.name) : "");
 }
 // unikalność: ten sam rysunek + tło + znacznik → dopisz numer
-const key = it => `${it.glyph}|${it.bg}|${it.badge}`;
-const dup = new Map();
-for (const it of items) { const c = dup.get(key(it)) ?? 0; dup.set(key(it), c + 1); if (c) it.badge = `${it.badge.slice(0, 4)}${c + 1}`; }
+const key = it => `${it.glyph}|${it.badge}`;
+const taken = new Set();
+for (const it of items) {
+  const base = it.badge;
+  for (let n = 2; taken.has(key(it)); n++) it.badge = `${base.slice(0, 4)}${n}`;
+  taken.add(key(it));
+}
 if (new Set(items.map(key)).size !== items.length) { console.error("Ikony nie są unikalne."); process.exit(1); }
 
 const glyphs = new Set(items.map(i => i.glyph));

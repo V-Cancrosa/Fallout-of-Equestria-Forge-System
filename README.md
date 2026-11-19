@@ -88,6 +88,8 @@ ten sam rysunek, różnią się tłem i znacznikiem (kaliber, model albo inicja�
 Przy pierwszym uruchomieniu po aktualizacji to, co już jest u postaci, NPC i w świecie (przedmioty, zaklęcia, perki…,
 aktorzy stworzeń i pojazdów), samo dostaje nowe ikony — o ile ma jeszcze domyślną ikonę (własnych obrazków MG to nie zmienia). Ikony buduje
 `node tools/build-item-icons.mjs <repozytorium game-icons>`.
+Ikony mają przezroczyste tło i rysunek na całą ikonę; na karcie, w katalogu i na czacie przybierają kolor wyglądu karty
+(PipBuck w kolorze fosforu, papier Stajni — granat, szeryf — brąz, Księga Długu — stal…).
 
 Walka:
 - Atak (kliknij nazwę broni): okno z SATS (koszt AP z broni; znosi kary otoczenia i pośpiechu), odległością (każdy przedział
@@ -175,11 +177,16 @@ poziom, prekursory, obrażenia) w zakładce „Zaklęcia” katalogu, zakładka 
   ×2 dla lżejszej niż ⅛). Broń jednorożca jest domyślnie **trzymana telekinezą** (przełącznik „TK” przy broni w zakładce
   Walka): biała broń i walka wręcz liczą INT zamiast STR (z samą Telekinezą bez mnożnika z rangi, z Mighty — z mnożnikiem),
   limit ciężaru to udźwig telekinezy. **Salwa telekinezą**: kilka broni jedną akcją, każda dodatkowa −1 krok MFD i +10 AP
-  SATS. **Rzut bronią telekinezą** (ikona dłoni przy broni białej): test Explosives, obrażenia z INT, broń zostaje na ziemi
-  przy celu; ustawienie świata „Rzut telekinezą” — jeden rzut (strain + Explosives) albo jak w podręczniku (Magic, potem
+  SATS. **Rzut bronią telekinezą**: w oknie ataku broni białej trzymanej telekinezą przełącznik „Atak” — Melee albo rzut
+  telekinezą (Explosives; okno przelicza się od razu), obrażenia z INT, broń zostaje na ziemi przy celu; ustawienie świata „Rzut telekinezą” — jeden rzut (strain + Explosives) albo jak w podręczniku (Magic, potem
   Explosives). Znajomość Telekinezy znosi karę −10 „kopyt” do Lockpicking, Telekinetic Precision daje +3 do Repair
   i Lockpicking. Przekroczony udźwig — na razie tylko ostrzeżenie.
 - Zaklęcia, manewry lotu i receptury zebr mają rozwijany opis: strzałka ▸ przy nazwie pokazuje pełny tekst pod wierszem.
+- **Formuły obrażeń** w karcie przedmiotu: pod polem „Obrażenia” klocki — kości (k4…k20), działania, atrybuty (STR PER END
+  CHA INT AGI LUCK; po polsku też SIŁ, WYT, ZRĘ, SZC), poziom (LVL), ranga umiejętności /10 (np. MELEE10) oraz floor/ceil/min/max
+  (obejmują zaznaczony fragment). Podgląd na żywo pokazuje formułę dla właściciela (albo przykładowej postaci) z minimum,
+  średnią i maksimum, a błędny zapis lub nieznane słowo od razu oznacza. STR w broni białej liczy się jak dotąd (z mnożnikiem
+  rangi), pozostałe atrybuty wchodzą wprost — mnożenie tylko jawnie, np. „2*AGI”. Działa też w obrażeniach zaklęć.
 - Kreator: jednorożce dostają Telekinezę, alikorny z Unity — swoją listę startową; zaklęcie poziomu 1 wybierasz z katalogu.
 
 Magia zebr i alchemia (s. 327–332): katalog 128 receptur w zakładce „Receptury zebr”, sekcja zebr w zakładce „Magia”.

@@ -10,7 +10,7 @@
  * Akcent: jednorożec z własnym kolorem magii może go użyć jako koloru ekranu (flaga foe-rpg.skin.accent).
  */
 import { t, N_ } from "./i18n.mjs";
-import { skinOf, overlaysOf, accentOk, devices, skinPaint, setCustomSkins } from "./skins.mjs";
+import { skinOf, overlaysOf, accentOk, devices, skinPaint, setCustomSkins, iconFilter } from "./skins.mjs";
 import { dehydrationLevel } from "./body.mjs";
 import { magicColorOf, customMagic } from "./fx-data.mjs";
 import { registerSkinEditorMenu } from "./skin-editor.mjs";
@@ -36,6 +36,15 @@ export function applySkin(el, skin) {
   if (Object.keys(p.vars).length) el.dataset.foeVars = Object.keys(p.vars).join(" ");
   else delete el.dataset.foeVars;
   if (skin.startsWith("c-")) el.dataset.foeSkin = skin; else delete el.dataset.foeSkin;
+  paintIcons(el);
+}
+
+/** Ikony przedmiotów (icons/items) w kolorze wyglądu: filtr liczony z --pip okna albo karty czatu. */
+export function paintIcons(el) {
+  try {
+    const f = iconFilter(getComputedStyle(el).getPropertyValue("--pip"));
+    if (f) el.style.setProperty("--foe-icon-filter", f); else el.style.removeProperty("--foe-icon-filter");
+  } catch { /* poza przeglądarką */ }
 }
 
 function actorOf(app) {
@@ -87,6 +96,7 @@ export function applyAccent(el, actor, skin) {
   const on = actor?.flags?.[F]?.skin?.accent && customMagic(actor) && accentOk(skin);
   if (on) el.style.setProperty("--pip", magicColorOf(actor));
   else if (!skinPaint(skin).vars["--pip"]) el.style.removeProperty("--pip");
+  paintIcons(el);
 }
 
 /** Opcja świata: SATS i licznik Geigera tylko z założonym PipBuckiem (NPC bez ograniczeń). */

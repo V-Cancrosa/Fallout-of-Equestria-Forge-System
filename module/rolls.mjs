@@ -1,4 +1,5 @@
 import { markCrit, tint, afterDice } from "./dice3d.mjs";
+import { resolveFormula, formulaVals } from "./formula-data.mjs";
 import { heldByTK, tkOf } from "./tk.mjs";
 import { MFD_STEPS, LOCATIONS } from "./data.mjs";
 import { actorEffects, sumFx, hitsAttack } from "./effects.mjs";
@@ -309,9 +310,8 @@ export async function rollTest(actor, data) {
  * Zaklęcie jako „broń” do rzutu obrażeń: INT i ranga Magic/10 w formule, overglow podwaja obrażenia za warstwę (s. 243).
  */
 export function spellWeapon(s, actor, layers = 0) {
-  const int = actor.system.attributes?.int?.total ?? 0;
-  const m10 = Math.floor((actor.system.skills?.magic?.rank ?? 0) / 10);
-  let f = String(s.damage || "0").replace(/MAGIC10/g, String(m10)).replace(/\bINT\b/g, String(int));
+  // INT, MAGIC10 i pozostałe słowa formuł (formula-data.mjs)
+  let f = resolveFormula(s.damage || "0", formulaVals(actor.system)).formula;
   if (layers > 0) f = `(${f}) * ${2 ** layers}`;
   return { skill: "magic", damage: f, crit: s.crit || "x1", ignoreDT: s.ignoreDT || 0, weight: 0, specials: {}, aoe: { enabled: false } };
 }
@@ -362,7 +362,7 @@ export async function rollDamage(actor, item, { crit = false, attack = null } = 
   const ammoV = item.type === "weapon" ? loadedVariant(w) : null;
   // degradacja (s. 458): −1 kość za każdy utracony krok
   const worn = item.type === "weapon" && degradationOn() ? Number(w.wear) || 0 : 0;
-  const df = damageFormula({ ...w, damage: shiftDice(attack?.formula || w.damage, (ammoV?.dice ?? 0) - worn) }, { str, rank, overWield, tk: tkp ? { int: tkp.int, mult: tkp.mighty > 0 } : null });
+  const df = damageFormula({ ...w, damage: shiftDice(attack?.formula || w.damage, (ammoV?.dice ?? 0) - worn) }, { str, rank, overWield, tk: tkp ? { int: tkp.int, mult: tkp.mighty > 0 } : null, vals: formulaVals(sys) });
   if (worn) df.notes.push(tn(worn, "wear −{n} die", "wear −{n} dice"));
   let formula = df.formula;
   if (ammoV?.addDice) formula += ` + ${ammoV.addDice}`;

@@ -1381,3 +1381,14 @@ fieldset.foe-env .foe-env-preset { border-bottom: 1px dashed var(--env-dim); pad
 .foe-rpg table.foe-table tr.desc-row td.desc { padding: .2rem .5rem .45rem 1.4rem; text-align: left; white-space: normal; font-size: 12px; color: var(--pip-mid); text-transform: none; }
 .foe-rpg table.foe-table tr.desc-row td.desc p { margin: .15rem 0; }
 .foe-rpg .tk-bar small { color: var(--pip-mid); }
+
+/* ---------- Pomocnik formuły obrażeń (karta przedmiotu, formula-ui.mjs) ---------- */
+.foe-rpg .formula-help { grid-column: 1 / -1; margin: -.15rem 0 .35rem; }
+.foe-rpg .formula-help .fh-chips { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; }
+.foe-rpg .formula-help .fh-chips button { flex: 0 0 auto; width: auto; min-width: 1.9rem; height: 1.45rem; padding: 0 .35rem; line-height: 1; font-family: var(--foe-mono); font-size: 11px; text-transform: none; }
+.foe-rpg .formula-help .fh-chips select { width: auto; height: 1.45rem; font-size: 11px; }
+.foe-rpg .formula-help .fh-sep { width: .4rem; }
+.foe-rpg .formula-help .fh-preview { margin-top: .25rem; font-size: 12px; color: var(--pip-mid); text-transform: none; }
+.foe-rpg .formula-help .fh-preview b { color: var(--pip-bright); }
+.foe-rpg .formula-help .fh-bad { color: var(--pip-alert); }
+.foe-rpg .formula-help .fh-hint { color: var(--pip-dim); }

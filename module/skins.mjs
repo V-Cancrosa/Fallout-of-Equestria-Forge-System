@@ -244,3 +244,31 @@ export function overlaysOf(s = {}) {
 
 /** Wygląd z akcentem w kolorze magii (tylko ciemne ekrany — na jasnych pastelowy kolor byłby nieczytelny). */
 export const accentOk = skin => !!skinById(skin)?.dark;
+
+// ---------- kolor ikon przedmiotów ----------
+const ICON_HSL = [140.6, 1, 0.651];   // rysunek ikon (icons/items) jest w kolorze #4dff8a
+/** Kolor CSS (#rgb, #rrggbb, rgb()) → [odcień, nasycenie, jasność]; null — nie rozpoznano. */
+export function hslOf(color) {
+  const c = String(color ?? "").trim();
+  let r, g, b;
+  const hex = c.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+  const rgb = c.match(/^rgba?\(\s*(\d+)[ ,]+(\d+)[ ,]+(\d+)/i);
+  if (hex) {
+    const h = hex[1].length === 3 ? hex[1].split("").map(x => x + x).join("") : hex[1];
+    [r, g, b] = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) / 255);
+  } else if (rgb) [r, g, b] = rgb.slice(1, 4).map(x => Number(x) / 255);
+  else return null;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
+  if (mx === mn) return [0, 0, l];
+  const d = mx - mn;
+  const s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn);
+  const h = (mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4) * 60;
+  return [h, s, l];
+}
+/** Filtr CSS, który przemalowuje zielony rysunek ikon przedmiotów na kolor wyglądu (--pip); "" — bez zmian. */
+export function iconFilter(color) {
+  const v = hslOf(color);
+  if (!v) return "";
+  const [h, s, l] = v;
+  return `hue-rotate(${Math.round(h - ICON_HSL[0])}deg) saturate(${(s / ICON_HSL[1]).toFixed(2)}) brightness(${(l / ICON_HSL[2]).toFixed(2)})`;
+}
