@@ -285,6 +285,8 @@ export class FoeActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
         tnZero: s.tn + m <= 0,
         rankFx: s.fxRank ? signed(s.fxRank) : "", rankTip: tip(s.fxRankSources),
         rollFx: s.fxRoll ? signed(s.fxRoll) : "", rollTip: tip(s.fxRollSources),
+        // sytuacyjne (zaznaczane w oknie rzutu): „(+15)”, źródło i warunek w podpowiedzi
+        sitFx: s.fxSit?.length ? s.fxSit.map(v => `(${signed(v)})`).join(" ") : "", sitTip: tip(s.fxSitSources),
         tempFx: s.temp ? signed(s.temp) : ""
       };
     });

@@ -46,7 +46,8 @@
             <td class="nw"><b>{{rank}}</b>{{#if rankFx}}<span class="fxb" title="{{t "Rank from features:"}}
 {{rankTip}}">{{rankFx}}</span>{{/if}}</td>
             <td class="nw"><input type="number" name="system.skills.{{key}}.mod" value="{{mod}}">{{#if rollFx}}<span class="fxb" title="{{t "Rolls from features:"}}
-{{rollTip}}">{{rollFx}}</span>{{/if}}</td>
+{{rollTip}}">{{rollFx}}</span>{{/if}}{{#if sitFx}}<span class="fxb sit" title="{{t "Situational (tick in the roll window):"}}
+{{sitTip}}">{{sitFx}}</span>{{/if}}</td>
             <td class="tn{{#if tnZero}} warn{{/if}}" {{#if tnZero}}title="{{t "Target number 0 or less: only a critical success passes"}}"{{/if}}>{{tnShown}}</td><td class="q hide-narrow">{{q2}}</td>
           </tr>
         {{/each}}

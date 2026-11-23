@@ -1,5 +1,5 @@
 import { ATTRS, SKILLS } from "./data.mjs";
-import { CREATION, RACES, HINDRANCES, TRAITS, EARTH_PERKS, NPC_ARCHETYPES } from "./creation-data.mjs";
+import { CREATION, RACES, HINDRANCES, TRAITS, EARTH_PERKS, NPC_ARCHETYPES, SPECIALIZATION_GM } from "./creation-data.mjs";
 import { hits, CREATION_ONLY } from "./effects.mjs";
 import { evalLimit, GRANTS } from "./creation-limits.mjs";
 import { t, tn } from "./i18n.mjs";
@@ -222,6 +222,13 @@ export function computePc(state, pool = CREATION.pool) {
     for (const why of L.gm) warnings.push(t("{name}: {why}.", { name, why }));
   }
   const limitOf = ref => evalLimit(ref, limitCtx);
+  // Specialization (s. 118): wybrana umiejętność musi być tagiem; spoza listy z podręcznika — za zgodą MG
+  const spec = tList.find(f => f.key === "specialization")?.ch?.skill;
+  if (spec) {
+    const name = TRAITS.specialization.label, skill = SKILLS[spec]?.label ?? spec;
+    if (!tags.includes(spec)) errors.push(t("{name}: {why}.", { name, why: t("requires {skill} as a tagged skill (Skills step)", { skill }) }));
+    if (SPECIALIZATION_GM.includes(spec)) warnings.push(t("{name}: {why}.", { name, why: t("{skill} is not on the rulebook list of specializations — GM's approval", { skill }) }));
+  }
 
   const caps = CREATION.caps + fxSum(allFx, "caps");
   const karma = fxSum(allFx, "karma");

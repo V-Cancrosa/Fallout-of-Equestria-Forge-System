@@ -723,6 +723,7 @@ body[data-foe-crt="off"] .foe-card::after { display: none; }
 .foe-rpg .warn, .foe-card .warn { color: var(--pip-alert); text-shadow: 0 0 6px color-mix(in srgb, var(--pip-alert) 50%, transparent); }
 .foe-rpg .hint.warn { color: var(--pip-alert); }
 .foe-rpg .fxb.temp { border-style: dashed; }
+.foe-rpg .fxb.sit { border-style: dotted; opacity: .8; }
 .foe-rpg h3 a.plus { margin-left: .2rem; }
 .foe-rpg h3 a + a.plus { margin-left: .5rem; }
 
