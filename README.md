@@ -467,7 +467,8 @@ Motyw PipBucka dla całego Foundry (v13/v14; grafiki rysowane od zera, bez logo 
   (szepty z przerywaną ramką), lista graczy, pasek makr, sceny, kontrolki, tracker walki, powiadomienia i nagłówki
   okien w kolorach ekranu PipBucka, a także HUD tokena (prawy przycisk: przyciski, pola pasków i wysokości jak klawisze
   PipBucka), przyciski karty Ustawień (także te dodane przez The Forge: „Back to The Forge”, „Invitation Links”…), przyciski
-  „Utwórz…” nad listami i menu Esc. Motyw zmienia kolory przez zmienne Foundry — elementy, których nie obejmuje,
+  „Utwórz…” nad listami, menu Esc oraz wnętrza zwykłych okien Foundry i The Forge (ustawienia gry, moduły, zaproszenia;
+  bez dzienników na pergaminie i okien modułów z własnym wyglądem). Motyw zmienia kolory przez zmienne Foundry — elementy, których nie obejmuje,
   zostają w zwykłym wyglądzie. Wyłączenie przywraca wygląd Foundry od razu.
 - Tokeny w kolorach radaru EFS (opcja świata): obwódki i pierścienie — zielone swoi, czerwone wrogowie, żółte neutralni.
 - Ekran powitalny PipBucka po zalogowaniu (opcja gracza): imię postaci, kapsle, SATS i promieniowanie; MG widzi

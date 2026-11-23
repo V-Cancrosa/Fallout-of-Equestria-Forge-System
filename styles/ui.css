@@ -298,3 +298,28 @@ body.foe-ui #token-hud .status-effects .effect-control:hover { opacity: .8; }
 body.foe-ui #token-hud .status-effects .effect-control.active { opacity: 1; filter: drop-shadow(0 0 4px var(--pip-glow)); }
 #token-hud .foe-light.active i { color: #fff8c8; text-shadow: 0 0 6px #ffe680; }
 body.foe-ui #token-hud .foe-light.active i { color: var(--pip-bright); text-shadow: 0 0 6px var(--pip-glow); }
+
+/* wnętrza zwykłych okien Foundry i The Forge (Ustawienia gry, Moduły, Zaproszenia…) — bez naszych kart, dzienników
+   na pergaminie i okien w jasnym motywie; style modułów (późniejsza warstwa) wygrywają, więc ich okna zostają swoje */
+body.foe-ui .application:not(.foe-rpg, .theme-light, .journal-sheet, .journal-entry, .journal-entry-page, .image-popout) {
+  --color-text-primary: var(--pip); --color-text-secondary: var(--pip-mid); --color-text-subtle: var(--pip-dim);
+  --color-text-emphatic: var(--pip-bright); --color-border: var(--pip-line); --color-border-highlight: var(--pip);
+  --button-background-color: var(--pip-bg-hi); --button-border-color: var(--pip-dim); --button-text-color: var(--pip);
+  --button-hover-background-color: var(--pip); --button-hover-border-color: var(--pip-bright); --button-hover-text-color: #021006;
+  --input-background-color: rgba(0, 0, 0, .55); --input-border-color: var(--pip-dim); --input-text-color: var(--pip-bright);
+  --input-placeholder-color: var(--pip-dim); --input-focus-outline-color: var(--pip);
+  --scrollbar-thumb-background: var(--pip-dim);
+  background: var(--pip-bg); color: var(--pip); border: 1px solid var(--pip-line); box-shadow: 0 0 0 1px #000, 0 0 18px var(--pip-faint);
+}
+body.foe-ui .application:not(.foe-rpg, .theme-light, .journal-sheet, .journal-entry, .journal-entry-page, .image-popout) > .window-content {
+  background: linear-gradient(var(--pip-scan) 1px, transparent 1px) 0 0 / 100% 3px, var(--pip-bg); color: var(--pip);
+}
+body.foe-ui .application:not(.foe-rpg, .theme-light, .journal-sheet, .journal-entry, .journal-entry-page, .image-popout) > .window-content :is(label, legend, h1, h2, h3, h4, strong, b) { color: var(--pip-bright); }
+body.foe-ui .application:not(.foe-rpg, .theme-light, .journal-sheet, .journal-entry, .journal-entry-page, .image-popout) > .window-content :is(p, li, .hint, .notes, dd, dt, td, th, span) { color: inherit; }
+body.foe-ui .application:not(.foe-rpg, .theme-light, .journal-sheet, .journal-entry, .journal-entry-page, .image-popout) > .window-content :is(.hint, .notes) { color: var(--pip-mid); }
+body.foe-ui .application:not(.foe-rpg, .theme-light, .journal-sheet, .journal-entry, .journal-entry-page, .image-popout) > .window-content :is(input:not([type=checkbox], [type=radio], [type=range], [type=color]), select, textarea) {
+  background: rgba(0, 0, 0, .55); color: var(--pip-bright); border: 1px solid var(--pip-dim); font-family: var(--foe-mono);
+}
+body.foe-ui .application:not(.foe-rpg, .theme-light, .journal-sheet, .journal-entry, .journal-entry-page, .image-popout) > .window-content :is(input, select, textarea):focus { border-color: var(--pip); box-shadow: 0 0 6px var(--pip-glow); outline: none; }
+body.foe-ui .application:not(.foe-rpg, .theme-light, .journal-sheet, .journal-entry, .journal-entry-page, .image-popout) > .window-content :is(i.fa-solid, i.fas, i.fa-regular) { color: var(--pip-mid); }
+body.foe-ui .application:not(.foe-rpg, .theme-light, .journal-sheet, .journal-entry, .journal-entry-page, .image-popout) > .window-content a:not(.button) { color: var(--pip-bright); }
