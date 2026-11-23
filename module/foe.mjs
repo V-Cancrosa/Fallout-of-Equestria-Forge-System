@@ -50,6 +50,7 @@ import { registerCasinoSettings, registerCasinoHooks } from "./casino.mjs";
 import { registerLanguageSetting, registerI18nHelpers, localizeRegistrations } from "./i18n.mjs";
 import { registerVersionCheck } from "./version-check.mjs";
 import { registerIntegrations } from "./integrations.mjs";
+import { registerHubSyncSettings, registerHubSyncHooks } from "./hub-sync.mjs";
 import { registerRuleLinks } from "./rules.mjs";
 import { registerFxSettings, registerFxHooks } from "./fx.mjs";
 import { registerFxStatusSettings, registerFxStatusHooks } from "./fx-status.mjs";
@@ -131,6 +132,8 @@ Hooks.once("init", () => {
   registerDice3dSettings();
   // Carousel Combat Tracker, Dice Tray (przed ich init/i18nInit) i wysokość lotu → token
   registerIntegrations();
+  registerHubSyncSettings();
+  registerHubSyncHooks();
   registerRollTableClass();
   registerTableHooks();
   registerLootSettings();

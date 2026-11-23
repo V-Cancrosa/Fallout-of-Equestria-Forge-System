@@ -1,6 +1,6 @@
 import { ATTRS, SKILLS, LOCATIONS } from "./data.mjs";
 import { CREATION, RACES, HINDRANCES, TRAITS, EARTH_PERKS, NPC_ARCHETYPES } from "./creation-data.mjs";
-import { defaultPcState, computePc, buildPcUpdate, computeNpc, buildNpcUpdate } from "./creator-logic.mjs";
+import { defaultPcState, computePc, buildPcUpdate, computeNpc, buildNpcUpdate, archetypeFits } from "./creator-logic.mjs";
 import { FX_TYPES, describeFx } from "./effects.mjs";
 import { grantStartingSpells } from "./magic.mjs";
 import { grantStartingManeuvers } from "./flight.mjs";
@@ -355,13 +355,23 @@ export class NpcCreator extends HandlebarsApplicationMixin(ApplicationV2) {
 
   get title() { return t("NPC creator: {name}", { name: this.wiz.name || this.actor.name }); }
 
+  /** Archetyp, którego rasa nie może użyć (mag bez magii), zamienia na pasujący. Zwraca etykietę starego albo null. */
+  #fitArchetype() {
+    const st = this.wiz;
+    if (archetypeFits(st.race, st.archetype)) return null;
+    const old = NPC_ARCHETYPES[st.archetype]?.label ?? st.archetype;
+    st.archetype = archetypeFits(st.race, "scientist") ? "scientist" : "civilian";
+    return old;
+  }
+
   async _prepareContext() {
     const st = this.wiz;
+    this.#fitArchetype();
     const r = computeNpc(st);
     return {
       st, r,
       races: Object.entries(RACES).map(([k, v]) => ({ k, label: v.label, sel: k === st.race })),
-      archetypes: Object.entries(NPC_ARCHETYPES).map(([k, v]) => ({ k, label: v.label, sel: k === st.archetype })),
+      archetypes: Object.entries(NPC_ARCHETYPES).filter(([k]) => archetypeFits(st.race, k)).map(([k, v]) => ({ k, label: v.label, sel: k === st.archetype })),
       attrs: Object.entries(r.attrs).map(([k, v]) => ({ k, label: ATTRS[k], short: k.toUpperCase(), v, racial: r.raceAttrs.includes(k), mfd: v * 10 })),
       skills: Object.values(r.skills).filter(s => s.known).sort((a, b) => b.rank - a.rank),
       levelPoints: (r.level - 1) * r.perLevel
@@ -374,6 +384,8 @@ export class NpcCreator extends HandlebarsApplicationMixin(ApplicationV2) {
       const { name, value } = ev.target;
       if (!name) return;
       this.wiz[name] = name === "level" ? Math.max(1, Math.min(30, Number(value) || 1)) : value;
+      const old = this.#fitArchetype();
+      if (old) ui.notifications.info(t("{old} needs a race that knows its racial skill — switched to {now}.", { old, now: NPC_ARCHETYPES[this.wiz.archetype].label }));
       this.render();
     });
   }
