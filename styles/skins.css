@@ -356,3 +356,7 @@ body .foe-rpg img.icon[src*="/icons/items/"] { background: color-mix(in srgb, va
 body :is(.foe-rpg, .foe-card, .foe-msg):is(.skin-paper, .skin-zebra, .skin-ghoul, .skin-wasteland, .skin-sheriff) img[src*="foe-rpg/icons/"]:not([src*="/icons/items/"]) {
   filter: invert(1) grayscale(1) sepia(.55) contrast(1.15) !important; mix-blend-mode: multiply; opacity: 1 !important;
 }
+
+/* Sylwetka ran na jasnych wyglądach: jaśniejsza ramka opisu i czytelny tekst pomocniczy */
+body .foe-rpg:is(.skin-paper, .skin-zebra, .skin-ghoul, .skin-wasteland, .skin-sheriff) .pip-body .callout .box { fill: rgba(255, 255, 255, .42); }
+body .foe-rpg:is(.skin-paper, .skin-zebra, .skin-ghoul, .skin-wasteland, .skin-sheriff) .pip-body .callout .dim { fill: color-mix(in srgb, var(--pip) 72%, transparent); }

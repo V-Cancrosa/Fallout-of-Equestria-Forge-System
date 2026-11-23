@@ -1038,6 +1038,7 @@ button.foe-surprise { flex: 0 0 auto; width: auto; margin: 2px 0; font-size: 12p
 .foe-rpg .pip-body .callout text { fill: var(--pip); font-family: var(--foe-mono); font-size: 11px; }
 .foe-rpg .pip-body .callout .nm { font-weight: 700; fill: var(--pip-bright); text-transform: uppercase; letter-spacing: .04em; }
 .foe-rpg .pip-body .callout .dim { fill: var(--pip-dim); }
+.foe-rpg .pip-body .callout .armor { fill: var(--pip-mid, var(--pip)); font-size: 10.5px; }
 .foe-rpg .pip-body .callout.dmg-light .box { stroke: var(--dmg-light); }
 .foe-rpg .pip-body .callout.dmg-light .nm { fill: var(--dmg-light); }
 .foe-rpg .pip-body .callout.dmg-heavy .box, .foe-rpg .pip-body .callout.dmg-crippled .box, .foe-rpg .pip-body .callout.dmg-lost .box { stroke: var(--dmg-crip); }
