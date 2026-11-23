@@ -11,7 +11,7 @@
  */
 import { t } from "./i18n.mjs";
 import { ATTRS } from "./data.mjs";
-import { skinOf } from "./skins.mjs";
+import { skinOf, skinPaint } from "./skins.mjs";
 import { taintState } from "./taint.mjs";
 import { hitTableFor, tableLocations } from "./combat.mjs";
 
@@ -105,11 +105,17 @@ export function snapshot(actor) {
   const s = actor.system;
   const items = [...actor.items];
   const r = s.resources;
+  // wygląd: wbudowany (klasa skin-…) albo własny szczebel MG — baza, kolory (--pip…) i napis z paska
+  const skin = skinOf(actor);
+  const paint = skinPaint(skin);
   return {
     id: actor.id,
     name: actor.name,
     img: absolute(actor.img),
-    skin: skinOf(actor),
+    skin: paint.base,
+    skinId: skin,
+    skinVars: paint.vars,
+    skinLabel: paint.tag,
     race: s.race, level: s.level, xp: s.xp, karma: s.karma, caps: s.caps,
     cutieMark: absolute(s.cutieMark), cutieMarkText: s.cutieMarkText,
     resources: {
