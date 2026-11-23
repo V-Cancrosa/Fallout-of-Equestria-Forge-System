@@ -8,6 +8,12 @@
  *   - Wysyła tylko aktywny MG (przy kilku MG — jeden), tylko postacie (typ „character”), zbiorczo co kilka sekund.
  * HUB przyjmuje POST {adres}/api/foundry/postacie z nagłówkiem Authorization: Bearer {klucz}
  * i treścią { world, characters: [migawka, …] }.
+ *
+ * Obecność: kto jest teraz w świecie (HUB pokazuje „na Forge” przy postaci). Wysyła jedna przeglądarka — aktywny MG,
+ * a bez MG gracz o najmniejszym ID — co minutę i przy każdym wejściu/wyjściu. Klucz obecności (ustawienie świata
+ * „hubPresenceKey”, widoczne dla wszystkich) przeglądarka MG wylicza sama z klucza synchronizacji: HMAC-SHA256(klucz,
+ * "obecnosc"). Pozwala tylko zgłaszać obecność — nie zdradza klucza synchronizacji. HUB przyjmuje
+ * POST {adres}/api/foundry/obecnosc z treścią { world, users: [{ name, gm, character: { id, name } | null }] }.
  */
 import { t } from "./i18n.mjs";
 import { ATTRS } from "./data.mjs";
@@ -32,6 +38,9 @@ export function registerHubSyncSettings() {
     hint: "The key the hub expects. Stored only in this browser — the GM fills it in, players leave it empty.",
     scope: "client", config: true, type: String, default: ""
   });
+  game.settings.register(F, "hubPresenceKey", {
+    scope: "world", config: false, type: String, default: ""
+  });
 }
 
 const isPc = actor => actor?.type === "character";
@@ -39,6 +48,7 @@ const activeGm = () => game.user?.isGM && (game.users?.activeGM ? game.users.act
 
 export function registerHubSyncHooks() {
   Hooks.once("ready", () => {
+    startPresence();
     if (!game.user?.isGM) return;
     const actorOf = doc => (isPc(doc) ? doc : isPc(doc?.parent) ? doc.parent : null);
     for (const hook of ["createActor", "updateActor", "createItem", "updateItem", "deleteItem", "updateActiveEffect"]) {
@@ -76,6 +86,56 @@ async function flush() {
     console.warn("foe-rpg | player hub sync failed", err);
     if (!warned) ui.notifications?.warn(t("Player hub: could not send the character sheets ({error}).", { error: err.message }));
     warned = true;
+  }
+}
+
+// --- Obecność w świecie ------------------------------------------------------
+
+const PRESENCE_EVERY = 60000;
+
+const hubBase = () => String(game.settings.get(F, "hubUrl") ?? "").trim().replace(/\/+$/, "");
+
+async function presenceKeyFrom(token) {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey("raw", enc.encode(token), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign("HMAC", key, enc.encode("obecnosc"));
+  return [...new Uint8Array(sig)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+
+// Zgłasza jedna przeglądarka: aktywny MG, a bez niego aktywny użytkownik o najmniejszym ID.
+const reporter = () => game.users?.activeGM ?? game.users?.filter(u => u.active).sort((a, b) => a.id.localeCompare(b.id))[0];
+
+function startPresence() {
+  // MG: klucz obecności z klucza synchronizacji, zapisany w świecie, żeby gracze też mogli zgłaszać
+  if (game.user?.isGM) {
+    const token = String(game.settings.get(F, "hubToken") ?? "").trim();
+    if (token) presenceKeyFrom(token).then(k => {
+      if (k !== game.settings.get(F, "hubPresenceKey")) return game.settings.set(F, "hubPresenceKey", k);
+    }).catch(err => console.warn("foe-rpg | player hub presence key", err));
+  }
+  Hooks.on("userConnected", () => setTimeout(reportPresence, 1000));
+  setTimeout(reportPresence, 3000);
+  setInterval(reportPresence, PRESENCE_EVERY);
+}
+
+async function reportPresence() {
+  const base = hubBase();
+  const key = String(game.settings.get(F, "hubPresenceKey") ?? "").trim();
+  if (!base || !key || !reporter()?.isSelf) return;
+  const users = game.users.filter(u => u.active).map(u => ({
+    name: u.name,
+    gm: u.isGM,
+    character: u.character ? { id: u.character.id, name: u.character.name } : null
+  }));
+  try {
+    await fetch(`${base}/api/foundry/obecnosc`, { // pl-ok: ścieżka API HUB-a
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+      body: JSON.stringify({ world: game.world?.id ?? "", users }),
+      keepalive: true
+    });
+  } catch (err) {
+    console.debug("foe-rpg | player hub presence", err);
   }
 }
 
