@@ -348,7 +348,7 @@ function svgOf(map, rows) {
     return `
     <g class="callout ${c.cls} ${lowClass(r?.chance)}" data-opt="${c.key}">
       <rect class="box" x="${c.x}" y="${c.y}" width="${c.w}" height="${c.h}" rx="3"/>
-      <text x="${c.tx}" y="${c.y}"><tspan class="nm" x="${c.tx}" dy="15">${esc(c.name)}</tspan><tspan x="${c.tx}" dy="17">${esc(c.line1)}</tspan><tspan x="${c.tx}" dy="14">${esc(c.line2)}</tspan><tspan class="dim" x="${c.tx}" dy="14">${esc(r?.note ?? "")}</tspan></text>
+      <text x="${c.tx}" y="${c.y}"><tspan class="nm" x="${c.tx}" dy="15">${esc(c.name)}</tspan><tspan x="${c.tx}" dy="17">${esc(c.line1)}</tspan><tspan x="${c.tx}" dy="14">${esc(c.line2)}</tspan><tspan class="armor" x="${c.tx}" dy="14">${esc(c.armor)}</tspan><tspan class="dim" x="${c.tx}" dy="14">${esc(r?.note ?? "")}</tspan></text>
       <text class="pct" x="${c.x + c.w - 7}" y="${c.y + 34}" text-anchor="end">${pct}</text>
     </g>`;
   }).join("");

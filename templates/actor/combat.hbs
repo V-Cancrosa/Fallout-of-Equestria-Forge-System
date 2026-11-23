@@ -148,8 +148,8 @@
       {{#each bodyMap.callouts}}
       <g class="callout {{cls}}" data-action="woundStep" data-loc="{{key}}">
         <rect class="box" x="{{x}}" y="{{y}}" width="{{w}}" height="{{h}}" rx="3"/>
-        <text x="{{tx}}" y="{{y}}"><tspan class="nm" x="{{tx}}" dy="15">{{name}}</tspan><tspan x="{{tx}}" dy="15">{{line1}}</tspan><tspan x="{{tx}}" dy="14">{{line2}}</tspan><tspan class="dim" x="{{tx}}" dy="14">{{line3}}</tspan></text>
-        <rect class="bar-bg" x="{{tx}}" y="{{y}}" width="128" height="3" transform="translate(0,{{h}}) translate(0,-7)"/>
+        <text x="{{tx}}" y="{{y}}"><tspan class="nm" x="{{tx}}" dy="15">{{name}}</tspan><tspan x="{{tx}}" dy="15">{{line1}}</tspan><tspan x="{{tx}}" dy="14">{{line2}}</tspan><tspan class="armor" x="{{tx}}" dy="14">{{armor}}</tspan><tspan class="dim" x="{{tx}}" dy="14">{{line3}}</tspan></text>
+        <rect class="bar-bg" x="{{tx}}" y="{{y}}" width="{{barW}}" height="3" transform="translate(0,{{h}}) translate(0,-7)"/>
         <rect class="bar" x="{{tx}}" y="{{y}}" width="{{bar}}" height="3" transform="translate(0,{{h}}) translate(0,-7)"/>
       </g>
       {{/each}}

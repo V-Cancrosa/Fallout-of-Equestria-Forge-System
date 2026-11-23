@@ -9,9 +9,11 @@
 import { CALLED_SHOTS, HIT_TABLES } from "./combat.mjs";
 import { t, tn, tmap } from "./i18n.mjs";
 
-const VIEW_W = 760, VIEW_H = 336;
+const VIEW_W = 760, VIEW_H = 392;
 const CX = VIEW_W / 2;
-const BOX_W = 142, BOX_H = 72;
+const BOX_W = 176, BOX_H = 86;
+// ramki mają 4 linie (rany, DT, pancerz, celowanie), więc sylwetka schodzi niżej, żeby stała na środku
+const PAD = 28;
 
 /** Lustro ścieżki względem osi x = CX (ścieżki tylko z bezwzględnych par „x,y”). */
 export const mirror = d => String(d).replace(/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/g, (m, x, y) => `${2 * CX - Number(x)},${y}`);
@@ -81,7 +83,7 @@ export function bodyMap(sys, locs, { table = "earth", labels = {}, cyber = new S
   const biped = !!HIT_TABLES[table]?.biped;
   const shapes = biped ? BIPED : PONY_TOP;
   const slots = biped ? SLOTS_BIPED : SLOTS_PONY;
-  const dy = biped ? 0 : DY;
+  const dy = (biped ? 0 : DY) + PAD;
   const have = new Set(locs);
   const parts = [], callouts = [];
   for (const k of Object.keys(shapes).filter(x => have.has(x))) {
@@ -112,8 +114,10 @@ export function bodyMap(sys, locs, { table = "earth", labels = {}, cyber = new S
       tx: bx + 7,
       name: `${name}${cyber.has(k) ? " ⚙" : ""}`,
       line1: `${t("Wounds")} ${L.wounds}/${limit}${status !== "ok" ? ` · ${STATUS[status]}` : ""}`,
-      line2: `DT ${L.dtTotal}${L.armorName ? ` · ${short(L.armorName)}` : ""}`,
+      line2: `DT ${L.dtTotal}`,
+      armor: L.armorName ? short(L.armorName) : "",
       line3: called ? t("Aim {n} MFD st.", { n: called }) : t("Aim: no penalty"),
+      barW: BOX_W - 14,
       bar: Math.round(Math.min(1, L.wounds / limit) * (BOX_W - 14))
     });
   }
@@ -127,4 +131,4 @@ export function bodyMap(sys, locs, { table = "earth", labels = {}, cyber = new S
   };
 }
 
-const short = s => (String(s).length > 18 ? `${String(s).slice(0, 17)}…` : String(s));
+const short = s => (String(s).length > 24 ? `${String(s).slice(0, 23)}…` : String(s));
