@@ -1,4 +1,4 @@
-import { actorEffects, sumFx, sourcesFx, hits, signed } from "./effects.mjs";
+import { actorEffects, sumFx, sourcesFx, hits, signed, targets } from "./effects.mjs";
 import { LAYER_CATEGORIES, defaultCover, layerPenalties, loadMovement, loadNote, sneakWeightPenalty } from "./combat.mjs";
 import { iconFor } from "./catalog-data.mjs";
 import { tkSpells } from "./tk-data.mjs";
@@ -124,7 +124,10 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
   prepareDerivedData() {
     const items = this.parent?.items ?? [];
     // Stałe efekty z aktywnych cech, wad, perków i założonych pancerzy (szczegóły: effects.mjs)
-    const fx = actorEffects(this.parent, { state: false }).filter(e => !e.when);
+    const allFx = actorEffects(this.parent, { state: false });
+    const fx = allFx.filter(e => !e.when);
+    // sytuacyjne premie do rzutów wskazujące umiejętność wprost (np. Specialization: Sneak) — tylko do podglądu na karcie
+    const sitFx = allFx.filter(e => e.when && e.type === "skillRoll" && Number(e.value));
     const sum = (type, pred) => sumFx(fx, type, pred);
     const src = (type, pred) => sourcesFx(fx, type, pred);
     // Touched by the Sun (s. 124) jako jedyna cecha może zbić rangę poniżej 5 (do 0)
@@ -172,6 +175,9 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
       sk.fxRoll = sum("skillRoll", onSkill) + sum("basedRoll", onAttr) + sum("skillsOf", onAttr);
       sk.fxRollSources = [...src("skillRoll", onSkill), ...src("basedRoll", onAttr), ...src("skillsOf", onAttr)];
       sk.rollMod = sk.mod + sk.fxRoll;
+      const sit = sitFx.filter(e => targets(e.target).includes(k));
+      sk.fxSit = sit.map(e => Number(e.value));
+      sk.fxSitSources = sit.map(e => `${e.source} ${signed(Number(e.value))} — ${t(e.when)}`);
     }
 
     const agi = a.agi.total;

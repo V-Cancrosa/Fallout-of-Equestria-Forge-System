@@ -222,6 +222,12 @@ export function computePc(state, pool = CREATION.pool) {
     for (const why of L.gm) warnings.push(t("{name}: {why}.", { name, why }));
   }
   const limitOf = ref => evalLimit(ref, limitCtx);
+  // Specialization (s. 118): wybrana umiejętność musi być tagiem
+  const spec = tList.find(f => f.key === "specialization")?.ch?.skill;
+  if (spec) {
+    const name = TRAITS.specialization.label, skill = SKILLS[spec]?.label ?? spec;
+    if (!tags.includes(spec)) errors.push(t("{name}: {why}.", { name, why: t("requires {skill} as a tagged skill (Skills step)", { skill }) }));
+  }
 
   const caps = CREATION.caps + fxSum(allFx, "caps");
   const karma = fxSum(allFx, "karma");

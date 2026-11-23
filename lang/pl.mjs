@@ -946,6 +946,7 @@ export default {
   "Target number at MFD 1/2": "Próg przy MFD 1/2",
   "Rank from features:": "Ranga z cech:",
   "Rolls from features:": "Rzuty z cech:",
+  "Situational (tick in the roll window):": "Sytuacyjne (zaznacz w oknie rzutu):",
   "Racial skills in italics. Click a name (▸) to roll. The small numbers next to rank and modifier are effects of traits, hindrances and perks (hover to see the source); MFD 1 already includes them.": "Kursywą umiejętności rasowe. Kliknij nazwę (▸), by rzucić. Małe liczby obok rangi i modyfikatora to efekty cech, wad i perków (najedź, by zobaczyć źródło); MFD 1 już je uwzględnia.",
   // ---- templates/actor/combat.hbs
   "Action Points in SATS: 40 + 5×AGI; +5 per round in combat": "Action Points w SATS: 40 + 5×AGI; w walce +5 na rundę",
@@ -3240,7 +3241,8 @@ export default {
   "Once per session swaps the tens and ones digits of a roll.": "Raz na sesję zamienia cyfry dziesiątek i jedności w rzucie.",
   "A robot companion (the GM has the stats). Not with Animal Companion.": "Robot-towarzysz (statystyki u MG). Nie z Animal Companion.",
   "Senses magic being used nearby; illusions on them are 2 steps harder.": "Wyczuwa użycie magii w pobliżu; iluzje na niego o 2 kroki trudniejsze.",
-  "+15 to rolls within the specialization (the skill must be tagged).": "+15 do rzutów w obrębie specjalizacji (umiejętność musi być tagiem).",
+  "+15 to skill and attribute rolls within the specialization (a non-combat skill; it must be tagged).": "+15 do rzutów umiejętności i atrybutów w obrębie specjalizacji (umiejętność niebojowa; musi być tagiem).",
+  "Specialized skill": "Umiejętność specjalizacji",
   "Within the specialization": "W obrębie specjalizacji",
   "Grew up in a Stable: a PipBuck and a Stable jumpsuit.": "Wychował się w Stajni: PipBuck i strój Stajni.",
   "Physical: +1 DT and +5 against diseases and poisons. Mental: +10 to mental resistance.": "Fizycznie: +1 DT i +5 przeciw chorobom i truciznom. Psychicznie: +10 do odporności psychicznej.",
