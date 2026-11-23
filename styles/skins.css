@@ -349,3 +349,10 @@ body .foe-rpg:is(.skin-paper, .skin-zebra, .skin-ghoul, .skin-wasteland, .skin-s
    Ważniejsze od filtrów ekranu PipBucka (sepia) i od „bez filtra” dla innych wyglądów. */
 body :is(.foe-rpg, .foe-card, .foe-msg) img[src*="/icons/items/"] { filter: var(--foe-icon-filter, none) !important; opacity: 1 !important; }
 body .foe-rpg img.icon[src*="/icons/items/"] { background: color-mix(in srgb, var(--pip) 7%, transparent); }
+
+/* ---------- Ikony typów (icons/*.svg: ciemny kafelek z zielonym rysunkiem) na jasnych wyglądach ----------
+   Ikony przedmiotów (icons/items) przemalowuje filtr powyżej; podstawowe ikony cech, perków itp. mają wtopiony
+   ciemny kafelek PipBucka, więc na papierze odwracamy je w jasny kafelek z ciemnym tuszem. */
+body :is(.foe-rpg, .foe-card, .foe-msg):is(.skin-paper, .skin-zebra, .skin-ghoul, .skin-wasteland, .skin-sheriff) img[src*="foe-rpg/icons/"]:not([src*="/icons/items/"]) {
+  filter: invert(1) grayscale(1) sepia(.55) contrast(1.15) !important; mix-blend-mode: multiply; opacity: 1 !important;
+}

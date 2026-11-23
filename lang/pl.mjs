@@ -4618,5 +4618,7 @@ export default {
   "Address of an external player hub (e.g. https://example.workers.dev). When set, the GM's browser sends character sheets there after every change. Empty — off.": "Adres zewnętrznego HUB-a graczy (np. https://example.workers.dev). Gdy jest ustawiony, przeglądarka MG wysyła tam karty postaci po każdej zmianie. Puste — wyłączone.",
   "Player hub: sync key (GM only)": "HUB graczy: klucz synchronizacji (tylko MG)",
   "The key the hub expects. Stored only in this browser — the GM fills it in, players leave it empty.": "Klucz, którego oczekuje HUB. Zapisany tylko w tej przeglądarce — wpisuje go MG, gracze zostawiają puste.",
-  "Player hub: could not send the character sheets ({error}).": "HUB graczy: nie udało się wysłać kart postaci ({error})."
+  "Player hub: could not send the character sheets ({error}).": "HUB graczy: nie udało się wysłać kart postaci ({error}).",
+  // ---- module/creator.mjs (archetyp NPC a rasa)
+  "{old} needs a race that knows its racial skill — switched to {now}.": "{old} wymaga rasy, która zna jego umiejętność rasową — zmieniono na {now}."
 };

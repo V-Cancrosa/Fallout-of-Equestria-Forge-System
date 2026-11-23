@@ -318,6 +318,18 @@ export function buildPcUpdate(state, r, keep = null) {
 // NPC
 // ---------------------------------------------------------------------------
 
+/**
+ * Czy archetyp NPC pasuje do rasy: tagi z umiejętności rasowych (np. Magic u maga) wymagają rasy, która je zna.
+ * Rasa „inna” (ręczna) pasuje do wszystkiego.
+ */
+export function archetypeFits(raceKey, archKey) {
+  const race = RACES[raceKey] ?? RACES.other;
+  const arch = NPC_ARCHETYPES[archKey];
+  if (!arch) return false;
+  if (race.manual) return true;
+  return arch.tags.filter(k => SKILLS[k]?.racial).every(k => !!race.racial?.[k]);
+}
+
 /** Wylicza NPC z archetypu, rasy i poziomu. */
 export function computeNpc({ race: raceKey = "earth", archetype = "raider", level = 1 }) {
   const race = RACES[raceKey] ?? RACES.other;
