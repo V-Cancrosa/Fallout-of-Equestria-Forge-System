@@ -129,3 +129,38 @@ body.foe-ui .simple-calendar.dark {
 body.foe-ui .simple-calendar.dark :is(.fsc-date-text, .fsc-month-year, .fsc-current-date, .fsc-current-time, .fsc-clock) {
   font-family: var(--foe-crt); letter-spacing: .04em; text-shadow: 0 0 6px var(--pip-glow);
 }
+
+/* ==========================================================================
+   Pasek boczny: karta Ustawień i menu Esc. The Forge dokłada tu własne przyciski („Back to The Forge”, „Invitation
+   Links”…) i swoje style spoza warstw — nadpisują zmienne motywu, więc kolory podajemy wprost (stąd !important).
+   ========================================================================== */
+body.foe-ui #sidebar #settings button, body.foe-ui .sidebar-popout #settings button,
+body.foe-ui :is(#sidebar, .sidebar-popout) :is(.directory-header, .directory-footer, .header-actions, .action-buttons) button {
+  background: var(--pip-bg-hi) !important; color: var(--pip) !important;
+  border: 1px solid var(--pip-dim) !important; border-radius: 3px;
+  font-family: var(--foe-mono); text-shadow: 0 0 4px var(--pip-glow); box-shadow: inset 0 0 6px var(--pip-faint);
+}
+body.foe-ui #sidebar #settings button :is(i, .fa-solid, .fas, .fa-brands), body.foe-ui .sidebar-popout #settings button i,
+body.foe-ui :is(#sidebar, .sidebar-popout) :is(.directory-header, .directory-footer, .header-actions, .action-buttons) button i { color: inherit !important; }
+body.foe-ui #sidebar #settings button:is(:hover, :focus-visible), body.foe-ui .sidebar-popout #settings button:is(:hover, :focus-visible),
+body.foe-ui :is(#sidebar, .sidebar-popout) :is(.directory-header, .directory-footer, .header-actions, .action-buttons) button:is(:hover, :focus-visible) {
+  background: var(--pip) !important; color: #021006 !important; border-color: var(--pip-bright) !important;
+  text-shadow: none; box-shadow: 0 0 10px var(--pip-glow); outline: none;
+}
+/* nagłówki działów: kreski obok napisu (Foundry i The Forge rysują je na pomarańczowo) */
+body.foe-ui #settings :is(h2, h3, h4, .divider)::before, body.foe-ui #settings :is(h2, h3, h4, .divider)::after {
+  background: var(--pip-line) !important; border-color: var(--pip-line) !important;
+}
+body.foe-ui #settings :is(h2, h3, h4, .divider) { color: var(--pip-bright) !important; border-color: var(--pip-line) !important; }
+/* „Informacje ogólne”: system, wersja Foundry, moduły */
+body.foe-ui #settings :is(.info, #game-details) { color: var(--pip) !important; border-color: var(--pip-line) !important; }
+body.foe-ui #settings :is(.info, #game-details) :is(span, a, li, .value) { color: inherit; }
+body.foe-ui #settings :is(.info, #game-details) a:hover { color: var(--pip-bright) !important; text-shadow: 0 0 5px var(--pip-glow); }
+
+/* menu Esc (Wczytaj ponownie, Wyloguj, Wróć do ustawień…) */
+body.foe-ui #menu :is(li, .menu-item) {
+  background: var(--pip-panel) !important; color: var(--pip) !important; border: 1px solid var(--pip-line) !important;
+  font-family: var(--foe-crt); letter-spacing: .05em; text-shadow: 0 0 4px var(--pip-glow);
+}
+body.foe-ui #menu :is(li, .menu-item) :is(h4, i, span) { color: inherit !important; font-family: inherit; }
+body.foe-ui #menu :is(li, .menu-item):hover { background: var(--pip) !important; color: #021006 !important; border-color: var(--pip-bright) !important; text-shadow: none; }
