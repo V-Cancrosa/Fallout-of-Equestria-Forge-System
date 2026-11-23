@@ -234,9 +234,8 @@ export const EARTH_PERKS = tfields({
 // Efekty specjalne kreatora: caps (zmiana kapsli), karma, tags (dodatkowy tag), creationPoints.
 const COMBAT = ["smallGuns", "bigGuns", "energy", "melee", "unarmed", "explosives"];
 const ATTR4 = ["per", "end", "cha", "int"];
-// Specialization (s. 118): umiejętności wymienione w podręczniku; pozostałe niebojowe — za zgodą MG
+// Specialization (s. 118): tylko umiejętności wymienione w podręczniku
 export const SPECIALIZATION_SKILLS = ["survival", "mercantile", "speech", "magic", "medicine", "repair", "science"];
-export const SPECIALIZATION_GM = ["sneak", "lockpick", "flight", "dig"];
 
 export const HINDRANCES = tfields({
   abandoned: { label: "Abandoned / All Alone", type: "P", desc: "Starts alone, 200 caps instead of 300, no PipBuck; cheaper Animal Companion / Wasteland Weirdo.", fx: [fx("caps", "all", -100)] },
@@ -529,7 +528,7 @@ export const TRAITS = tfields({
   // s. 118–119: jedna niebojowa umiejętność (musi być tagiem); +15 do rzutów umiejętności i atrybutów w obrębie specjalizacji.
   // Stare postacie (sprzed wyboru) mają efekty zapisane na przedmiocie — ROLL/AROLL „all” — i działają jak dawniej.
   specialization: { label: "Specialization", cost: [1, 1], desc: "+15 to skill and attribute rolls within the specialization (a non-combat skill; it must be tagged).",
-    choices: [one("skill", N_("Specialized skill"), skillOpts(SPECIALIZATION_SKILLS.concat(SPECIALIZATION_GM)))],
+    choices: [one("skill", N_("Specialized skill"), skillOpts(SPECIALIZATION_SKILLS))],
     resolve: ch => ch.skill ? [ROLL(ch.skill, 15, N_("Within the specialization")), AROLL("all", 15, N_("Within the specialization"))] : [] },
   stableDweller: { label: "Stable Dweller", cost: [1, 1], desc: "Grew up in a Stable: a PipBuck and a Stable jumpsuit." },
   sternerStuff: { label: "Sterner Stuff", cost: [1, 2], desc: "Physical: +1 DT and +5 against diseases and poisons. Mental: +10 to mental resistance.",

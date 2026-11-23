@@ -3243,7 +3243,6 @@ export default {
   "Senses magic being used nearby; illusions on them are 2 steps harder.": "Wyczuwa użycie magii w pobliżu; iluzje na niego o 2 kroki trudniejsze.",
   "+15 to skill and attribute rolls within the specialization (a non-combat skill; it must be tagged).": "+15 do rzutów umiejętności i atrybutów w obrębie specjalizacji (umiejętność niebojowa; musi być tagiem).",
   "Specialized skill": "Umiejętność specjalizacji",
-  "{skill} is not on the rulebook list of specializations — GM's approval": "{skill} nie ma na liście specjalizacji z podręcznika — za zgodą MG",
   "Within the specialization": "W obrębie specjalizacji",
   "Grew up in a Stable: a PipBuck and a Stable jumpsuit.": "Wychował się w Stajni: PipBuck i strój Stajni.",
   "Physical: +1 DT and +5 against diseases and poisons. Mental: +10 to mental resistance.": "Fizycznie: +1 DT i +5 przeciw chorobom i truciznom. Psychicznie: +10 do odporności psychicznej.",
