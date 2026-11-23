@@ -13,6 +13,7 @@ import { t } from "./i18n.mjs";
 import { ATTRS } from "./data.mjs";
 import { skinOf } from "./skins.mjs";
 import { taintState } from "./taint.mjs";
+import { hitTableFor, tableLocations } from "./combat.mjs";
 
 const F = "foe-rpg";
 const DELAY = 3000;
@@ -89,6 +90,16 @@ const plain = html => {
 };
 const pick = (obj, keys) => Object.fromEntries(keys.map(k => [k, obj?.[k]]));
 
+/**
+ * Lokacje jak na sylwetce karty (sheets.mjs): z tabeli trafień rasy, a skrzydła i róg także bez nich w tabeli,
+ * gdy mają rany albo DT (np. proteza skrzydła).
+ */
+function bodyLocations(s) {
+  const locs = tableLocations(hitTableFor(s.race)).filter(k => s.locations[k]);
+  for (const k of ["wings", "horn"]) if (!locs.includes(k) && (s.locations[k]?.wounds || s.locations[k]?.dt)) locs.push(k);
+  return locs;
+}
+
 /** Migawka postaci: tylko dane do pokazania (bez identyfikatorów użytkowników Foundry). */
 export function snapshot(actor) {
   const s = actor.system;
@@ -108,10 +119,12 @@ export function snapshot(actor) {
       rads: pick(r.rads, ["value", "max"])
     },
     attributes: Object.fromEntries(Object.keys(ATTRS).map(k => [k, { value: s.attributes[k].total, tn: s.attributes[k].tn }])),
+    // umiejętności rasowe (Magic, Flight, Dig) — tylko te, które rasa zna, jak na karcie
     skills: Object.fromEntries(Object.entries(s.skills)
       .filter(([, sk]) => sk.known !== false)
       .map(([k, sk]) => [k, { attr: sk.attr, tag: sk.tag, rank: sk.rank, tn: sk.tn }])),
-    locations: Object.fromEntries(Object.entries(s.locations)
+    locations: Object.fromEntries(bodyLocations(s)
+      .map(k => [k, s.locations[k]])
       .map(([k, l]) => [k, { wounds: l.wounds, limit: l.limit, status: l.status, dt: l.dtTotal }])),
     derived: {
       carry: s.carry, weight: s.weight, speed: s.speed, sneakSpeed: s.sneakSpeed, dmgPerWound: s.dmgPerWound,
