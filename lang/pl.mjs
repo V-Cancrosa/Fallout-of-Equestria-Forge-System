@@ -4612,5 +4612,11 @@ export default {
   "{name}: the weapons weigh {w} lb — more than the telekinesis lift ({l} lb). Settle it at the table (Magic roll, overglow or dropping something).": "{name}: bronie ważą {w} lb — więcej niż udźwig telekinezy ({l} lb). Rozstrzygnijcie przy stole (rzut Magic, overglow albo upuszczenie czegoś).",
   "{name}: too heavy to throw with telekinesis — under {l} lb only (¼ of the lift).": "{name}: za ciężka do rzutu telekinezą — tylko poniżej {l} lb (¼ udźwigu).",
   // ---- module/fx.mjs
-  "−{n} wound|−{n} wounds": ["−{n} rana", "−{n} rany", "−{n} ran"]
+  "−{n} wound|−{n} wounds": ["−{n} rana", "−{n} rany", "−{n} ran"],
+  // ---- module/hub-sync.mjs
+  "Player hub: address": "HUB graczy: adres",
+  "Address of an external player hub (e.g. https://example.workers.dev). When set, the GM's browser sends character sheets there after every change. Empty — off.": "Adres zewnętrznego HUB-a graczy (np. https://example.workers.dev). Gdy jest ustawiony, przeglądarka MG wysyła tam karty postaci po każdej zmianie. Puste — wyłączone.",
+  "Player hub: sync key (GM only)": "HUB graczy: klucz synchronizacji (tylko MG)",
+  "The key the hub expects. Stored only in this browser — the GM fills it in, players leave it empty.": "Klucz, którego oczekuje HUB. Zapisany tylko w tej przeglądarce — wpisuje go MG, gracze zostawiają puste.",
+  "Player hub: could not send the character sheets ({error}).": "HUB graczy: nie udało się wysłać kart postaci ({error})."
 };
