@@ -28,6 +28,20 @@ function rerunKeep(actor, oldState, r, pool) {
   };
 }
 
+/** Cechy i wady nadane przez MG z katalogu (flaga gmGrant) — kreator ich nie liczy i nie pozwala kupić drugi raz. */
+function gmGrantedOf(actor) {
+  const gmGranted = [];
+  let gmOrg = "";
+  for (const i of actor.items) {
+    const f = i.flags?.["foe-rpg"];
+    if (i.type !== "feature" || !f?.gmGrant || typeof f.source !== "string") continue;
+    const [kind, key] = f.source.split(":");
+    gmGranted.push(`${kind === "hindrance" ? "h" : "t"}:${key}`);
+    if (key === "organization" && f.choices?.org) gmOrg = f.choices.org;
+  }
+  return { gmGranted, gmOrg };
+}
+
 /** Usuwa przedmioty utworzone wcześniej przez kreator, zapisuje zmiany i dodaje nowe cechy. */
 async function applyToActor(actor, update, items, raceKey = "") {
   const old = actor.items.filter(i => i.getFlag("foe-rpg", "creator")).map(i => i.id);
@@ -46,7 +60,7 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
     super(options);
     this.actor = actor;
     // nazwa zawsze z aktora — zmieniona po stworzeniu postaci nie wraca do starej
-    this.wiz = { ...defaultPcState(actor.name), ...readFlag(actor, "creation"), name: actor.name };
+    this.wiz = { ...defaultPcState(actor.name), ...readFlag(actor, "creation"), name: actor.name, ...gmGrantedOf(actor) };
     this.wiz.step = 0;
   }
 
@@ -140,17 +154,20 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
       const why = [...L.block, ...L.need, ...L.gm].join("; ");
       return { blocked: !on && L.block.length > 0, bad: on && (L.block.length + L.need.length) > 0, gmOnly: L.gm.length > 0 && !L.block.length, why };
     };
+    const gmSet = new Set(st.gmGranted ?? []);
     ctx.hindrances = Object.entries(HINDRANCES).map(([k, h]) => {
-      const on = autoH.has(k) || st.hindrances.includes(k);
+      const gm = gmSet.has(`h:${k}`) && !autoH.has(k);
+      const on = autoH.has(k) || gm || st.hindrances.includes(k);
       return {
-        k, ...h, on, locked: autoH.has(k), ...(autoH.has(k) ? {} : limit(`h:${k}`, on)),
-        choices: on ? choiceView(`h:${k}`) : [], fxText: on ? fxText(`h:${k}`) : [],
+        k, ...h, on, gm, locked: autoH.has(k) || gm, ...(autoH.has(k) || gm ? {} : limit(`h:${k}`, on)),
+        choices: on && !gm ? choiceView(`h:${k}`) : [], fxText: on && !gm ? fxText(`h:${k}`) : [],
         search: `${h.label} ${h.desc}`.toLowerCase()
       };
     });
     const autoT = new Set(r.traits.filter(f => f.auto).map(f => f.key));
     ctx.traits = Object.entries(TRAITS).map(([k, tr]) => {
-      const on = autoT.has(k) || k in st.traits;
+      const gm = gmSet.has(`t:${k}`) && !autoT.has(k);
+      const on = autoT.has(k) || gm || k in st.traits;
       // koszt z wyboru: gdy wybrana opcja ma koszt albo wszystkie opcje go mają (Channeler, Cyberpony);
       // Organization: koszt 0–3 wpisujesz sam, chyba że opcja ma własny (Reaper)
       const priced = (tr.choices ?? []).filter(c => c.options.some(o => o.cost != null));
@@ -159,13 +176,13 @@ export class CharacterCreator extends HandlebarsApplicationMixin(ApplicationV2) 
       const res = resolved.get(`t:${k}`);
       const auto = r.traits.find(f => f.key === k && f.auto);
       return {
-        k, ...tr, on, locked: autoT.has(k), lockedLabel: auto?.grantedBy ? t("free ({src})", { src: auto.grantedBy }) : t("race"),
-        ...(autoT.has(k) ? {} : limit(`t:${k}`, on)),
+        k, ...tr, on, locked: autoT.has(k) || gm, lockedLabel: gm ? t("GM grant") : auto?.grantedBy ? t("free ({src})", { src: auto.grantedBy }) : t("race"),
+        ...(autoT.has(k) || gm ? {} : limit(`t:${k}`, on)),
         costLabel: tr.cost[0] === tr.cost[1] ? `${tr.cost[0]}` : `${tr.cost[0]}–${tr.cost[1]}`,
-        range: tr.cost[0] !== tr.cost[1] && on && !autoT.has(k) && !costByChoice, min: tr.cost[0], max: tr.cost[1],
+        range: tr.cost[0] !== tr.cost[1] && on && !autoT.has(k) && !gm && !costByChoice, min: tr.cost[0], max: tr.cost[1],
         chosenCost: st.traits[k] ?? tr.cost[0],
-        nowCost: on && !autoT.has(k) && costByChoice ? res?.cost : null,
-        choices: on ? choiceView(`t:${k}`) : [], fxText: on ? fxText(`t:${k}`) : [],
+        nowCost: on && !autoT.has(k) && !gm && costByChoice ? res?.cost : null,
+        choices: on && !gm ? choiceView(`t:${k}`) : [], fxText: on && !gm ? fxText(`t:${k}`) : [],
         search: `${tr.label} ${tr.desc}`.toLowerCase()
       };
     });

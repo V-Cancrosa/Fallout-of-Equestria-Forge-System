@@ -29,7 +29,8 @@ export function defaultPcState(name = "") {
     adj: zero(),
     tags: [],
     extra: {},
-    filter: ""
+    filter: "",
+    gmGranted: []            // „t:klucz” / „h:klucz” nadane przez MG z katalogu (bez punktów; ustawiane przy otwarciu kreatora)
   };
 }
 
@@ -79,12 +80,14 @@ export function computePc(state, pool = CREATION.pool) {
   const race = RACES[state.race] ?? RACES.other;
   const errors = [], warnings = [];
   const choices = state.choices ?? {};
+  // cechy i wady nadane przez MG z katalogu: nie kosztują i nie dają punktów, kreator ich nie dubluje
+  const gm = new Set(state.gmGranted ?? []);
 
   // --- wady: automatyczne z rasy + wybrane ---
   const autoH = race.hindrances ?? [];
   const hList = [
     ...autoH.map(h => ({ ...resolveFeature("hindrance", h.key, HINDRANCES[h.key], choices[`h:${h.key}`] ?? h.choices, { auto: true }), points: h.points !== false, uncounted: !!h.uncounted })),
-    ...state.hindrances.filter(k => HINDRANCES[k] && !autoH.some(a => a.key === k))
+    ...state.hindrances.filter(k => HINDRANCES[k] && !gm.has(`h:${k}`) && !autoH.some(a => a.key === k))
       .map(k => ({ ...resolveFeature("hindrance", k, HINDRANCES[k], choices[`h:${k}`]), points: true }))
   ];
   const counted = hList.filter(h => !h.uncounted);
@@ -103,7 +106,7 @@ export function computePc(state, pool = CREATION.pool) {
     ...autoT.map(tr => TRAITS[tr.key]
       ? resolveFeature("trait", tr.key, TRAITS[tr.key], choices[`t:${tr.key}`] ?? tr.choices, { auto: true })
       : { kind: "perk", key: tr.key, label: tr.label, desc: tr.desc, fx: [], ch: {}, visible: [], missing: [], cost: 0, auto: true }),
-    ...Object.keys(state.traits).filter(k => TRAITS[k] && !autoT.some(a => a.key === k))
+    ...Object.keys(state.traits).filter(k => TRAITS[k] && !gm.has(`t:${k}`) && !autoT.some(a => a.key === k))
       .map(k => resolveFeature("trait", k, TRAITS[k], choices[`t:${k}`], { chosenCost: state.traits[k] }))
   ];
   const rawTraitCost = tList.reduce((sum, x) => sum + x.cost, 0);
@@ -118,8 +121,9 @@ export function computePc(state, pool = CREATION.pool) {
     if (f) f.grantedBy = g.grantedBy;
   }
   // ograniczenia z podręcznika (creation-limits.mjs): rasa, wykluczenia, wymagania
-  const orgPick = tList.some(f => f.key === "organization") ? choices["t:organization"]?.org : null;
+  const orgPick = tList.some(f => f.key === "organization") ? choices["t:organization"]?.org : (state.gmOrg || null);
   const has = ref => {
+    if (gm.has(ref)) return true;
     const [kind, key] = ref.split(":");
     if (kind === "h") return hList.some(f => f.key === key);
     if (kind === "t") return tList.some(f => f.key === key);
@@ -135,7 +139,9 @@ export function computePc(state, pool = CREATION.pool) {
     if (kind === "org") return TRAITS.organization.choices[0].options.find(o => o.v === key)?.label ?? key;
     return key;
   };
-  const limitCtx = { raceKey: state.race, race, has, label: refLabel, raceLabel: k => RACES[k]?.label ?? k, skillLabel: k => SKILLS[k]?.label ?? k };
+  // wykluczenia liczą tylko wybory z kreatora — MG, nadając cechę mimo konfliktu, już zdecydował (wymagania liczą też nadane)
+  const hasOwn = ref => !gm.has(ref) && !(ref.startsWith("org:") && !tList.some(f => f.key === "organization")) && has(ref);
+  const limitCtx = { raceKey: state.race, race, has, hasClash: hasOwn, label: refLabel, raceLabel: k => RACES[k]?.label ?? k, skillLabel: k => SKILLS[k]?.label ?? k };
   const chosenRefs = () => [
     ...hList.filter(f => !f.auto).map(f => [`h:${f.key}`, f.label]),
     ...tList.filter(f => !f.auto).map(f => [`t:${f.key}`, f.label]),
@@ -220,6 +226,8 @@ export function computePc(state, pool = CREATION.pool) {
     const L = evalLimit(ref, limitCtx);
     for (const why of [...L.block, ...L.need]) errors.push(t("{name}: {why}.", { name, why }));
     for (const why of L.gm) warnings.push(t("{name}: {why}.", { name, why }));
+    // konflikt z cechą nadaną przez MG — tylko ostrzeżenie
+    if (gm.size) for (const why of evalLimit(ref, { ...limitCtx, hasClash: has }).block.filter(b => !L.block.includes(b))) warnings.push(t("{name}: {why} (granted by the GM).", { name, why }));
   }
   const limitOf = ref => evalLimit(ref, limitCtx);
   // Specialization (s. 118): wybrana umiejętność musi być tagiem
@@ -254,15 +262,18 @@ export function computePc(state, pool = CREATION.pool) {
   };
 }
 
-/** Przedmiot-cecha do zapisania na karcie. */
-export function featureItem(f) {
+/**
+ * Przedmiot-cecha do zapisania na karcie.
+ * gm — nadana przez MG z katalogu: bez kosztu w punktach, bez flagi „creator” (kreator jej nie usuwa przy ponownym uruchomieniu).
+ */
+export function featureItem(f, { gm = false } = {}) {
   const kind = f.kind === "hindrance" ? "hindrance" : f.kind === "trait" ? "trait" : f.kind;
   const picked = (f.visible ?? []).map(c => {
     const vals = Array.isArray(c.value) ? c.value : [c.value];
     return `${c.label}: ${vals.map(v => c.options.find(o => o.v === v)?.label ?? v).join(", ")}`;
   });
   const lines = [f.desc, ...picked, f.auto && f.kind !== "other" && f.key !== "earthPerk" ? `<i>${t("From the race.")}</i>` : "",
-    f.kind === "trait" && !f.auto ? `<i>${t("Cost: {n} pts.", { n: f.cost })}</i>` : ""].filter(Boolean);
+    gm ? `<i>${t("Granted by the GM — no creation points.")}</i>` : f.kind === "trait" && !f.auto ? `<i>${t("Cost: {n} pts.", { n: f.cost })}</i>` : ""].filter(Boolean);
   const label = f.label + (picked.length && f.visible.length === 1 && !Array.isArray(f.visible[0].value)
     ? ` (${f.visible[0].options.find(o => o.v === f.visible[0].value)?.label ?? ""})` : "");
   return {
@@ -273,7 +284,7 @@ export function featureItem(f) {
       // warunki efektów (when) są po angielsku w danych — na karcie w języku twórcy
       effects: f.fx.filter(e => !CREATION_ONLY.has(e.type)).map(e => ({ type: e.type, target: e.target, value: e.value, when: e.when ? t(e.when) : "" }))
     },
-    flags: { "foe-rpg": { creator: true, source: `${f.kind}:${f.key}` } }
+    flags: { "foe-rpg": gm ? { gmGrant: true, source: `${f.kind}:${f.key}`, choices: f.ch ?? {} } : { creator: true, source: `${f.kind}:${f.key}` } }
   };
 }
 

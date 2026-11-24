@@ -25,7 +25,7 @@
           {{#each cols}}<td>{{this}}</td>{{/each}}
           <td class="buy">
             {{#if qty}}<input type="number" name="qty" value="{{qty}}" min="1" title="{{t "Quantity"}}">{{/if}}
-            {{#if ../lockAdd}}{{#if noBuy}}<small class="cat-gm" title="{{t "Only the GM adds for free (world setting)"}}">{{t "via the GM"}}</small>{{/if}}{{else}}<button type="button" data-action="add" title="{{t "Add for free"}}"><i class="fa-solid fa-plus"></i> {{t "Add"}}</button>{{/if}}
+            {{#if ../lockAdd}}{{#if noBuy}}<small class="cat-gm" title="{{t "Only the GM adds for free (world setting)"}}">{{t "via the GM"}}</small>{{/if}}{{else}}{{#if grant}}<button type="button" data-action="add" title="{{t "Grant for free — no creation points (GM)"}}"><i class="fa-solid fa-user-shield"></i> {{t "Grant"}}</button>{{else}}<button type="button" data-action="add" title="{{t "Add for free"}}"><i class="fa-solid fa-plus"></i> {{t "Add"}}</button>{{/if}}{{/if}}
             {{#if ../actor}}{{#unless noBuy}}<button type="button" data-action="buy" title="{{t "Buy — price × quantity will be deducted from the caps"}}"><i class="fa-solid fa-coins"></i> {{t "Buy"}}</button>{{/unless}}{{/if}}
           </td>
         </tr>
@@ -39,6 +39,8 @@
   <p class="hint">{{#if ammoOff}}<b class="warn">{{t "The optional “Special ammo” rule is off (world settings) — you can buy the ammo, but it doesn't work."}}</b> {{/if}}{{t "Special ammo from the rulebook (p. 202–203): “Buy”/“Add” asks for the caliber, the price is the regular ammo price × the multiplier. You load the type when reloading the weapon; changing the type ejects the remaining rounds into the inventory. With the rule on, regular rounds and energy ammo ignore 5 DT."}}</p>
   {{else if isCyber}}
   <p class="hint">{{t "“Add” installs an implant or a cyberlimb in the character (asks for the leg or attribute and warns about contraindications: Zebra Augmented, Bone Strengthening Brew, alicorns). Effects from the rulebook (the Cyberpony trait and table IX of implants, p. 104–107) are counted automatically; the descriptive effect is in the note. The rulebook gives no prices — a doctor or an Auto-Doc installs them, the GM decides the cost."}}</p>
+  {{else if isTraits}}
+  <p class="hint">{{t "Traits and hindrances from the character creator, granted by the GM — e.g. Stable Dweller for a character who grew up in a Stable. “Grant” asks for the choices (Organization, Specialization…) and adds the feature with its effects to the Traits & Notes tab. No creation points are spent or gained, and the creator leaves granted features alone. Rulebook restrictions (race, exclusions, requirements) are only warnings — the GM decides."}}</p>
   {{else if isVehicles}}
   <p class="hint">{{t "“Add” creates a vehicle in the “FoE Vehicles” folder (actors tab) together with its mounted weapons from the catalog. Then drag it onto the scene and add the crew (drag characters onto the vehicle sheet). Size and damage per wound are from the rulebook's table XLI; DT, speeds and crew are suggestions you can change on the sheet (the v1.22 rulebook has no vehicle statistics)."}}</p>
   {{else}}

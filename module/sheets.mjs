@@ -520,7 +520,7 @@ export class FoeActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
     const kinds = { trait: t("Trait"), hindrance: t("Hindrance"), perk: "Perk", spell: t("Spell"), implant: t("Implant"), cyberlimb: t("Cyberlimb"), other: t("kind|Other") };
     ctx.features = items.filter(i => i.type === "feature").map(i => ({
       id: i.id, name: i.name, system: i.system, kindLabel: kinds[i.system.kind] ?? i.system.kind,
-      active: i.system.active !== false,
+      active: i.system.active !== false, gmGrant: !!i.flags?.["foe-rpg"]?.gmGrant,
       fx: (i.system.effects ?? []).filter(e => FX_TYPES[e.type]).map(e => ({ text: describeFx(e, labels), when: !!e.when }))
     }));
     const fx = sys.fx ?? {};

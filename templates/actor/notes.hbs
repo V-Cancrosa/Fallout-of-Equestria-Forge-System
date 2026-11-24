@@ -1,6 +1,7 @@
 <section class="tab {{tab.cssClass}}" data-group="primary" data-tab="notes">
   <h3>{{t "Traits, hindrances, perks, spells"}}
     <a data-action="openCatalog" data-tab="perks" title="{{t "Perks from the rulebook (requirements are checked automatically)"}}"><i class="fa-solid fa-medal"></i> {{t "Perks"}}</a>
+    {{#if isGM}}<a data-action="openCatalog" data-tab="traits" title="{{t "Grant a trait or hindrance from the character creator (GM) — for free, without creation points"}}"><i class="fa-solid fa-user-shield"></i> {{t "Traits & Hindrances"}}</a>{{/if}}
     <a data-action="levelUp" title="{{t "Level up: skill points and a perk"}}"><i class="fa-solid fa-arrow-up"></i> {{t "Level up"}}</a>
     <a class="plus" data-action="createItem" data-type="feature" title="{{t "Add"}}"><i class="fa-solid fa-plus"></i></a></h3>
   <ul class="item-list features">
@@ -8,7 +9,7 @@
     <li data-item-id="{{id}}" class="{{#unless active}}inactive{{/unless}}">
       <div class="feat-row">
         <a class="feat-toggle {{#if active}}on{{/if}}" data-action="toggleFeature" title="{{#if active}}{{t "Active — click to turn the effects off"}}{{else}}{{t "Off — click to turn on"}}{{/if}}"></a>
-        <span class="nm">{{name}}</span> <span class="kind">{{kindLabel}}</span>
+        <span class="nm">{{name}}</span> <span class="kind">{{kindLabel}}{{#if gmGrant}} <i class="fa-solid fa-user-shield" title="{{t "Granted by the GM — no creation points."}}"></i>{{/if}}</span>
         <span class="ctl"><a data-action="editItem" title="{{t "Edit"}}"><i class="fa-solid fa-pen"></i></a> <a data-action="deleteItem" title="{{t "Delete"}}"><i class="fa-solid fa-trash"></i></a></span>
       </div>
       {{#if fx.length}}<ul class="feat-fx">{{#each fx}}<li class="{{#if when}}sit{{/if}}">{{text}}</li>{{/each}}</ul>{{/if}}

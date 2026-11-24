@@ -114,7 +114,7 @@ for (const [k, v] of Object.entries(LIMITS)) for (const o of v.notWith ?? []) {
 
 /**
  * Ocena jednej wady/cechy/organizacji w danym stanie kreatora.
- * ctx: { raceKey, race (RACES[raceKey]), has(ref) → bool, label(ref) → nazwa, raceLabel(key), attrs?: {k: total}, tags?: [] }
+ * ctx: { raceKey, race (RACES[raceKey]), has(ref) → bool, hasClash?(ref) → bool (do wykluczeń; domyślnie has), label(ref) → nazwa, raceLabel(key), attrs?: {k: total}, tags?: [] }
  * Wynik: { block: [] (nie da się wziąć — rasa, wykluczenie, brak umiejętności rasowej), need: [] (błąd, dopóki
  * nie spełnisz wymagania), gm: [] (ostrzeżenie: zgoda MG) }.
  */
@@ -127,7 +127,7 @@ export function evalLimit(ref, ctx) {
   if (!manual && L.notRaces?.includes(ctx.raceKey)) out.block.push(t("not for: {race}", { race: ctx.raceLabel(ctx.raceKey) }));
   if (!manual && L.magic && !ctx.race?.racial?.magic) out.block.push(t("requires the Magic racial skill"));
   if (!manual && L.flight && !ctx.race?.racial?.flight) out.block.push(t("requires the Flight racial skill"));
-  const clash = [...(NOT.get(ref) ?? [])].filter(o => ctx.has(o));
+  const clash = [...(NOT.get(ref) ?? [])].filter(o => (ctx.hasClash ?? ctx.has)(o));
   if (clash.length) out.block.push(t("doesn't combine with: {list}", { list: clash.map(ctx.label).join(", ") }));
   if (L.needsAny && !L.needsAny.some(o => ctx.has(o))) out.need.push(t("requires: {list}", { list: L.needsAny.map(ctx.label).join(` ${t("conj|or")} `) }));
   if (L.needsTag && ctx.tags && !ctx.tags.includes(L.needsTag)) out.need.push(t("requires {skill} as a tagged skill (Skills step)", { skill: ctx.skillLabel(L.needsTag) }));
