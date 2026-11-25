@@ -3,6 +3,8 @@ name: Release
 # Gdy na main trafi system.json z nową wersją (np. "0.2.0"), a wydania
 # v0.2.0 jeszcze nie ma: tworzy tag i wydanie, pakuje foe-rpg.zip
 # i dołącza go razem z system.json, żeby działał manifest URL w Foundry VTT.
+# Gdy wydanie tej wersji już jest, a pliki paczki się zmieniły — przebieg kończy się błędem
+# (ktoś nie podbił wersji albo dwa PR-y wzięły ten sam numer).
 on:
   push:
     branches: [main]
@@ -26,8 +28,23 @@ jobs:
           TAG="v$(jq -r .version system.json)"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           if gh release view "$TAG" -R "$REPO" >/dev/null 2>&1; then
-            echo "Wydanie $TAG już istnieje — pomijam."
             echo "exists=true" >> "$GITHUB_OUTPUT"
+            # Wydanie tej wersji już jest. Jeśli od niego zmieniło się coś, co trafia do paczki,
+            # to nikt nie podbił wersji (np. dwa PR-y z tym samym numerem) i zmiany nie dotrą
+            # do graczy — przebieg ma być czerwony, a nie cicho pominięty.
+            git fetch --quiet --depth=1 origin "refs/tags/$TAG:refs/tags/$TAG"
+            PATHS="README.md module templates styles lang fonts icons data assets packs-src tools/build-packs.mjs"
+            CHANGED=$(git diff --name-only "$TAG" HEAD -- $PATHS)
+            # system.json bez pól, które zmienia sam workflow albo podbicie wersji
+            STRIP='del(.version, .download, .manifest)'
+            if ! diff -q <(git show "$TAG:system.json" | jq -S "$STRIP") <(jq -S "$STRIP" system.json) >/dev/null; then
+              CHANGED="$CHANGED system.json"
+            fi
+            if [ -n "$(echo $CHANGED)" ]; then
+              echo "::error title=Wersja nie podbita::Wydanie $TAG już istnieje, a od niego zmieniły się pliki paczki: $(echo $CHANGED). Podbij \"version\" w system.json — inaczej te zmiany nie trafią do wydania."
+              exit 1
+            fi
+            echo "Wydanie $TAG już istnieje i paczka się nie zmieniła — pomijam."
           fi
 
       - name: Ustaw link do pobrania w system.json
