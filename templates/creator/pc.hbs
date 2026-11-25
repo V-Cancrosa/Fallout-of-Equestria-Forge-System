@@ -77,7 +77,7 @@
         <ul class="cr-pick">
         {{#each hindrances}}
           <li class="{{#if on}}on{{/if}} {{#if locked}}locked{{/if}} {{#if blocked}}blocked{{/if}} {{#if bad}}bad{{/if}}" data-search="{{search}}" {{#if why}}title="{{why}}"{{/if}}>
-            <a {{#unless locked}}{{#unless blocked}}data-action="toggleHindrance"{{/unless}}{{/unless}} data-key="{{k}}"><span class="box"></span><b>{{label}}</b> <span class="ty">{{type}}</span></a>
+            <a {{#unless locked}}{{#unless blocked}}data-action="toggleHindrance"{{/unless}}{{/unless}} data-key="{{k}}"><span class="box"></span><b>{{label}}</b> <span class="ty">{{type}}{{#if gm}} · {{t "GM grant"}}{{/if}}</span></a>
             <p>{{desc}}</p>
             {{#if why}}<p class="cr-why {{#if gmOnly}}gm{{/if}}"><i class="fa-solid {{#if gmOnly}}fa-user-shield{{else}}fa-ban{{/if}}"></i> {{why}}</p>{{/if}}
             {{#if fxText.length}}<ul class="cr-fx">{{#each fxText}}<li>{{this}}</li>{{/each}}</ul>{{/if}}

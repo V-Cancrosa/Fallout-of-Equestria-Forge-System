@@ -7,7 +7,8 @@ import { maneuverItemData, maneuverWarnings, isWeatherManeuver, MFD_LABEL } from
 import { addPerk, perkStatus, reqView, autoSummary, perkItemData } from "./perks.mjs";
 import { importCreature, BESTIARY_KINDS } from "./bestiary.mjs";
 import { VEHICLE_KINDS, VEHICLE_POWER, sizeRow } from "./vehicle-data.mjs";
-import { canFreeAdd } from "./permissions.mjs";
+import { canFreeAdd, isGM } from "./permissions.mjs";
+import { featureEntries, grantStatus, grantFeature } from "./grant-feature.mjs";
 import { SPECIAL_AMMO, AMMO_GROUPS, ammoGroup, isShotgunAmmo, variantName, specialAmmoOn } from "./ammo-data.mjs";
 import { t, tn, isPL, tmap, tdata } from "./i18n.mjs";
 
@@ -18,7 +19,7 @@ let cache = null;
 export function loadCatalog() {
   const get = name => fetch(`systems/${game.system.id}/data/${name}`).then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); });
   cache ??= Promise.all([get("catalog.json"), get("spells.json").catch(() => []), get("recipes.json").catch(() => []), get("maneuvers.json").catch(() => []), get("perks.json").catch(() => []), get("bestiary.json").catch(() => []), get("vehicles.json").catch(() => []), get("cyber.json").catch(() => [])])
-    .then(([cat, spells, recipes, maneuvers, perks, bestiary, vehicles, cyber]) => ({ ...cat, spells, recipes, maneuvers, perks, bestiary, vehicles, cyber, ammo: Object.values(SPECIAL_AMMO) }))
+    .then(([cat, spells, recipes, maneuvers, perks, bestiary, vehicles, cyber]) => ({ ...cat, spells, recipes, maneuvers, perks, bestiary, vehicles, cyber, ammo: Object.values(SPECIAL_AMMO), traits: featureEntries() }))
     .catch(err => { cache = null; throw err; });
   return cache;
 }
@@ -45,8 +46,14 @@ const TABS = () => ({
   cyber: { label: t("Cybernetics"), icon: "fa-solid fa-microchip", kinds: { limb: t("Cyberlimbs"), implant: t("Implants (table IX)") },
     head: [t("col|Type"), t("Effects"), t("col|Power"), t("Talisman")] },
   vehicles: { label: t("Vehicles"), icon: "fa-solid fa-truck-pickup", kinds: { ...VEHICLE_KINDS, pulled: t("Pulled by ponies"), motor: t("Self-propelled") },
-    head: [t("col|Type"), t("Size (L/W)"), t("Speed"), t("Crew"), t("Hull DT"), t("col|Weapon")] }
+    head: [t("col|Type"), t("Size (L/W)"), t("Speed"), t("Crew"), t("Hull DT"), t("col|Weapon")] },
+  // cechy i wady z kreatora — nadaje tylko MG, z karty postaci (bez punktów tworzenia)
+  traits: { label: t("Traits & Hindrances"), icon: "fa-solid fa-user-shield", gmActor: true,
+    kinds: { T: t("head|Traits"), H: t("head|Hindrances"), A: t("No conflicts"), C: t("Already has") },
+    head: [t("col|Type"), t("Cost"), t("Effects"), t("Status")] }
 });
+/** Zakładki widoczne dla tego okna: „Traits & Hindrances” tylko dla MG na karcie postaci lub NPC. */
+const tabOk = (def, actor) => !def.gmActor || (isGM() && ["character", "npc"].includes(actor?.type));
 const PERK_STATUS = tmap({ ok: "✓ available", unknown: "? check", fail: "✗", taken: "■ has it" });
 const KIND_LABEL = tmap({ active: "", passive: "man|passive", variable: "man|variable MFD", special: "man|special" });
 
@@ -73,6 +80,21 @@ function coverText(list = []) {
 }
 
 function rowOf(tab, e, i, actor = null) {
+  if (tab === "traits") {
+    const d = e.def, st = grantStatus(actor, e);
+    const labels = fxLabels();
+    const fxt = (d.fx ?? []).filter(x => !["caps", "karma", "tags", "creationPoints"].includes(x.type)).map(x => shortFx(x, labels)).join(", ");
+    const auto = [fxt, d.choices?.length ? t("by choice") : ""].filter(Boolean).join("; ");
+    const warn = st?.warn?.join("; ") ?? "";
+    return {
+      i, name: d.label, notes: d.desc, search: `${d.label} ${d.desc}`.toLowerCase(), img: "systems/foe-rpg/icons/feature.svg",
+      kind: `${e.kind === "hindrance" ? "H" : "T"}${st?.has ? " C" : st && !warn ? " A" : ""}`, qty: 0, noBuy: true, grant: true,
+      cols: [e.kind === "hindrance" ? `${t("Hindrance")}${d.type ? ` (${d.type})` : ""}` : t("Trait"),
+        e.kind === "hindrance" ? "+1" : d.cost[0] === d.cost[1] ? `${d.cost[0]}` : `${d.cost[0]}–${d.cost[1]}`,
+        auto ? (auto.length > 60 ? `${auto.slice(0, 58)}…` : auto) : "—",
+        !st ? "—" : st.has ? PERK_STATUS.taken : warn ? `⚠ ${warn.length > 60 ? `${warn.slice(0, 58)}…` : warn}` : PERK_STATUS.ok]
+    };
+  }
   if (tab === "spells") {
     const req = e.requirements || "—";
     return {
@@ -198,7 +220,7 @@ export class FoeCatalog extends HandlebarsApplicationMixin(ApplicationV2) {
   constructor({ actor = null, tab = "weapons", ...options } = {}) {
     super(options);
     this.actor = actor;
-    this.tab = TABS()[tab] ? tab : "weapons";
+    this.tab = TABS()[tab] && tabOk(TABS()[tab], actor) ? tab : "weapons";
     this.kind = "";
     this.search = "";
   }
@@ -212,7 +234,8 @@ export class FoeCatalog extends HandlebarsApplicationMixin(ApplicationV2) {
     let data;
     try { data = await loadCatalog(); }
     catch (err) { return { ...ctx, error: t("Couldn't load the catalog ({e}).", { e: err.message }) }; }
-    const tabs = TABS();
+    const tabs = Object.fromEntries(Object.entries(TABS()).filter(([, tb]) => tabOk(tb, this.actor)));
+    if (!tabs[this.tab]) this.tab = "weapons";
     const def = tabs[this.tab];
     const list = data[this.tab] ?? [];
     const rows = list.map((e, i) => rowOf(this.tab, e, i, this.actor));
@@ -230,9 +253,10 @@ export class FoeCatalog extends HandlebarsApplicationMixin(ApplicationV2) {
       isBestiary: this.tab === "bestiary",
       isVehicles: this.tab === "vehicles",
       isCyber: this.tab === "cyber",
+      isTraits: this.tab === "traits",
       isAmmo: this.tab === "ammo", ammoOff: this.tab === "ammo" && !specialAmmoOn(),
       // gracz: „Dodaj” za darmo tylko za zgodą MG (ustawienie świata); kupuje za kapsle
-      lockAdd: !!this.actor && !canFreeAdd(this.tab)
+      lockAdd: !!this.actor && (this.tab === "traits" ? !isGM() : !canFreeAdd(this.tab))
     };
   }
 
@@ -346,6 +370,13 @@ export class FoeCatalog extends HandlebarsApplicationMixin(ApplicationV2) {
     const data = await loadCatalog();
     const entry = data[this.tab]?.[Number(row?.dataset.i)];
     if (!entry) return;
+    if (this.tab === "traits") {
+      // tylko MG, tylko na postaci; za darmo — bez punktów tworzenia
+      if (!isGM() || !this.actor) return ui.notifications.warn(t("Only the GM grants traits and hindrances."));
+      const item = await grantFeature(this.actor, entry);
+      if (item) this.render();
+      return;
+    }
     const qty = Math.max(1, Math.floor(Number(row.querySelector("input[name=qty]")?.value) || 1));
     const itemData = this.tab === "spells" ? spellItemData(entry) : this.tab === "recipes" ? recipeItemData(entry) : this.tab === "maneuvers" ? maneuverItemData(entry) : this.tab === "perks" ? perkItemData(entry) : ["bestiary", "vehicles", "cyber", "ammo"].includes(this.tab) ? null : catalogItem(this.tab, entry, qty);
     const what = qty > 1 ? `${entry.name} ×${qty}` : entry.name;
