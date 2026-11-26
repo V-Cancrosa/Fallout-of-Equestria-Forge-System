@@ -264,8 +264,9 @@ Siodła bojowe i pancerze wspomagane (s. 161–170, 460):
 - Pancerz wspomagany bez Power Armor Training: bez premii do atrybutów i umiejętności z pancerza (kary zostają);
   ze szkoleniem kary AGI z pancerza znikają. Talizman naprawczy (klucz przy pancerzu): 2 DT na lokację za jednostkę złomu.
 
-Sylwetka PipBucka / V.A.T.S. (zakładka Walka, „Rany, okaleczenia i DT”): kucyk z góry „na rozgwiazdę” — łeb u góry, nogi
-rozłożone na boki (lewa strona kucyka po lewej), oba skrzydła, ogon; u dwunożnych postać z przodu. Wzór: schemat lokacji z karty
+Sylwetka PipBucka / V.A.T.S. (zakładka Walka, „Rany, okaleczenia i DT”): kucyk ziemski i jednorożec — z boku, jak ekran
+STAT w Falloucie (bliższe nogi to prawe, dalsze — lewe; róg dorysowany przy czole); kucyki ze skrzydłami — z góry „na
+rozgwiazdę” (łeb u góry, nogi na boki, oba skrzydła, ogon); u dwunożnych postać z przodu. Wzór: schemat lokacji z karty
 postaci (s. 630) i ekran V.A.T.S. Kolory stanu: żółty — ranna, czerwony — o krok od okaleczenia, pulsujący — okaleczona,
 migający z białym konturem — utracona/śmiertelna. Róg i skrzydła tylko u ras, które je mają; przy każdej części opis: rany, DT
 z nazwą pancerza, kara strzału celowanego i pasek ran. Przerywany obrys — część osłania pancerz; ⚙ — proteza.
@@ -960,5 +961,7 @@ Pliki w folderze systemu są nadpisywane przy aktualizacji — własne zmiany tr
 Nowe wydanie: zmień `"version"` w system.json (np. na `0.2.0`) i scal to do `main` —
 workflow `.github/workflows/release.yml` sam utworzy wydanie `v0.2.0` z plikami `foe-rpg.zip` i `system.json`.
 
+Sylwetka kucyka z boku: „MLP template SVG — rotation chart” autorstwa Stabzor (DeviantArt, 2012; autor oznaczył pracę jako
+FREE — wolno jej używać), kształty w `module/body-side-data.mjs`, róg dorysowany. MLP:FiM © Lauren Faust i Hasbro.
 Czcionki: VT323 i IBM Plex Mono (SIL Open Font License, pliki licencji w `fonts/`).
 Ikony stanów tokenów (`icons/status/`): Font Awesome Free 6.5.2 (CC BY 4.0, https://fontawesome.com/license/free) — informacja o licencji jest w każdym pliku.

@@ -1037,6 +1037,25 @@ button.foe-surprise { flex: 0 0 auto; width: auto; margin: 2px 0; font-size: 12p
 .foe-rpg .pip-body .part.dmg-lost path { fill: var(--dmg-crip); stroke: #fff; animation: foe-vats-blink 1s infinite; }
 @keyframes foe-pulse { 50% { opacity: .55; } }
 @keyframes foe-vats-blink { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+/* kucyk z boku (sylwetka Stabzora): obrys to kształt wypełniany kolorem stanu, wnętrze półprzezroczyste */
+.foe-rpg .pip-body.side .part path { stroke: none; filter: none; }
+.foe-rpg .pip-body.side .part path.fl { fill: color-mix(in srgb, var(--pip) 14%, transparent); }
+.foe-rpg .pip-body.side .part path.fl.far { fill: color-mix(in srgb, var(--pip) 7%, transparent); }
+.foe-rpg .pip-body.side .part path.ol { fill: var(--pip); filter: drop-shadow(0 0 3px color-mix(in srgb, var(--pip) 70%, transparent)); }
+.foe-rpg .pip-body.side .part path.band { fill: none; stroke: var(--pip); stroke-width: 1.4; vector-effect: non-scaling-stroke; stroke-linecap: round; }
+.foe-rpg .pip-body.side .part path.fl:only-of-type, .foe-rpg .pip-body.side .part:has(.band) path.fl { stroke: var(--pip); stroke-width: 1.8; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.foe-rpg .pip-body.side .part:hover path.fl { fill: color-mix(in srgb, var(--pip) 28%, transparent); }
+.foe-rpg .pip-body.side .part:hover path.ol { fill: var(--pip-bright); }
+.foe-rpg .pip-body.side .part.dmg-light path.fl { fill: color-mix(in srgb, var(--dmg-light) 30%, transparent); }
+.foe-rpg .pip-body.side .part.dmg-light path:is(.ol) { fill: var(--dmg-light); }
+.foe-rpg .pip-body.side .part.dmg-heavy path.fl { fill: color-mix(in srgb, var(--dmg-heavy) 35%, transparent); }
+.foe-rpg .pip-body.side .part.dmg-heavy path:is(.ol) { fill: var(--dmg-heavy); }
+.foe-rpg .pip-body.side .part:is(.dmg-crippled, .dmg-lost) path.fl { fill: color-mix(in srgb, var(--dmg-crip) 45%, transparent); }
+.foe-rpg .pip-body.side .part:is(.dmg-crippled, .dmg-lost) path.ol { fill: var(--dmg-crip); }
+.foe-rpg .pip-body.side .part.dmg-light path:is(.band) , .foe-rpg .pip-body.side .part.dmg-light:has(.band) path.fl { stroke: var(--dmg-light); }
+.foe-rpg .pip-body.side .part.dmg-heavy path:is(.band), .foe-rpg .pip-body.side .part.dmg-heavy:has(.band) path.fl { stroke: var(--dmg-heavy); }
+.foe-rpg .pip-body.side .part:is(.dmg-crippled, .dmg-lost) path:is(.band), .foe-rpg .pip-body.side .part:is(.dmg-crippled, .dmg-lost):has(.band) path.fl { stroke: var(--dmg-crip); }
+.foe-rpg .pip-body.side .part.armored path.ol { filter: drop-shadow(0 0 4px var(--pip-bright)); }
 .foe-rpg .pip-body .decor { fill: none; stroke: var(--pip); stroke-width: 1.4; stroke-linecap: round; pointer-events: none; opacity: .55; }
 .foe-rpg .pip-body .decor.eye { fill: var(--pip-bright); stroke: none; opacity: .9; }
 .foe-rpg .pip-body .lead { stroke: var(--pip-dim); stroke-width: 1; stroke-dasharray: 3 3; }
