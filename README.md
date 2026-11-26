@@ -66,8 +66,9 @@ rzut d100 pod próg z wyborem MFD (2 … 1/10) i modyfikatorem, krytyki 1–5 / 
 przerzut za kartę szczęścia z czatu (+5% zakresu krytyków za każdy przerzut), SATS, karty szczęścia, strain, rady,
 rany, okaleczenia i DT na lokacjach, bronie, pancerze, ekwipunek, cechy/perki.
 
-Inicjatywa i tracker walki (s. 436–437): d100, a po rzucie gracz wybiera, czy odjąć (szybciej), czy dodać (później)
-próg AGI ¼ albo własną wartość; premie i kary z cech liczą się same, niższa inicjatywa działa pierwsza, remis — wyższe AGI.
+Inicjatywa i tracker walki (s. 436–437): d100 na czacie, a pod wynikiem przyciski — gracz (albo MG) wybiera, czy odjąć
+(szybciej), czy dodać (później) próg AGI ¼, albo wpisuje własną wartość; do wyboru tracker pokazuje wariant najszybszy,
+a karta podaje wzór z podręcznika; premie i kary z cech liczą się same, niższa inicjatywa działa pierwsza, remis — wyższe AGI.
 Rzut: przycisk „Inicjatywa” na karcie (Statystyki albo Walka) — dodaje token z tej sceny do walki i rzuca; gdy walki nie ma, MG
 tworzy ją tym samym kliknięciem. Można też rzucać ikoną kostki w trackerze walki (zakładka z mieczami).
 MG rzucający za NPC i „rzuć wszystkim” odejmuje automatycznie. W trackerze każdy walczący ma 2 kropki akcji
@@ -717,6 +718,10 @@ daty; rozlicza aktywny MG, kartkami dla gracza i MG):
   cecha Omnivore), gryfy, psy i minotaury jedzą wszystko (opcja świata „Jedzenie: liczy się dieta rasy”). Efekty chwilowe
   z opisu (np. „−1 STR for 2 min”) są na karcie na czacie dla MG. Nad listą jedzenia: „dziś: posiłki 1/1 · nawodniony
   18 h”, a stan (odwodnienie, najedzenie, choroba popromienna) — w sekcji „Zdrowie, chemia i promieniowanie” w zakładce Walka.
+- Manierki i butelki (s. 218–229): Canteen mieści 4 porcje wody, Canteen (Stable-Tec) 12, Milk Bottle 2, Flask i Empty
+  Soda Bottle 1. Przycisk „Woda n/max” w Ekwipunku otwiera okno: napij się, przelej wodę z ekwipunku, napełnij u źródła
+  (brudna, czysta albo „trawiasta” woda — MG mówi, jaka) albo wylej. Porcja waży 1 lb, zmieszana woda liczy się jak gorsza,
+  a przy przeskoku czasu postacie piją też z manierek. Własny pojemnik: flaga `foe-rpg.capacity` przedmiotu.
 - Głód (tabela XXXII, opcja świata, domyślnie włączona): o północy każda postać gracza, która tego dnia nie zjadła
   pełnego posiłku, dostaje −1 do losowego atrybutu (bez Szczęścia, nie ten sam dwa dni z rzędu) w cesze „Głód”; po
   3 tygodniach — śmierć. Posiłek zdejmuje cechę. Do tego:
