@@ -22,6 +22,7 @@ import { ruleLink } from "./rules.mjs";
 import { attrTest } from "./attr-test.mjs";
 import { addMutation, taintReroll, addTaint, settlementWater, sceneTaintWater } from "./taint.mjs";
 import { itemTaint, TAINT_WATER } from "./taint-data.mjs";
+import { waterCapacity, stackCapacity, waterOf, sip } from "./water-data.mjs";
 import { sleepTick, frozenSleep, resolveSleep, sleepRow, stimulant, sleepReroll } from "./sleep.mjs";
 import { feralTick, slowFeral } from "./mind.mjs";
 import { pinkOnScene, pinkRow } from "./pink.mjs";
@@ -353,6 +354,19 @@ export async function eatItem(actor, item) {
   return feed(actor, item, lines);
 }
 
+/** Łyk z manierki: jedna porcja zawartości (skutki jak wypicie tego napoju). */
+export async function drinkWater(actor, item) {
+  if (!actor?.isOwner) return ui.notifications.warn(t("You don't own: {name}.", { name: actor?.name ?? "?" }));
+  const w = waterOf(item);
+  if (!w) return ui.notifications.warn(t("{name} is empty.", { name: item.name }));
+  await settleActor(actor);
+  const left = sip(w, 1);
+  if (left) await item.update({ [`flags.${F}.water`]: left });
+  else await item.unsetFlag(F, "water");
+  const drinkItem = { name: w.name, system: { description: w.desc }, flags: { [F]: { taint: w.taint } } };
+  return feed(actor, drinkItem, [t("From {container}: {n} of {cap} portions left.", { container: item.name, n: left?.n ?? 0, cap: stackCapacity(item) })]);
+}
+
 /** Skutki zjedzenia (bez zdejmowania sztuki): posiłki, picie, rady, leczenie, kary głodu. item — { name, system.description }. */
 async function feed(actor, item, lines = []) {
   const info = foodInfo(item.system.description);
@@ -664,7 +678,11 @@ function supplies(actor) {
   return (actor.items ?? []).filter(i => i.type === "gear" && i.system?.category === "food" && (Number(i.system.qty) || 0) > 0).map(i => {
     const info = foodInfo(i.system.description);
     return { id: i.id, name: i.name, qty: Number(i.system.qty) || 0, info, fits: !setting("survivalDiet") || fitsDiet(info, diet, cannibal) };
-  });
+  }).concat((actor.items ?? []).filter(i => waterCapacity(i) && waterOf(i)).map(i => {
+    // manierki: zawartość jako zapas napoju (id z „:water”, ubywa z flagi pojemnika)
+    const w = waterOf(i);
+    return { id: `${i.id}:water`, name: `${w.name} (${i.name})`, qty: w.n, info: foodInfo(w.desc), fits: true, taint: w.taint };
+  }));
 }
 
 /** Dawka (rad/min po odporności) z najgorszego tokenu postaci na aktywnej scenie. */
@@ -759,12 +777,19 @@ export async function resolveSkip(actor, snap, choice, { from, to }) {
       const needs = skipNeeds({ st: st0, th, from, to, hunger: setting("survivalHunger"), ghoul });
       const sup = supplies(actor);
       const pick = pickSupplies(sup, needs);
+      const getItem = id => actor.items.get?.(id) ?? actor.items.find?.(i => i.id === id);
       for (const u of pick.use) {
-        const it = actor.items.get?.(u.id) ?? actor.items.find?.(i => i.id === u.id);
+        if (u.id.endsWith(":water")) {
+          const it = getItem(u.id.slice(0, -6));
+          const left = it && sip(waterOf(it), u.n);
+          if (it) await (left ? it.update({ [`flags.${F}.water`]: left }) : it.unsetFlag(F, "water"));
+          continue;
+        }
+        const it = getItem(u.id);
         if (it) await it.update({ "system.qty": Math.max(0, (Number(it.system.qty) || 0) - u.n) });
       }
       if (pick.use.length) lines.push(t("From supplies: {list}.", { list: pick.use.map(u => `${u.name} ×${u.n}`).join(", ") }));
-      const tx = pick.use.reduce((sum, u) => sum + itemTaint(actor.items.get?.(u.id) ?? actor.items.find?.(i => i.id === u.id)) * u.n, 0);
+      const tx = pick.use.reduce((sum, u) => sum + (sup.find(x => x.id === u.id)?.taint ?? itemTaint(getItem(u.id))) * u.n, 0);
       const taintLine = await addTaint(actor, tx, t("supplies"));
       if (taintLine) lines.push(taintLine);
       const traits = traitNames(actor);

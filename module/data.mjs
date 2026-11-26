@@ -1,4 +1,5 @@
 import { actorEffects, sumFx, sourcesFx, hits, signed, targets } from "./effects.mjs";
+import { waterWeight } from "./water-data.mjs";
 import { LAYER_CATEGORIES, defaultCover, layerPenalties, loadMovement, loadNote, sneakWeightPenalty } from "./combat.mjs";
 import { iconFor } from "./catalog-data.mjs";
 import { tkSpells } from "./tk-data.mjs";
@@ -222,7 +223,7 @@ class BaseActorData extends foundry.abstract.TypeDataModel {
       if (!["weapon", "armor", "gear"].includes(i.type)) return t;
       if (i.type === "gear" && i.system?.category === "ammo") return t;
       const qty = i.type === "gear" || (i.type === "weapon" && i.system?.consumable) ? Math.max(0, Number(i.system?.qty) || 0) : 1;
-      return t + (Number(i.system?.weight) || 0) * qty;
+      return t + (Number(i.system?.weight) || 0) * qty + waterWeight(i);   // woda w manierkach: +1 lb za porcję
     }, 0);
     this.weight = Math.round(carried * 10) / 10;
     this.overload = Math.max(0, Math.round((this.weight - this.carry) * 10) / 10);

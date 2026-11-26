@@ -4,10 +4,12 @@
  * Czysta funkcja: dane SVG do szablonu (bez Foundry). Rysunek własny.
  *   - kucyk z góry, „na rozgwiazdę”: łeb u góry, nogi rozłożone na boki, oba skrzydła — lewa strona kucyka po lewej,
  *     prawa połowa to lustrzane odbicie lewej (symetria),
+ *   - kucyk bez skrzydeł (ziemski, jednorożec): z boku — sylwetka Stabzora (body-side-data.mjs), bliższe nogi to prawe,
  *   - dwunożni (minotaury, psy): postać z przodu (jej lewa strona po prawej stronie ekranu).
  */
 import { CALLED_SHOTS, HIT_TABLES } from "./combat.mjs";
 import { t, tn, tmap } from "./i18n.mjs";
+import { PONY_SIDE, SIDE_XF } from "./body-side-data.mjs";
 
 const VIEW_W = 760, VIEW_H = 392;
 const CX = VIEW_W / 2;
@@ -61,6 +63,7 @@ const BIPED = {
 
 /** Miejsca opisów: kolumna (L/P) i wiersz — nogi przy swoich opisach. */
 const SLOTS_PONY = { horn: ["L", 0], flLeg: ["L", 1], wings: ["L", 2], rlLeg: ["L", 3], head: ["R", 0], frLeg: ["R", 1], torso: ["R", 2], rrLeg: ["R", 3] };
+const SLOTS_SIDE = { horn: ["L", 0], rlLeg: ["L", 2], rrLeg: ["L", 3], head: ["R", 0], torso: ["R", 1], flLeg: ["R", 2], frLeg: ["R", 3] };
 const SLOTS_BIPED = { head: ["L", 0], frLeg: ["L", 1], rrLeg: ["L", 3], torso: ["R", 0], flLeg: ["R", 1], rlLeg: ["R", 3] };
 
 const STATUS = tmap({ ok: "loc|healthy", wounded: "loc|wounded", crippled: "CRIPPLED", maimed: "MAIMED", dead: "DEATH" });
@@ -81,10 +84,11 @@ export function damageLevel(L) {
  */
 export function bodyMap(sys, locs, { table = "earth", labels = {}, cyber = new Set() } = {}) {
   const biped = !!HIT_TABLES[table]?.biped;
-  const shapes = biped ? BIPED : PONY_TOP;
-  const slots = biped ? SLOTS_BIPED : SLOTS_PONY;
-  const dy = (biped ? 0 : DY) + PAD;
   const have = new Set(locs);
+  const side = !biped && !have.has("wings");
+  const shapes = biped ? BIPED : side ? PONY_SIDE : PONY_TOP;
+  const slots = biped ? SLOTS_BIPED : side ? SLOTS_SIDE : SLOTS_PONY;
+  const dy = side ? 0 : (biped ? 0 : DY) + PAD;
   const parts = [], callouts = [];
   for (const k of Object.keys(shapes).filter(x => have.has(x))) {
     const L = sys.locations?.[k];
@@ -103,7 +107,7 @@ export function bodyMap(sys, locs, { table = "earth", labels = {}, cyber = new S
       cyber.has(k) ? (L.offline ? t("cyberlimb — no power") : t("cyberlimb")) : "",
       t("left click: +1 wound · right click: −1 wound")
     ].filter(Boolean).join("\n");
-    parts.push({ key: k, ds: s.ds, under: !!s.under, cls: `dmg-${level}${L.armorDt > 0 ? " armored" : ""}${cyber.has(k) ? " cyber" : ""}`, title });
+    parts.push({ key: k, ds: s.ds.map(d => (typeof d === "string" ? { d, c: "" } : d)), under: !!s.under, cls: `dmg-${level}${L.armorDt > 0 ? " armored" : ""}${cyber.has(k) ? " cyber" : ""}`, title });
     const [side, row] = slots[k] ?? ["R", 0];
     const bx = side === "L" ? 6 : VIEW_W - BOX_W - 6;
     const by = 8 + row * (BOX_H + 10);
@@ -124,9 +128,9 @@ export function bodyMap(sys, locs, { table = "earth", labels = {}, cyber = new S
   // skrzydła pod tułowiem, róg na wierzchu
   parts.sort((a, b) => (b.under - a.under) || ((a.key === "horn") - (b.key === "horn")));
   return {
-    viewBox: `0 0 ${VIEW_W} ${VIEW_H}`, biped, dy, cx: CX, cy: biped ? 168 : 170,
-    decor: biped ? [] : PONY_TOP_DECOR, eyes: biped ? [] : PONY_TOP_EYES.map(([x, y]) => ({ cx: x, cy: y })),
-    tail: !biped,
+    viewBox: `0 0 ${VIEW_W} ${VIEW_H}`, biped, side, xf: side ? SIDE_XF : "", dy, cx: CX, cy: side ? 196 : biped ? 168 : 170,
+    decor: biped || side ? [] : PONY_TOP_DECOR, eyes: biped || side ? [] : PONY_TOP_EYES.map(([x, y]) => ({ cx: x, cy: y })),
+    tail: !biped && !side,
     parts, callouts
   };
 }

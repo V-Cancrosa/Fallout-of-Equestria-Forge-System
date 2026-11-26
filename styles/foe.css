@@ -527,6 +527,15 @@ body[data-foe-crt="off"] .foe-card::after { display: none; }
 }
 .foe-card button.foe-luck:hover:not(:disabled) { color: var(--pip-ink); background: var(--pip); box-shadow: 0 0 8px var(--pip-glow); }
 .foe-card button.foe-luck:disabled { opacity: .45; }
+/* karta inicjatywy: wybór ± AGI ¼ po rzucie */
+.foe-card .fc-init-pick { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; gap: .3rem; margin-top: .4rem; }
+.foe-card .fc-init-pick button { margin: 0; color: var(--pip); background: transparent; border: 1px solid var(--pip-mid); border-radius: 0;
+  font-family: var(--foe-crt); font-size: 1.05rem; letter-spacing: .04em; text-transform: uppercase; }
+.foe-card .fc-init-pick button:hover:not(:disabled) { color: var(--pip-ink); background: var(--pip); box-shadow: 0 0 8px var(--pip-glow); }
+.foe-card .fc-init-pick button:disabled { opacity: .45; }
+.foe-card .fc-init-pick .fc-init-own { grid-column: 1 / -1; display: flex; gap: .3rem; }
+.foe-card .fc-init-pick .fc-init-own input { width: 5rem; flex: 0 0 auto; background: rgba(0, 0, 0, .5); color: var(--pip-bright); border: 1px solid var(--pip-dim); text-align: center; }
+.foe-card .fc-init-pick .fc-init-own button { flex: 1; }
 
 /* Wyniki */
 .foe-card.success .fc-outcome { color: var(--pip-bright); }
@@ -1028,6 +1037,25 @@ button.foe-surprise { flex: 0 0 auto; width: auto; margin: 2px 0; font-size: 12p
 .foe-rpg .pip-body .part.dmg-lost path { fill: var(--dmg-crip); stroke: #fff; animation: foe-vats-blink 1s infinite; }
 @keyframes foe-pulse { 50% { opacity: .55; } }
 @keyframes foe-vats-blink { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+/* kucyk z boku (sylwetka Stabzora): obrys to kształt wypełniany kolorem stanu, wnętrze półprzezroczyste */
+.foe-rpg .pip-body.side .part path { stroke: none; filter: none; }
+.foe-rpg .pip-body.side .part path.fl { fill: color-mix(in srgb, var(--pip) 14%, transparent); }
+.foe-rpg .pip-body.side .part path.fl.far { fill: color-mix(in srgb, var(--pip) 7%, transparent); }
+.foe-rpg .pip-body.side .part path.ol { fill: var(--pip); filter: drop-shadow(0 0 3px color-mix(in srgb, var(--pip) 70%, transparent)); }
+.foe-rpg .pip-body.side .part path.band { fill: none; stroke: var(--pip); stroke-width: 1.4; vector-effect: non-scaling-stroke; stroke-linecap: round; }
+.foe-rpg .pip-body.side .part path.fl:only-of-type, .foe-rpg .pip-body.side .part:has(.band) path.fl { stroke: var(--pip); stroke-width: 1.8; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+.foe-rpg .pip-body.side .part:hover path.fl { fill: color-mix(in srgb, var(--pip) 28%, transparent); }
+.foe-rpg .pip-body.side .part:hover path.ol { fill: var(--pip-bright); }
+.foe-rpg .pip-body.side .part.dmg-light path.fl { fill: color-mix(in srgb, var(--dmg-light) 30%, transparent); }
+.foe-rpg .pip-body.side .part.dmg-light path:is(.ol) { fill: var(--dmg-light); }
+.foe-rpg .pip-body.side .part.dmg-heavy path.fl { fill: color-mix(in srgb, var(--dmg-heavy) 35%, transparent); }
+.foe-rpg .pip-body.side .part.dmg-heavy path:is(.ol) { fill: var(--dmg-heavy); }
+.foe-rpg .pip-body.side .part:is(.dmg-crippled, .dmg-lost) path.fl { fill: color-mix(in srgb, var(--dmg-crip) 45%, transparent); }
+.foe-rpg .pip-body.side .part:is(.dmg-crippled, .dmg-lost) path.ol { fill: var(--dmg-crip); }
+.foe-rpg .pip-body.side .part.dmg-light path:is(.band) , .foe-rpg .pip-body.side .part.dmg-light:has(.band) path.fl { stroke: var(--dmg-light); }
+.foe-rpg .pip-body.side .part.dmg-heavy path:is(.band), .foe-rpg .pip-body.side .part.dmg-heavy:has(.band) path.fl { stroke: var(--dmg-heavy); }
+.foe-rpg .pip-body.side .part:is(.dmg-crippled, .dmg-lost) path:is(.band), .foe-rpg .pip-body.side .part:is(.dmg-crippled, .dmg-lost):has(.band) path.fl { stroke: var(--dmg-crip); }
+.foe-rpg .pip-body.side .part.armored path.ol { filter: drop-shadow(0 0 4px var(--pip-bright)); }
 .foe-rpg .pip-body .decor { fill: none; stroke: var(--pip); stroke-width: 1.4; stroke-linecap: round; pointer-events: none; opacity: .55; }
 .foe-rpg .pip-body .decor.eye { fill: var(--pip-bright); stroke: none; opacity: .9; }
 .foe-rpg .pip-body .lead { stroke: var(--pip-dim); stroke-width: 1; stroke-dasharray: 3 3; }
@@ -1288,6 +1316,41 @@ body[data-foe-crt="off"] .foe-rpg .term-boot::after { display: none; }
 .foe-rules .rules-pager a:hover { color: var(--pip); }
 .foe-rules .rules-empty { padding: 2rem; color: var(--pip); }
 .foe-rules-open { margin: .3rem 0; width: 100%; }
+/* Kompendium: wzory, karty atrybutów, schemat „skąd się bierze”, ramki uwag i przykładów (packs-src/rules) */
+:is(.foe-rules .rules-content, .journal-page-content) {
+  --r-pip: var(--pip, #4dff8a); --r-bright: var(--pip-bright, #83ffad); --r-mid: var(--pip-mid, #2fbf63); --r-dim: var(--pip-dim, #1f7a40);
+  --r-line: var(--pip-line, #4dff8a59); --r-faint: var(--pip-faint, #4dff8a1f);
+}
+:is(.foe-rules .rules-content, .journal-page-content) .r-lead { font-size: 15px; margin: .2rem 0 .7rem; }
+:is(.foe-rules .rules-content, .journal-page-content) .r-pg { display: inline-block; margin-left: .3rem; padding: 0 .35rem; font-size: 11px; color: var(--r-mid); border: 1px solid var(--r-dim); border-radius: 2px; white-space: nowrap; }
+:is(.foe-rules .rules-content, .journal-page-content) .r-formula { display: grid; grid-template-columns: 9.5rem 1fr; align-items: baseline; gap: .1rem .8rem; margin: .35rem 0; padding: .4rem .7rem; border: 1px solid var(--r-dim); border-left: 4px solid var(--r-pip); background: rgba(0, 0, 0, .3); }
+:is(.foe-rules .rules-content, .journal-page-content) .r-f-label { font-family: var(--foe-crt, monospace); text-transform: uppercase; letter-spacing: .06em; color: var(--r-mid); font-size: 1.05rem; }
+:is(.foe-rules .rules-content, .journal-page-content) .r-f-eq { font-family: var(--foe-crt, monospace); font-size: 1.35rem; color: var(--r-bright); text-shadow: 0 0 6px var(--pip-glow, #4dff8a66); letter-spacing: .03em; }
+:is(.foe-rules .rules-content, .journal-page-content) .r-f-eq var { font-style: normal; padding: 0 .25rem; border: 1px solid var(--r-mid); background: var(--r-faint); }
+:is(.foe-rules .rules-content, .journal-page-content) .r-f-ex { grid-column: 2; font-size: 12px; color: var(--r-mid); }
+:is(.foe-rules .rules-content, .journal-page-content) .r-formulas { display: grid; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); gap: 0 .6rem; }
+:is(.foe-rules .rules-content, .journal-page-content) .r-formulas .r-formula { grid-template-columns: 1fr; }
+:is(.foe-rules .rules-content, .journal-page-content) .r-formulas .r-f-ex { grid-column: 1; }
+:is(.foe-rules .rules-content, .journal-page-content) .r-flow { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; margin: .7rem 0 .9rem; }
+:is(.foe-rules .rules-content, .journal-page-content) .r-flow i { font-style: normal; font-family: var(--foe-crt, monospace); font-size: 1.4rem; color: var(--r-mid); }
+:is(.foe-rules .rules-content, .journal-page-content) .r-node { padding: .25rem .6rem; border: 1px solid var(--r-mid); background: rgba(0, 0, 0, .35); font-family: var(--foe-crt, monospace); font-size: 1.15rem; text-transform: uppercase; letter-spacing: .04em; color: var(--r-pip); text-align: center; line-height: 1.1; }
+:is(.foe-rules .rules-content, .journal-page-content) .r-node small { display: block; font-family: var(--foe-mono, monospace); font-size: 10px; text-transform: none; letter-spacing: 0; color: var(--r-mid); }
+:is(.foe-rules .rules-content, .journal-page-content) .r-node.r-hot { background: var(--r-pip); color: var(--pip-ink, #000); box-shadow: 0 0 10px var(--pip-glow, #4dff8a66); }
+:is(.foe-rules .rules-content, .journal-page-content) .r-node.r-hot small { color: var(--pip-ink, #000); }
+:is(.foe-rules .rules-content, .journal-page-content) .r-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(15.5rem, 1fr)); gap: .5rem; margin: .4rem 0 .8rem; }
+:is(.foe-rules .rules-content, .journal-page-content) .r-card { border: 1px solid var(--r-dim); background: rgba(0, 0, 0, .3); padding: .4rem .55rem .5rem; }
+:is(.foe-rules .rules-content, .journal-page-content) .r-card-h { display: flex; align-items: baseline; gap: .5rem; border-bottom: 1px solid var(--r-line); padding-bottom: .2rem; margin-bottom: .3rem; }
+:is(.foe-rules .rules-content, .journal-page-content) .r-card-h b { font-family: var(--foe-crt, monospace); font-size: 1.9rem; line-height: 1; color: var(--r-bright); text-shadow: 0 0 8px var(--pip-glow, #4dff8a66); }
+:is(.foe-rules .rules-content, .journal-page-content) .r-card-h span { font-size: 12px; color: var(--r-mid); }
+:is(.foe-rules .rules-content, .journal-page-content) .r-row { margin: .2rem 0; line-height: 1.6; }
+:is(.foe-rules .rules-content, .journal-page-content) .r-row em { display: block; font-style: normal; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--r-dim); }
+:is(.foe-rules .rules-content, .journal-page-content) .r-chip { display: inline-block; margin: 0 .25rem .2rem 0; padding: 0 .4rem; font-size: 12px; line-height: 1.5; border: 1px solid var(--r-line); background: var(--r-faint); color: var(--r-pip); }
+:is(.foe-rules .rules-content, .journal-page-content) .r-dim { font-size: 12px; color: var(--r-mid); }
+:is(.foe-rules .rules-content, .journal-page-content) .r-zero { margin-top: .3rem; font-size: 11px; color: var(--pip-alert, #ff5a4d); }
+:is(.foe-rules .rules-content, .journal-page-content) :is(.r-note, .r-example) { margin: .7rem 0; padding: .45rem .7rem; border: 1px solid var(--r-dim); }
+:is(.foe-rules .rules-content, .journal-page-content) .r-example { border-left: 4px solid #ffb547; background: rgba(255, 181, 71, .07); }
+:is(.foe-rules .rules-content, .journal-page-content) .r-example > b:first-child { color: #ffcf80; }
+:is(.foe-rules .rules-content, .journal-page-content) .r-note { border-left: 4px solid var(--r-pip); background: var(--r-faint); }
 
 /* ---------- Suwak skażenia (taint.mjs) ---------- */
 .foe-rpg .taint-box { display: flex; flex-direction: column; gap: .25rem; padding: .2rem 0 .5rem; }

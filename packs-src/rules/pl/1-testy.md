@@ -121,28 +121,52 @@ Zasada opcjonalna „Live by Luck”, zalecana przez podręcznik. (s. 53–57)
 
 ## S.P.E.C.I.A.L. {#attributes}
 
-Siedem atrybutów; 5 to przeciętna. Próg atrybutu to wartość × 10. (s. 49–52)
+<div class="r-lead">Siedem atrybutów od 1 do 12 — <b>5 to przeciętna</b>. Z każdego atrybutu bierze się jego <b>próg</b>, a z progu — umiejętności i wartości pochodne. <span class="r-pg">s. 49–52</span></div>
 
-| Atrybut | Za co odpowiada | Umiejętności |
-|---|---|---|
-| **STR** — Strength | obrażenia wręcz, udźwig, ciężar broni (do 2 × STR lb) | Melee (Dig) |
-| **PER** — Perception | zauważanie, zasięg wzroku (5 ft × PER na przedział) | Energy Weapons, Explosives, Lockpicking |
-| **END** — Endurance | ile ran zniesie każda lokacja; odporność na promieniowanie, skażenie i trucizny | Big Guns, Survival, Unarmed |
-| **CHA** — Charisma | siła osobowości, przekonywanie | Mercantile, Speechcraft (Magic zebr) |
-| **INT** — Intelligence | wiedza i myślenie; punkty umiejętności przy awansie | Medicine, Repair, Science, Magic |
-| **AGI** — Agility | ruch, SATS, inicjatywa | Small Guns, Sneak, Flight |
-| **LCK** — Luck | podstawa wszystkich umiejętności, karty szczęścia | — |
+<div class="r-formula"><span class="r-f-label">Próg atrybutu</span><span class="r-f-eq"><var>próg</var> = <var>atrybut</var> × 10</span><span class="r-f-ex">AGI 6 → próg 60</span></div>
 
-Spadek atrybutu do 0 ma poważne skutki (END 0 — śmierć, AGI 0 — bezruch, PER 0 — ślepota i głuchota). Atrybut nigdy nie przekracza 12. (s. 50–52)
+<div class="r-flow"><div class="r-node">Atrybut<small>1–12</small></div><i>→</i><div class="r-node">Próg<small>× 10</small></div><i>→</i><div class="r-node">½ progu<small>do MFD umiejętności</small></div><i>+</i><div class="r-node">Ranga<small>0–100</small></div><i>=</i><div class="r-node r-hot">MFD 1<small>tyle trzeba wyrzucić</small></div></div>
+
+<div class="r-cards">
+<div class="r-card"><div class="r-card-h"><b>STR</b><span>Strength — siła</span></div>
+<div class="r-row"><em>Wpływa na</em><span class="r-chip">obrażenia wręcz (× ranga)</span><span class="r-chip">udźwig</span><span class="r-chip">ciężar broni do 2 × STR lb</span></div>
+<div class="r-row"><em>Umiejętności</em><span class="r-chip">Melee</span><span class="r-chip">Dig*</span></div></div>
+<div class="r-card"><div class="r-card-h"><b>PER</b><span>Perception — percepcja</span></div>
+<div class="r-row"><em>Wpływa na</em><span class="r-chip">zauważanie</span><span class="r-chip">zasięg wzroku 5 ft × PER</span></div>
+<div class="r-row"><em>Umiejętności</em><span class="r-chip">Energy Weapons</span><span class="r-chip">Explosives</span><span class="r-chip">Lockpicking</span></div><div class="r-zero">PER 0 — ślepota i głuchota</div></div>
+<div class="r-card"><div class="r-card-h"><b>END</b><span>Endurance — wytrzymałość</span></div>
+<div class="r-row"><em>Wpływa na</em><span class="r-chip">rany na lokację</span><span class="r-chip">promieniowanie, skażenie, trucizny</span></div>
+<div class="r-row"><em>Umiejętności</em><span class="r-chip">Big Guns</span><span class="r-chip">Survival</span><span class="r-chip">Unarmed</span></div><div class="r-zero">END 0 — śmierć</div></div>
+<div class="r-card"><div class="r-card-h"><b>CHA</b><span>Charisma — charyzma</span></div>
+<div class="r-row"><em>Wpływa na</em><span class="r-chip">przekonywanie</span><span class="r-chip">siła osobowości</span></div>
+<div class="r-row"><em>Umiejętności</em><span class="r-chip">Mercantile</span><span class="r-chip">Speechcraft</span><span class="r-chip">Magic zebr</span></div></div>
+<div class="r-card"><div class="r-card-h"><b>INT</b><span>Intelligence — inteligencja</span></div>
+<div class="r-row"><em>Wpływa na</em><span class="r-chip">punkty umiejętności przy awansie</span><span class="r-chip">udźwig telekinezy 2 × INT</span></div>
+<div class="r-row"><em>Umiejętności</em><span class="r-chip">Medicine</span><span class="r-chip">Repair</span><span class="r-chip">Science</span><span class="r-chip">Magic</span></div></div>
+<div class="r-card"><div class="r-card-h"><b>AGI</b><span>Agility — zręczność</span></div>
+<div class="r-row"><em>Wpływa na</em><span class="r-chip">ruch</span><span class="r-chip">punkty SATS</span><span class="r-chip">inicjatywa ± ¼</span></div>
+<div class="r-row"><em>Umiejętności</em><span class="r-chip">Small Guns</span><span class="r-chip">Sneak</span><span class="r-chip">Flight*</span></div><div class="r-zero">AGI 0 — bezruch</div></div>
+<div class="r-card"><div class="r-card-h"><b>LCK</b><span>Luck — szczęście</span></div>
+<div class="r-row"><em>Wpływa na</em><span class="r-chip">ranga startowa każdej umiejętności</span><span class="r-chip">karty szczęścia</span></div>
+<div class="r-row"><em>Umiejętności</em><span class="r-dim">żadna wprost — za to wszystkie przez rangę startową</span></div></div>
+</div>
 
 ### Wartości pochodne
 
-- **Ruch:** 2,5 × AGI ft na akcję, w dół do pełnych 5 ft. Lot i kopanie: 5 × AGI ft. (s. 13)
-- **SATS:** 40 + 5 × AGI punktów akcji. (s. 15)
-- **Obrażenia na ranę:** 10 na 1. poziomie, +1 co 3 poziomy (najwyżej 20); Large +2, Pipsqueak i Young mniej. (s. 15)
-- **Udźwig:** 100 + 10 × STR lb; amunicja i kapsle nic nie ważą. Nadwaga spowalnia stopniami — zob. [[combat/actions]]. (s. 150)
-- **Zasięg wzroku:** bez pomocy PipBucka 5 ft × PER; każdy kolejny taki przedział to 1 krok trudniej, najdalej 25 ft × PER. (s. 49)
-- **Zmiana tymczasowa** (pancerz, chemia, choroba) daje powiązanym umiejętnościom ±5 za każdy punkt atrybutu. (s. 17)
+<div class="r-formulas">
+<div class="r-formula"><span class="r-f-label">Ruch</span><span class="r-f-eq">2,5 × <var>AGI</var> ft</span><span class="r-f-ex">na akcję, w dół do 5 ft · lot i kopanie 5 × AGI · s. 13</span></div>
+<div class="r-formula"><span class="r-f-label">SATS</span><span class="r-f-eq">40 + 5 × <var>AGI</var> AP</span><span class="r-f-ex">s. 15</span></div>
+<div class="r-formula"><span class="r-f-label">Inicjatywa</span><span class="r-f-eq">d100 ± ¼ progu <var>AGI</var></span><span class="r-f-ex">niższa działa pierwsza · s. 436</span></div>
+<div class="r-formula"><span class="r-f-label">Udźwig</span><span class="r-f-eq">100 + 10 × <var>STR</var> lb</span><span class="r-f-ex">amunicja i kapsle nic nie ważą · s. 150</span></div>
+<div class="r-formula"><span class="r-f-label">Obrażenia na ranę</span><span class="r-f-eq">10 + <var>poziom</var> / 3</span><span class="r-f-ex">najwyżej 20; Large +2 · s. 15</span></div>
+<div class="r-formula"><span class="r-f-label">Zasięg wzroku</span><span class="r-f-eq">5 ft × <var>PER</var></span><span class="r-f-ex">każdy kolejny przedział o krok trudniej, najdalej 25 ft × PER · s. 49</span></div>
+</div>
+
+<div class="r-example"><b>Przykład.</b> Rick: AGI 6, STR 4. Ruch 15 ft na akcję (2,5 × 6 = 15), SATS 70 AP (40 + 30), inicjatywa d100 ± 15 (¼ z 60), udźwig 140 lb.</div>
+
+<div class="r-note"><b>Zmiana tymczasowa</b> (pancerz, chemia, choroba) daje powiązanym umiejętnościom <b>±5 za każdy punkt</b> atrybutu. Atrybut nigdy nie przekracza 12, a spadek do 0 ma poważne skutki — zobacz dolne linie kart wyżej. <span class="r-pg">s. 17, 50–52</span></div>
+
+Nadwaga i jej stopnie — [[combat/actions]]. Umiejętności i ich rangi — [[skills]].
 
 ## Umiejętności {#skills}
 

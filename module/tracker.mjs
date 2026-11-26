@@ -21,30 +21,74 @@ export function maxActions(combat, combatant) {
 }
 const usedActions = c => Number(c.getFlag(F, "used")) || 0;
 
-/** Okienko po rzucie: ile dodać lub odjąć (do progu AGI ¼). Zwraca modyfikator AGI (ujemny = szybciej). */
-async function chooseAgiMod(name, d100, q, fx) {
-  if (!q) return 0;
-  const total = m => d100 + m - fx;
-  const content = `
-    <div class="foe-dialog">
-      <div class="atk-info"><div>${esc(name)}: d100 = <b>${d100}</b> · AGI ¼ = <b>${q}</b>${fx ? ` · ${t("traits {n}", { n: signed(-fx) })}` : ""}</div></div>
-      <label class="mod-row">${t("Custom value (from −{q} to +{q})", { q })} <input type="number" name="v" value="${-q}" min="${-q}" max="${q}"></label>
-      <p class="hint">${t("Lower initiative acts earlier. Subtract to act faster (usually the best); add if the character is to wait.")}</p>
+const SOCKET = `system.${F}`;
+
+/**
+ * Karta inicjatywy na czacie (s. 436): najpierw d100, potem właściciel postaci (albo MG) wybiera na karcie,
+ * ile z progu AGI ¼ odjąć albo dodać. Do wyboru tracker pokazuje wariant najszybszy (−¼).
+ * data: { combat, combatant, name, d100, q, fx, mod } — mod null = jeszcze nie wybrano.
+ */
+export function initCardHtml(data) {
+  const { name, d100, q, fx } = data;
+  const chosen = data.mod !== null && data.mod !== undefined;
+  const mod = chosen ? data.mod : -q;
+  const total = d100 + mod - fx;
+  const sum = `d100 ${d100}${q || chosen ? ` ${mod < 0 ? "−" : "+"} ${Math.abs(mod)} (AGI ¼)` : ""}${fx ? ` ${signed(-fx)} (${t("traits")})` : ""}`;
+  const buttons = chosen || !q ? "" : `
+    <div class="fc-init-pick">
+      <button type="button" data-init="sub"><i class="fa-solid fa-forward"></i> ${t("Subtract → {n}", { n: d100 - q - fx })}</button>
+      <button type="button" data-init="add"><i class="fa-solid fa-backward"></i> ${t("Add → {n}", { n: d100 + q - fx })}</button>
+      <span class="fc-init-own"><input type="number" name="init-own" value="${-q}" min="${-q}" max="${q}" step="1" title="${t("Custom value (from −{q} to +{q})", { q })}">
+      <button type="button" data-init="own"><i class="fa-solid fa-pen"></i> ${t("Custom")}</button></span>
+    </div>
+    <div class="fc-meta">${t("Choose before announcing: subtract up to AGI ¼ ({q}) to act sooner, add to wait (p. 436). Until then the tracker shows the fastest option.", { q })}</div>`;
+  return `
+    <div class="foe-card test">
+      <div class="fc-tag"><span>${t("PIPBUCK // INITIATIVE")}</span><span>d100</span></div>
+      <h3>${esc(name)}</h3>
+      <div class="fc-main">
+        <div class="fc-roll">${total}<small>${t("INIT.")}</small></div>
+        <div class="fc-outcome">${!chosen && q ? t("Choose ± AGI") : mod < 0 ? t("Faster") : mod > 0 ? t("Waits") : t("Initiative")}</div>
+        <div class="fc-sum">${sum}</div>
+      </div>
+      ${buttons}
+      <div class="fc-meta">${t("Lower initiative acts earlier.")} ${t("Formula (p. 436): 1d100 ± AGI ¼, then trait and perk modifiers (Quick Witted…); each point of a temporary AGI penalty lowers the ¼ value by 5.")}</div>
     </div>`;
-  const clamp = v => Math.max(-q, Math.min(q, Math.round(Number(v) || 0)));
-  const r = await DialogV2.wait({
-    window: { title: t("Initiative: {name}", { name }) },
-    classes: ["foe-rpg", "foe-roll-dialog"],
-    position: { width: 400 },
-    content,
-    rejectClose: false,
-    buttons: [
-      { action: "sub", label: t("Subtract → {n}", { n: total(-q) }), icon: "fa-solid fa-forward", default: true, callback: () => -q },
-      { action: "add", label: t("Add → {n}", { n: total(q) }), icon: "fa-solid fa-backward", callback: () => q },
-      { action: "own", label: t("Custom"), icon: "fa-solid fa-pen", callback: (ev, btn) => clamp(btn.form.elements.v.value) }
-    ]
+}
+
+/** Zapis wyboru: inicjatywa walczącego i karta (gdy nie wolno edytować cudzej wiadomości — przez MG). */
+async function applyInitChoice(message, mod) {
+  const data = message.flags?.[F]?.init;
+  if (!data) return;
+  const q = Number(data.q) || 0;
+  mod = Math.max(-q, Math.min(q, Math.round(Number(mod) || 0)));
+  const combat = game.combats?.get(data.combat);
+  const c = combat?.combatants.get(data.combatant);
+  if (c) await c.update({ initiative: data.d100 + mod - (Number(data.fx) || 0) });
+  const next = { ...data, mod };
+  await message.update({ content: initCardHtml(next), [`flags.${F}.init`]: next });
+}
+
+function decorateInit(message, html) {
+  const data = message.flags?.[F]?.init;
+  const root = html instanceof HTMLElement ? html : html?.[0];
+  if (!data || !root) return;
+  const box = root.querySelector(".fc-init-pick");
+  if (!box) return;
+  const c = game.combats?.get(data.combat)?.combatants.get(data.combatant);
+  const may = game.user.isGM || !!c?.isOwner;
+  if (!may || data.mod !== null && data.mod !== undefined) { box.remove(); return; }
+  box.addEventListener("click", async ev => {
+    const b = ev.target.closest("button[data-init]");
+    if (!b) return;
+    ev.preventDefault();
+    const q = Number(data.q) || 0;
+    const mod = b.dataset.init === "sub" ? -q : b.dataset.init === "add" ? q : Number(box.querySelector("input[name=init-own]")?.value);
+    box.querySelectorAll("button").forEach(x => { x.disabled = true; });
+    if (message.isOwner) await applyInitChoice(message, mod);
+    else if (game.users.activeGM) game.socket.emit(SOCKET, { kind: "init-pick", msg: message.id, mod, user: game.user.id });
+    else ui.notifications.warn(t("The GM must be online to save this choice."));
   });
-  return r ?? -q;
 }
 
 /** W FoE RPG niższa inicjatywa działa pierwsza. */
@@ -90,25 +134,17 @@ export class FoeCombat extends Combat {
       const fx = sys?.initFx ?? 0;
       const roll = await new Roll("1d100").evaluate();
       const player = c.actor?.hasPlayerOwner;
-      const agiMod = ask && (player || !game.user.isGM) ? await chooseAgiMod(c.name, roll.total, q, fx) : -q;
-      const total = roll.total + agiMod - fx;
-      updates.push({ _id: id, initiative: total });
+      // wybór na karcie czatu: gracz zawsze; MG — przy rzucie jednej postaci. „Rzuć wszystkim” u MG — od razu −¼.
+      const pick = !!q && ask && (player || !game.user.isGM);
+      const data = { combat: this.id, combatant: id, name: c.name, d100: roll.total, q, fx, mod: pick ? null : -q };
+      updates.push({ _id: id, initiative: roll.total - q - fx });
       await ChatMessage.create({
         speaker: ChatMessage.getSpeaker({ actor: c.actor, token: c.token, alias: c.name }),
         rolls: [roll],
         sound: CONFIG.sounds.dice,
         flavor: "",
-        content: `
-        <div class="foe-card test">
-          <div class="fc-tag"><span>${t("PIPBUCK // INITIATIVE")}</span><span>d100</span></div>
-          <h3>${esc(c.name)}</h3>
-          <div class="fc-main">
-            <div class="fc-roll">${total}<small>${t("INIT.")}</small></div>
-            <div class="fc-outcome">${agiMod < 0 ? t("Faster") : agiMod > 0 ? t("Waits") : t("Initiative")}</div>
-            <div class="fc-sum">d100 ${roll.total} ${agiMod < 0 ? "−" : "+"} ${Math.abs(agiMod)} (AGI)${fx ? ` ${signed(-fx)} (${t("traits")})` : ""}</div>
-          </div>
-          <div class="fc-meta">${t("Lower initiative acts earlier.")}</div>
-        </div>`,
+        content: initCardHtml(data),
+        flags: { [F]: { init: data } },
         ...messageOptions
       });
     }
@@ -157,6 +193,20 @@ async function startSurprise(combat) {
 }
 
 export function registerTrackerHooks() {
+  Hooks.on("renderChatMessageHTML", (message, html) => {
+    try { decorateInit(message, html); } catch (err) { console.warn(`${F} | initiative card`, err); }
+  });
+  Hooks.once("ready", () => {
+    game.socket.on(SOCKET, async p => {
+      if (p?.kind !== "init-pick" || !game.users.activeGM?.isSelf) return;
+      const msg = game.messages.get(p.msg);
+      const data = msg?.flags?.[F]?.init;
+      const c = data && game.combats?.get(data.combat)?.combatants.get(data.combatant);
+      const user = game.users.get(p.user);
+      if (!msg || !c || !user || !c.testUserPermission(user, "OWNER") || (data.mod !== null && data.mod !== undefined)) return;
+      await applyInitChoice(msg, p.mod);
+    });
+  });
   // Nowa runda: odnowione akcje; koniec rundy zaskoczenia → wszyscy rzucają inicjatywę od nowa
   Hooks.on("updateCombat", async (combat, changed, options) => {
     if (!("round" in changed) || !game.users.activeGM?.isSelf) return;
