@@ -341,7 +341,7 @@ const lowClass = c => (c == null ? "" : c < 25 ? "low" : c < 50 ? "mid" : "");
 function svgOf(map, rows) {
   const byPart = Object.fromEntries(rows.filter(r => !r.sub && r.part).map(r => [r.part, r]));
   const parts = map.parts.map(p => `
-    <g class="part ${p.cls}" data-opt="${p.key}">${p.ds.map(d => `<path d="${d}"/>`).join("")}</g>`).join("");
+    <g class="part ${p.cls}" data-opt="${p.key}">${p.ds.map(d => `<path d="${d.d}"${d.c ? ` class="${d.c}"` : ""}/>`).join("")}</g>`).join("");
   const callouts = map.callouts.map(c => {
     const r = byPart[c.key];
     const pct = r?.chance == null ? "—" : `${r.chance}%`;
@@ -353,12 +353,12 @@ function svgOf(map, rows) {
     </g>`;
   }).join("");
   return `
-    <svg class="pip-body" viewBox="${map.viewBox}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${t("Body parts of the target")}">
+    <svg class="pip-body${map.side ? " side" : ""}" viewBox="${map.viewBox}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${t("Body parts of the target")}">
       <g class="vats" transform="translate(0,${map.dy})">
         <circle cx="${map.cx}" cy="${map.cy}" r="150"/><circle cx="${map.cx}" cy="${map.cy}" r="104"/>
       </g>
       ${map.callouts.map(c => `<line class="lead ${c.cls}" x1="${c.lx1}" y1="${c.ly1}" x2="${c.lx2}" y2="${c.ly2}"/>`).join("")}
-      <g transform="translate(0,${map.dy})">
+      <g transform="translate(0,${map.dy}) ${map.xf ?? ""}">
         ${parts}
         ${map.decor.map(d => `<path class="decor" d="${d}"/>`).join("")}
         ${map.eyes.map(e => `<circle class="decor eye" cx="${e.cx}" cy="${e.cy}" r="5"/>`).join("")}

@@ -47,6 +47,8 @@ import { magicHex, customMagic } from "./fx-data.mjs";
 import { rollLockpick } from "./doors.mjs";
 import { spendLuckDialog } from "./luck.mjs";
 import { eatItem, eatLabel, survivalNote, survivalRows } from "./survival.mjs";
+import { openWaterDialog, waterLabel } from "./water.mjs";
+import { waterCapacity, waterWeight } from "./water-data.mjs";
 import { taintView, doseDialog, cleanseTaint, setTaintDialog } from "./taint.mjs";
 import { TAINT_FOOD, itemTaint } from "./taint-data.mjs";
 import { mindView, losePurpose, supportGone, regainPurpose } from "./mind.mjs";
@@ -496,7 +498,8 @@ export class FoeActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
       const w = Number(i.system.weight) || 0;
       groups.get(cat).push({
         id: i.id, name: i.name, img: i.img, qty: i.system.qty, ammoType: i.system.ammoType,
-        usable: ["potion", "talisman", "drug", "medical", "food"].includes(cat),
+        usable: ["potion", "talisman", "drug", "medical", "food"].includes(cat) || !!waterCapacity(i),
+        water: !!waterCapacity(i),
         equippable: cat === "saddle" || cat === "pipbuck" || /\bPRA\b|personal research assistant|equemapper|terminal,?\s*portable/i.test(i.name), equipped: !!i.system.equipped,
         readable: cat === "book", bookStatus: cat === "book" ? bookStatus(this.document, i) : "",
         readTip: cat === "book" ? (() => {
@@ -505,12 +508,12 @@ export class FoeActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
           return t("Read — skill points ({skills})", { skills }) + (b.note ? `; ${b.note}` : "");
         })() : "",
         reserve: cat === "saddle" && reserveCapacity(i.name) ? `${i.system.charges}/${reserveCapacity(i.name)}` : "",
-        useLabel: cat === "medical" ? t("{kind} — on yourself or the targeted token", { kind: HEAL_KINDS[i.system.heal]?.label ?? t("Healing") })
+        useLabel: waterCapacity(i) ? t("Canteen: drink, fill up or empty") : cat === "medical" ? t("{kind} — on yourself or the targeted token", { kind: HEAL_KINDS[i.system.heal]?.label ?? t("Healing") })
           : cat === "drug" ? t("Take (effect, duration, addiction roll)")
             : cat === "food" ? t("{what}: meals, hydration, rads and healing from the description", { what: eatLabel(i) }) : MODES[i.system.usage]?.label ?? t("Use"),
-        useText: cat === "food" ? eatLabel(i) : t("Use"),
+        useText: waterCapacity(i) ? waterLabel(i) : cat === "food" ? eatLabel(i) : t("Use"),
         charges: /talisman/i.test(i.system.heal ?? "") ? i.system.charges : null,
-        weightLabel: cat === "ammo" ? "—" : w ? `${Math.round(w * (i.system.qty || 0) * 10) / 10} lb` : "",
+        weightLabel: cat === "ammo" ? "—" : w || waterWeight(i) ? `${Math.round((w * (i.system.qty || 0) + waterWeight(i)) * 10) / 10} lb` : "",
         notes: String(i.system.description ?? "").replace(/<[^>]+>/g, "").slice(0, 300)
       });
     }
@@ -676,6 +679,7 @@ export class FoeActorSheet extends HandlebarsApplicationMixin(ActorSheetV2) {
   static async #onUseProduct(event, target) {
     const item = this.#item(target);
     if (!item) return;
+    if (waterCapacity(item)) return openWaterDialog(this.document, item);
     if (item.system.category === "drug") return useChem(this.document, item);
     if (item.system.category === "medical") return useHealItem(this.document, item);
     if (item.system.category === "food") return eatItem(this.document, item);
