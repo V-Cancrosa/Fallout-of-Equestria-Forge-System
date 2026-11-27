@@ -38,6 +38,76 @@ body[data-foe-pip="white"] :is(.foe-rpg, .foe-card, .foe-msg) { --pip: #e4f2e8; 
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
+/* 1. Usunięcie domyślnego okna Foundry */
+.pipbuck-sheet.window-app {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Ukrycie standardowego nagłówka (zostawiamy tylko możliwość przeciągania) */
+.pipbuck-sheet .window-header {
+  background: #2b2e2c;
+  border-radius: 25px 25px 0 0;
+  border-bottom: 3px solid #181a19;
+  color: #a0a8a2;
+  padding: 5px 15px;
+}
+
+/* 2. Obudowa PipBucka */
+.pipbuck-sheet .window-content {
+  background: linear-gradient(145deg, #434945, #2b2f2c) !important;
+  border: 6px solid #1e211f;
+  border-radius: 0 0 35px 35px;
+  padding: 20px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.85), inset 0 2px 5px rgba(255, 255, 255, 0.15);
+}
+
+/* 3. Ekran CRT wewnątrz obudowy */
+.pipbuck-sheet form {
+  background-color: #071909;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.25),
+    rgba(0, 0, 0, 0.25) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  color: #2eff5e;
+  font-family: "Courier New", Courier, monospace;
+  border: 4px solid #121413;
+  border-radius: 18px;
+  padding: 15px;
+  box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.95);
+  text-shadow: 0 0 4px rgba(46, 255, 94, 0.5);
+}
+
+/* 4. Pola tekstowe i przyciski w stylu terminala */
+.pipbuck-sheet input,
+.pipbuck-sheet select {
+  background: rgba(46, 255, 94, 0.1) !important;
+  border: 1px solid #2eff5e !important;
+  color: #2eff5e !important;
+  font-family: "Courier New", Courier, monospace;
+}
+
+/* 5. Zakładki jako fizyczne przyciski na ramce */
+.pipbuck-sheet .tabs .item {
+  background: #333835;
+  border: 2px solid #181a19;
+  border-radius: 6px;
+  color: #c5ccc7;
+  padding: 4px 10px;
+  margin: 0 4px;
+  box-shadow: 0 3px 0 #111312;
+}
+
+.pipbuck-sheet .tabs .item.active {
+  background: #1a3b20;
+  color: #2eff5e;
+  border-color: #2eff5e;
+  box-shadow: 0 0 8px rgba(46, 255, 94, 0.6);
+}
 .foe-rpg.application .window-header {
   background: var(--pip-bg);
   color: var(--pip);
