@@ -3,7 +3,7 @@
  * bestiariusz, cybernetyka, pojazdy — reguły w tools/icon-rules-lists.mjs) z zestawu game-icons.net (CC BY 3.0).
  * Użycie: node tools/build-item-icons.mjs <katalog repozytorium game-icons/icons> [--check]
  *   - dopasowanie rysunku do nazwy: reguły (pierwsza pasująca), potem domyślne dla kategorii,
- *   - powtórzony rysunek dostaje inne tło i znacznik (kaliber, model, inicjały) — każdy plik jest inny,
+ *   - powtórzony rysunek dostaje znacznik (kaliber, model, inicjały) lub numer — każdy plik jest inny,
  *   - zapis: icons/items/<slug>.svg (zielony rysunek na ciemnym tle), pole "icon" w data/catalog.json,
  *     icons/items/CREDITS.md (autorzy użytych rysunków; licencja CC BY 3.0).
  * --check: tylko raport (brakujące nazwy rysunków, liczby), bez zapisu.
@@ -176,7 +176,6 @@ const FALLBACK = {
   pipbuck: ["smartphone"], saddle: ["gears"], misc: ["swap-bag", "cardboard-box", "toolbox", "gears", "light-bulb", "cog", "puzzle", "spanner", "hammer-nails", "magnifying-glass", "compass", "hourglass", "bell", "whistle", "padlock", "sewing-needle", "scissors", "duct-tape", "spray", "funnel", "bucket", "broom", "sponge", "soap", "candle-light", "matches", "lighter", "binoculars", "telescope", "dice-six-faces-six", "trophy", "medal", "crown", "vase", "globe", "umbrella", "fishing-pole", "hook", "anchor", "abacus", "microscope", "test-tubes", "circuitry", "processor", "electrical-socket", "wire-coil", "spring", "nuts-and-bolts", "screw", "film-strip", "vinyl-record", "guitar", "violin", "trumpet", "drum", "paint-brush", "palette", "pencil", "ink-swirl", "envelope", "stamper", "ticket", "money-stack", "bank", "shield", "scarf", "urn", "orb-wand", "crystal-ball", "ashtray"]
 };
 
-const PALETTE = ["#06180b", "#0b1a20", "#1a1606", "#180b14", "#0c0c1e", "#1c0d08", "#0d1a14", "#16120c", "#101010", "#08141a"];
 const slug = s => s.toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g, "").replace(/[\s_]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "").slice(0, 60) || "item";
 const has = n => INDEX.has(n);
 
@@ -306,8 +305,8 @@ const credits = [...used.entries()].sort((a, b) => a[0].localeCompare(b[0]))
 writeFileSync(join(OUT, "CREDITS.md"), `# Ikony / Icons
 
 Rysunki z [game-icons.net](https://game-icons.net) na licencji [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)
-(część autorów — CC0). Zmiany: kolor PipBucka, ciemne tło, ramka, znaczniki (kaliber, model, inicjały).
-Drawings from game-icons.net under CC BY 3.0 (some CC0). Changes: PipBuck colour, dark background, frame, badges.
+(część autorów — CC0). Zmiany: kolor PipBucka i znaczniki (kaliber, model, inicjały).
+Drawings from game-icons.net under CC BY 3.0 (some CC0). Changes: PipBuck colour and badges.
 
 Autorzy użytych rysunków (katalog autora w repozytorium game-icons/icons):
 

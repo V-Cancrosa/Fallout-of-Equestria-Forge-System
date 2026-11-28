@@ -1,8 +1,8 @@
 # Ikony / Icons
 
 Rysunki z [game-icons.net](https://game-icons.net) na licencji [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/)
-(część autorów — CC0). Zmiany: kolor PipBucka, ciemne tło, ramka, znaczniki (kaliber, model, inicjały).
-Drawings from game-icons.net under CC BY 3.0 (some CC0). Changes: PipBuck colour, dark background, frame, badges.
+(część autorów — CC0). Zmiany: kolor PipBucka i znaczniki (kaliber, model, inicjały).
+Drawings from game-icons.net under CC BY 3.0 (some CC0). Changes: PipBuck colour and badges.
 
 Autorzy użytych rysunków (katalog autora w repozytorium game-icons/icons):
 
