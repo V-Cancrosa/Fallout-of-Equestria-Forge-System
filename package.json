@@ -3,7 +3,8 @@
   "private": true,
   "description": "Narzędzia do budowania systemu (kompendium zasad). Do grania nie są potrzebne.",
   "scripts": {
-    "build:packs": "node tools/build-packs.mjs"
+    "build:packs": "node tools/build-packs.mjs",
+    "check:icons": "node tools/check-item-icons.mjs"
   },
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "3.0.5",
